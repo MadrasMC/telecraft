@@ -1,7 +1,7 @@
 {
-	"name": "telecraft",
+	"name": "@telecraft/core",
 	"version": "0.0.1",
-	"description": "Pluggable Minecraft server to Telegram bridge",
+	"description": "Core of the Telecraft project. Pluggable Minecraft server bridge and administration tools.",
 	"main": "dist",
 	"scripts": {
 		"start": "node dist",
