@@ -15,9 +15,11 @@
 	"author": "Feathers Studio <@feathersstudio> (https://thefeathers.in)",
 	"license": "MIT",
 	"devDependencies": {
+		"tslib": "^2.0.0",
 		"typescript": "^3.9.5"
 	},
 	"dependencies": {
+		"@types/node": "^14.0.14",
 		"telegraf": "^3.38.0"
 	}
 }

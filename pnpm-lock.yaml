@@ -1,9 +1,15 @@
 dependencies:
+  '@types/node': 14.0.14
   telegraf: 3.38.0
 devDependencies:
+  tslib: 2.0.0
   typescript: 3.9.5
 lockfileVersion: 5.1
 packages:
+  /@types/node/14.0.14:
+    dev: false
+    resolution:
+      integrity: sha512-syUgf67ZQpaJj01/tRTknkMNoBBLWJOBODF0Zm4NrXmiSuxjymFrxnTu1QVYRubhVkRcZLYZG8STTwJRdVm/WQ==
   /debug/4.1.1:
     dependencies:
       ms: 2.1.2
@@ -52,6 +58,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-njVv1EAhIZnmQVLocZEADYUyqA1WIXuVcDYlsp+mXua/XB0pxx+PKtMSPeZ/EE4wPWTw9h/hA9ASTT6yQelkiw==
+  /tslib/2.0.0:
+    dev: true
+    resolution:
+      integrity: sha512-lTqkx847PI7xEDYJntxZH89L2/aXInsyF2luSafe/+0fHOMjlBNXdH6th7f70qxLDhul7KZK0zC8V5ZIyHl0/g==
   /typescript/3.9.5:
     dev: true
     engines:
@@ -60,5 +70,7 @@ packages:
     resolution:
       integrity: sha512-hSAifV3k+i6lEoCJ2k6R2Z/rp/H3+8sdmcn5NrS3/3kE7+RyZXm9aqvxWqjEXHAd8b0pShatpcdMTvEdvAJltQ==
 specifiers:
+  '@types/node': ^14.0.14
   telegraf: ^3.38.0
+  tslib: ^2.0.0
   typescript: ^3.9.5
