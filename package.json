@@ -1,0 +1,23 @@
+{
+	"name": "telecraft",
+	"version": "0.0.1",
+	"description": "Pluggable Minecraft server to Telegram bridge",
+	"main": "dist",
+	"scripts": {
+		"start": "node dist",
+		"build": "tsc --importHelpers",
+		"build:w": "tsc --importHelpers -w"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:codefeathers/telecraft"
+	},
+	"author": "Feathers Studio <@feathersstudio> (https://thefeathers.in)",
+	"license": "MIT",
+	"devDependencies": {
+		"typescript": "^3.9.5"
+	},
+	"dependencies": {
+		"telegraf": "^3.38.0"
+	}
+}
