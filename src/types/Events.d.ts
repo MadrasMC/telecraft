@@ -1,4 +1,4 @@
-type Event = string | string[];
+type Event = [string, string];
 type Listener = (ctx: any) => void;
 
 export type Events = {
