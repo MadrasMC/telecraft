@@ -1,4 +1,4 @@
-export type Parser = (
-	stdout: NodeJS.WritableStream,
-	emit: (name: string, ctx: any) => void,
-) => void;
+import { Server } from "./Server";
+import { Events } from "./Events";
+
+export type Parser = (server: Server, emit: Events["emit"]) => (line: string) => void;
