@@ -1,0 +1,22 @@
+{
+	"name": "@telecraft/types",
+	"version": "0.0.1",
+	"description": "Types for Telecraft plugins",
+	"main": "src",
+	"scripts": {
+		"build": "tsc --importHelpers",
+		"build:w": "tsc --importHelpers -w"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:telecraft/types"
+	},
+	"author": "Feathers Studio <@feathersstudio> (https://feathersstudio.com)",
+	"contributors": [
+		"Muthu Kumar <@MKRhere> (https://mkr.pw)"
+	],
+	"license": "MIT",
+	"devDependencies": {
+		"typescript": "^3.9.5"
+	}
+}
