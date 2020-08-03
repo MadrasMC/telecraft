@@ -1,0 +1,27 @@
+{
+	"name": "@telecraft/plugin",
+	"version": "0.0.1",
+	"description": "Boilerplate for Telecraft plugins",
+	"main": "dist",
+	"scripts": {
+		"build": "tsc --importHelpers",
+		"build:w": "tsc --importHelpers -w"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:telecraft/plugin"
+	},
+	"author": "Feathers Studio <@feathersstudio> (https://feathersstudio.com)",
+	"contributors": [
+		"Muthu Kumar <@MKRhere> (https://mkr.pw)"
+	],
+	"license": "MIT",
+	"devDependencies": {
+		"tslib": "^2.0.0",
+		"typescript": "^3.9.5",
+		"@types/node": "^14.0.14"
+	},
+	"dependencies": {
+		"telegraf": "^3.38.0"
+	}
+}
