@@ -1,7 +1,7 @@
 {
-	"name": "@telecraft/plugin",
+	"name": "@telecraft/telegram-auth",
 	"version": "0.0.1",
-	"description": "Boilerplate for Telecraft plugins",
+	"description": " Telegram auth for Minecraft servers, powered by Telecraft",
 	"main": "dist",
 	"scripts": {
 		"build": "tsc --importHelpers",
