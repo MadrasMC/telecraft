@@ -2,7 +2,7 @@ import { Events } from "./Events";
 import { Store } from "./Store";
 import { Server } from "./Server";
 
-export type Plugin = {
+export type Plugin<Dep = never> = {
 	name: string;
-	plugin: (config: any, events: Events, store: Store, server: Server) => void;
+	plugin: (dep: Dep) => (config: any, events: Events, store: Store, server: Server) => void;
 };
