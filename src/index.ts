@@ -1,24 +1,25 @@
-import { Parser } from "./types/Parser";
-import { Store } from "./types/Store";
-import { TelecraftPlugin } from "./types/Plugin";
-import { Server } from "./types/Server";
+import { Parser, Store, Plugin, Server } from "@telecraft/types";
 
 import { spawn } from "child_process";
 import { createInterface } from "readline";
 
 import Event from "./util/Event";
 
+type Config = {
+	launch: string;
+};
+
 type Ctx = {
-	config: any;
+	config: Config;
 	parser: Parser;
 	store: Store;
-	plugins: TelecraftPlugin[];
+	plugins: { name: string; plugin: ReturnType<Plugin["plugin"]> }[];
 };
 
 type Reader = Parameters<Server["read"]>[0];
 
 export default ({ config, parser, store, plugins }: Ctx) => {
-	const launch = config.server.launch;
+	const launch = config.launch;
 
 	const serverProcess = spawn(launch);
 
@@ -52,10 +53,10 @@ export default ({ config, parser, store, plugins }: Ctx) => {
 	// register plugins
 
 	plugins.forEach(plugin => {
-		plugin.plugin(config, events, store, server);
+		plugin.plugin(events, store, server);
 	});
 
 	plugins.forEach(plugin => {
-		events.emit(["@telecraft/core", "plugin-loaded"], { name: plugin.name });
+		events.emit("@telecraft/core:pluginloaded", { name: plugin.name });
 	});
 };
