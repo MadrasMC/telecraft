@@ -11,5 +11,8 @@
 	"contributors": [
 		"Muthu Kumar <@MKRhere> (https://mkr.pw)"
 	],
+	"files": [
+		"src"
+	],
 	"license": "MIT"
 }
