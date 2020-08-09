@@ -16,6 +16,9 @@
 		"Muthu Kumar <@MKRhere> (https://mkr.pw)"
 	],
 	"license": "MIT",
+	"files": [
+		"dist"
+	],
 	"devDependencies": {
 		"tslib": "^2.0.0",
 		"typescript": "^3.9.5"
