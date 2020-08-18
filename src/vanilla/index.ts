@@ -27,16 +27,30 @@ const V1162 = {
 		return `(?<user>${this.username()})` + `(?<text>${this.deathCauses()})$`;
 	},
 	advancement: function () {
-		return "(?<user>" + this.username() + ") has made the advancement \\[(?<advancement>.+)\\]$";
+		return (
+			"(?<user>" +
+			this.username() +
+			") has made the advancement \\[(?<advancement>.+)\\]$"
+		);
 	},
 	challenge: function () {
-		return "(?<user>" + this.username() + ") has completed the challenge \\[(?<challenge>.+)\\]$";
+		return (
+			"(?<user>" +
+			this.username() +
+			") has completed the challenge \\[(?<challenge>.+)\\]$"
+		);
 	},
 	goal: function () {
-		return "(?<user>" + this.username() + ") has reached the goal \\[(?<goal>.+)\\]$";
+		return (
+			"(?<user>" + this.username() + ") has reached the goal \\[(?<goal>.+)\\]$"
+		);
 	},
 	data: function () {
-		return "(?<user>" + this.username() + "|.+?) has the following entity data: (?<data>.+)$";
+		return (
+			"(?<user>" +
+			this.username() +
+			"|.+?) has the following entity data: (?<data>.+)$"
+		);
 	},
 	entity: function () {
 		return "Keeping entity (?<game>\\w+):(?<mob>\\w+) that already exists with UUID (?<uuid>.+)$";
@@ -46,16 +60,31 @@ const V1162 = {
 	},
 	vjoin: function () {
 		// Vanilla only
-		return "(?<user>" + this.username() + ") (\\(formerly known as " + this.username() + "\\) )?joined the game$";
+		return (
+			"(?<user>" +
+			this.username() +
+			") (\\(formerly known as " +
+			this.username() +
+			"\\) )?joined the game$"
+		);
 	},
 	leave: function () {
 		return "(?<user>" + this.username() + ") left the game$";
 	},
 	playersOnline: function () {
-		return "(?<players>(" + this.username() + ")?(\\s*,\\s*(" + this.username() + "))*)$";
+		return (
+			"(?<players>(" +
+			this.username() +
+			")?(\\s*,\\s*(" +
+			this.username() +
+			"))*)$"
+		);
 	},
 	playerCount: function () {
-		return "There are (?<current>\\d+) of a max (of )?(?<max>\\d+) players online: " + this.playersOnline();
+		return (
+			"There are (?<current>\\d+) of a max (of )?(?<max>\\d+) players online: " +
+			this.playersOnline()
+		);
 	},
 	say: function () {
 		return "\\[(?<user>" + this.username() + ")\\] " + this.text();
