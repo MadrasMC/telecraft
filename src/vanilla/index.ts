@@ -1,4 +1,5 @@
 import { wasCause, fallCause, otherCause } from "./death";
+import { ParserFactory } from "../util";
 
 const V1162 = {
 	/* base */
@@ -20,10 +21,10 @@ const V1162 = {
 
 	/* messages */
 	deathCauses: function () {
-		return [wasCause, fallCause, otherCause];
+		return [wasCause, fallCause, otherCause].join("|");
 	},
 	death: function () {
-		return `(?<user>${this.username()})` + `(?<text>${this.deathCauses().join("|")})$`;
+		return `(?<user>${this.username()})` + `(?<text>${this.deathCauses()})$`;
 	},
 	advancement: function () {
 		return "(?<user>" + this.username() + ") has made the advancement \\[(?<advancement>.+)\\]$";
@@ -71,7 +72,7 @@ const V1162 = {
 };
 
 const Vanilla = {
-	"1.16.2": V1162,
+	"1.16.2": ParserFactory(V1162),
 };
 
 export default Vanilla;

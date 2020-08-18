@@ -1,9 +1,11 @@
 import { Parser } from "@telecraft/types";
 
 export type ParseGroup = { [k: string]: () => string };
+
 export type ExtendParser<P extends ParseGroup> = <NP extends ParseGroup>(
 	newParseGroup: NP,
-) => MappedId<P & NP>;
+) => ExtendableParser<MappedId<P & NP>>;
+
 export type ExtendableParser<BaseParser extends ParseGroup> = Parser & {
 	extend: ExtendParser<BaseParser>;
 };
@@ -30,10 +32,11 @@ export const ParserFactory = <P extends ParseGroup>(
 		}
 	};
 
-	const extend: ExtendParser<P> = newParseGroup => ({
-		...parseGroup,
-		...newParseGroup,
-	});
+	const extend: ExtendParser<P> = newParseGroup =>
+		ParserFactory({
+			...parseGroup,
+			...newParseGroup,
+		});
 
 	return Object.assign(Parser, { extend });
 };
