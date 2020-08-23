@@ -52,7 +52,7 @@ const TelegramBridge = (token: string) => {
 						300000,
 					);
 
-					return events.once("playercount", count => {
+					return events.once("minecraft:playercount", count => {
 						clearTimeout(rejection);
 						resolve([
 							count.current,
@@ -86,23 +86,29 @@ const TelegramBridge = (token: string) => {
 				);
 			}
 
-			events.on("user", ctx => send(code(ctx.user) + " " + escape(ctx.text)));
+			events.on("minecraft:user", ctx =>
+				send(code(ctx.user) + " " + escape(ctx.text)),
+			);
 
-			events.on("self", ctx => send(code("* " + ctx.user + " " + ctx.text)));
+			events.on("minecraft:self", ctx =>
+				send(code("* " + ctx.user + " " + ctx.text)),
+			);
 
-			events.on("say", ctx => send(code(ctx.user + ": " + ctx.text)));
+			events.on("minecraft:say", ctx => send(code(ctx.user + ": " + ctx.text)));
 
-			events.on("join", ctx =>
+			events.on("minecraft:join", ctx =>
 				send(code(players.add(ctx.user) + " joined the server")),
 			);
 
-			events.on("leave", ctx =>
+			events.on("minecraft:leave", ctx =>
 				send(code(players.remove(ctx.user) + " left the server")),
 			);
 
-			events.on("death", ctx => send(code(ctx.user + " " + ctx.text)));
+			events.on("minecraft:death", ctx =>
+				send(code(ctx.user + " " + ctx.text)),
+			);
 
-			events.on("advancement", ctx =>
+			events.on("minecraft:advancement", ctx =>
 				send(
 					code(ctx.user) +
 						" has made the advancement " +
@@ -110,7 +116,7 @@ const TelegramBridge = (token: string) => {
 				),
 			);
 
-			events.on("goal", ctx =>
+			events.on("minecraft:goal", ctx =>
 				send(
 					code(ctx.user) +
 						" has reached the goal " +
@@ -118,7 +124,7 @@ const TelegramBridge = (token: string) => {
 				),
 			);
 
-			events.on("challenge", ctx =>
+			events.on("minecraft:challenge", ctx =>
 				send(
 					code(ctx.user) +
 						" has completed the challenge " +
