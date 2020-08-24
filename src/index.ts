@@ -88,6 +88,16 @@ const TelegramBridge = (token: string) => {
 						players.init = true;
 						players.max = parseInt(max);
 						players.list = ps;
+
+						// Poll for list every 5 seconds to tolerate unexpectedly missed login/logout
+						setInterval(() => server.send("list"), 5 * 60 * 1000);
+
+						events.on("minecraft:playercount", count => {
+							players.max = parseInt(count.max);
+							players.list = count.players
+								.split(/\s*,\s*/)
+								.filter((l: string) => l.length > 0);
+						});
 					})
 					.catch(e => {
 						throw new Error(e);
