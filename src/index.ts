@@ -1,16 +1,33 @@
 import { Plugin } from "@telecraft/types";
-import Telegraf from "telegraf";
-import { code } from "./utils";
+
+// Telegraf
+import Telegraf, { Middleware } from "telegraf";
+import { TelegrafContext } from "telegraf/typings/context";
+import { Message, MessageSubTypes } from "telegraf/typings/telegram-types";
+import {
+	LaunchPollingOptions,
+	LaunchWebhookOptions,
+} from "telegraf/typings/telegraf";
+// --
+
+import { code, MCChat, ChatComponent } from "./utils";
 
 const tgOpts = { parse_mode: "HTML" } as const;
 
-const CreateError = (...str: string[]) =>
+const logError = (error: Error) =>
+	console.error(
+		"[@telecraft/telegram-bridge] ",
+		[error.name, error.message].join(": "),
+	);
+
+const createError = (...str: string[]) =>
 	new Error("[@telecraft/telegram-bridge] " + str.join(" "));
 
 const TelegramBridge = (token: string) => {
-	if (!token) throw CreateError("'token' was not provided");
+	if (!token) throw createError("'token' was not provided");
 
 	const bot = new Telegraf(token);
+	const botID = token.split(":")[0];
 
 	const telegram = {
 		send: (user: string, msg: string) => bot.telegram.sendMessage(user, msg),
@@ -20,6 +37,10 @@ const TelegramBridge = (token: string) => {
 		enable: boolean;
 		chatId: string;
 		allowList: boolean;
+		telegraf?: {
+			polling?: LaunchPollingOptions;
+			webhook?: LaunchWebhookOptions;
+		};
 	}> = {
 		name: "telecraft-plugin",
 		plugin: ({ config } = {}) => (events, store, server) => {
@@ -133,6 +154,99 @@ const TelegramBridge = (token: string) => {
 			);
 
 			events.on("close", () => bot.stop());
+
+			const captionMedia = (
+				name: string,
+				msg: Message | undefined,
+			): ChatComponent[] => {
+				const coloured: ChatComponent[] = [
+					{ text: "[", color: "white" },
+					{ text: name, color: "gray" },
+					{ text: "]", color: "white" },
+				];
+
+				return msg?.caption
+					? coloured.concat(MCChat.text(msg?.caption))
+					: coloured;
+			};
+
+			const extractMinecraftUsername = (text: string = "") =>
+				text.split(" ").slice(0, 1).join(" ");
+
+			const removeMinecraftUsername = (text: string = "") =>
+				text.split(" ").slice(1).join(" ");
+
+			const getTelegramName = (msg?: Message) => {
+				const from = msg?.from;
+				return [from?.first_name, from?.last_name].filter(Boolean).join(" ");
+			};
+
+			const isFromTelegramUser = (ctx?: { from?: { id: number } }) =>
+				String(ctx?.from?.id) !== botID;
+
+			const getSender = (ctx: TelegrafContext) =>
+				isFromTelegramUser(ctx)
+					? getTelegramName(ctx.message)
+					: extractMinecraftUsername(ctx.message?.text || "");
+
+			const handledTypes: MessageSubTypes[] = [
+				"text",
+				"audio",
+				"document",
+				"photo",
+				"sticker",
+				"video",
+				"voice",
+				"contact",
+				"location",
+				"game",
+				"video_note",
+			];
+
+			const handler: Middleware<TelegrafContext> = (ctx, next) => {
+				const isLinkedGroup = String(ctx.message?.chat.id) === config.chatId;
+				const arePlayersOnline = players.list.length > 0;
+				if (isLinkedGroup || !arePlayersOnline) return next();
+
+				const reply = ctx.message?.reply_to_message;
+
+				const getCaptioned = (msg: Message | undefined) => {
+					const thisType = handledTypes.find(type => msg && type in msg);
+					if (thisType === "text") return msg?.text;
+					if (thisType)
+						return captionMedia(
+							thisType.split("_").join(" ").toUpperCase(),
+							msg,
+						);
+				};
+
+				const chatMessage = MCChat.message({
+					from: getSender(ctx),
+					text: getCaptioned(ctx.message) || "",
+					isTelegram: isFromTelegramUser(ctx),
+					...(reply && {
+						replyTo: {
+							from:
+								String(reply.from?.id) === botID
+									? extractMinecraftUsername(reply.text)
+									: getTelegramName(reply),
+							text:
+								(isFromTelegramUser(reply)
+									? getCaptioned(reply)
+									: removeMinecraftUsername(reply?.text)) || "",
+							isTelegram: isFromTelegramUser(reply),
+						},
+					}),
+				});
+
+				server.send("tellraw @a " + JSON.stringify(chatMessage));
+			};
+
+			bot.on(handledTypes, handler);
+
+			bot.catch(logError);
+
+			bot.launch(config.telegraf);
 		},
 	};
 
