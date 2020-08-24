@@ -216,7 +216,7 @@ const TelegramBridge = (token: string) => {
 			const handler: Middleware<TelegrafContext> = (ctx, next) => {
 				const isLinkedGroup = String(ctx.message?.chat.id) === config.chatId;
 				const arePlayersOnline = players.list.length > 0;
-				if (isLinkedGroup || !arePlayersOnline) return next();
+				if (!isLinkedGroup || !arePlayersOnline) return next();
 
 				const reply = ctx.message?.reply_to_message;
 
