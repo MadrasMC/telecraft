@@ -1,6 +1,7 @@
 dependencies:
   '@telecraft/types': 0.2.0
   '@types/node': 14.0.14
+  iconv-lite: 0.6.2
 devDependencies:
   tslib: 2.0.0
   typescript: 3.9.5
@@ -14,6 +15,18 @@ packages:
     dev: false
     resolution:
       integrity: sha512-syUgf67ZQpaJj01/tRTknkMNoBBLWJOBODF0Zm4NrXmiSuxjymFrxnTu1QVYRubhVkRcZLYZG8STTwJRdVm/WQ==
+  /iconv-lite/0.6.2:
+    dependencies:
+      safer-buffer: 2.1.2
+    dev: false
+    engines:
+      node: '>=0.10.0'
+    resolution:
+      integrity: sha512-2y91h5OpQlolefMPmUlivelittSWy0rP+oYVpn6A7GwVHNE8AWzoYOBNmlwks3LobaJxgHCYZAnyNo2GgpNRNQ==
+  /safer-buffer/2.1.2:
+    dev: false
+    resolution:
+      integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
   /tslib/2.0.0:
     dev: true
     resolution:
@@ -28,5 +41,6 @@ packages:
 specifiers:
   '@telecraft/types': ^0.2.0
   '@types/node': ^14.0.14
+  iconv-lite: ^0.6.2
   tslib: ^2.0.0
   typescript: ^3.9.5

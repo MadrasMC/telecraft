@@ -2,6 +2,8 @@ import { Parser, Store, Plugin, Server } from "@telecraft/types";
 
 import { spawn } from "child_process";
 import { createInterface } from "readline";
+import { platform, EOL } from "os";
+import { decodeStream } from "iconv-lite";
 
 import Event from "./util/Event";
 
@@ -16,16 +18,26 @@ type Ctx = {
 	plugins: { name: string; plugin: ReturnType<Plugin["plugin"]> }[];
 };
 
+const rl = (stream: NodeJS.ReadableStream) => createInterface({ input: stream });
+
+const decode = (x: NodeJS.ReadableStream) => (platform() === "win32" ? x.pipe(decodeStream("win1252")) : x);
+
 type Reader = Parameters<Server["read"]>[0];
 
 export default ({ config, parser, store, plugins }: Ctx) => {
-	const launch = config.launch;
+	const [launch, ...options] = config.launch.split(" ");
 
-	const serverProcess = spawn(launch);
+	// @ts-ignore
+	const serverProcess = spawn(launch, options, { cwd: config.cwd });
 
 	const readers: Reader[] = [];
 
-	const rl = createInterface({ input: serverProcess.stdout });
+	const { stdin } = serverProcess;
+	const stdout = decode(serverProcess.stdout);
+	const stderr = decode(serverProcess.stderr);
+
+	const minecraftOutput = rl(stdout);
+	const cliInput = rl(process.stdin);
 
 	// Create plugin dependencies
 
@@ -33,18 +45,20 @@ export default ({ config, parser, store, plugins }: Ctx) => {
 
 	const server: Server = {
 		send: (msg: string) => {
-			serverProcess.stdin.write(msg + "\n");
+			stdin.write(msg + EOL);
 		},
 		read: (reader: (line: string) => void) => {
 			readers.push(reader);
 		},
 	};
 
+	cliInput.on("line", server.send);
+
 	// setup events
 
 	const streamParser = parser(server, events.emit);
 
-	rl.on("line", line => {
+	minecraftOutput.on("line", line => {
 		streamParser(line);
 
 		readers.forEach(reader => reader(line));
@@ -57,6 +71,23 @@ export default ({ config, parser, store, plugins }: Ctx) => {
 	});
 
 	plugins.forEach(plugin => {
-		events.emit("@telecraft/core:pluginloaded", { name: plugin.name });
+		events.emit("core:pluginloaded", { name: plugin.name });
+	});
+
+	process.on("uncaughtException", error => {
+		console.error(error);
+		console.log("ERROR! Exiting...");
+		server.send("stop");
+		setTimeout(() => {
+			process.exit(1);
+		}, 5 * 1000);
+	});
+
+	process.on("exit", () => {
+		console.log("Exiting...");
+		server.send("stop");
+		setTimeout(() => {
+			process.exit(1);
+		}, 5 * 1000);
 	});
 };
