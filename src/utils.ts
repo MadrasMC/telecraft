@@ -1,11 +1,17 @@
-export const escape = (s: string) =>
-	s
-		// escape HTML entities
-		.replace(/>/g, "&gt;")
-		.replace(/</g, "&lt;")
-		.replace(/&/g, "&amp;");
+const escapables = {
+	"<": "&lt;",
+	">": "&gt;",
+	"&": "&amp;",
+	"'": "&#39;",
+	'"': "&quot;",
+};
 
-export const code = (s: string | number) => escape(`<code>${s}</code>`);
+export const escapeHTML = (s: string) =>
+	s.replace(/<|>|&|"|'/g, r => escapables[r as keyof typeof escapables] || r);
+
+export const code = (s: string | number) => {
+	return `<code>${escapeHTML(String(s))}</code>`;
+};
 
 export type ChatComponent =
 	| {
@@ -49,7 +55,7 @@ export const MCChat = {
 	text: (text: string | ChatComponent[]): ChatComponent[] =>
 		typeof text === "string"
 			? text
-					.replace(/\n/g, "\n ")
+					.replace(/\n/g, "\n\n ")
 					.split("\n")
 					.map(line => ({
 						text: line,

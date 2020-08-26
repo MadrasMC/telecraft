@@ -6,7 +6,7 @@
 		"lib": [
 			"es2018"
 		] /* Specify library files to be included in the compilation. */,
-		"sourceMap": true /* Generates corresponding '.map' file. */,
+		"declaration": true /* Generates corresponding '.map' file. */,
 		"strict": true /* Enable all strict type-checking options. */,
 		"noErrorTruncation": true,
 		"moduleResolution": "node",
