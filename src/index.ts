@@ -10,18 +10,21 @@ import {
 } from "telegraf/typings/telegraf";
 // --
 
-import { code, MCChat, ChatComponent } from "./utils";
+import { code, MCChat, ChatComponent, escapeHTML } from "./utils";
 
 const tgOpts = { parse_mode: "HTML" } as const;
 
-const logError = (error: Error) =>
+const log = (...messages: string[]) =>
+	console.log("[@telecraft/telegram] ", ...messages);
+
+const error = (error: Error) =>
 	console.error(
-		"[@telecraft/telegram-bridge] ",
+		"[@telecraft/telegram] ",
 		[error.name, error.message].join(": "),
 	);
 
 const createError = (...str: string[]) =>
-	new Error("[@telecraft/telegram-bridge] " + str.join(" "));
+	new Error("[@telecraft/telegram] " + str.join(" "));
 
 const TelegramBridge = (token: string) => {
 	if (!token) throw createError("'token' was not provided");
@@ -42,14 +45,13 @@ const TelegramBridge = (token: string) => {
 			webhook?: LaunchWebhookOptions;
 		};
 	}> = {
-		name: "telecraft-plugin",
+		name: "telegram",
 		plugin: ({ config } = {}) => (events, store, server) => {
 			if (!config?.enable) return;
 
 			const send = (msg: string) =>
 				bot.telegram.sendMessage(config.chatId, msg, tgOpts);
 
-			events.on("close", () => bot.stop());
 			bot.command("chatid", ctx => ctx.reply(ctx.chat?.id?.toString()!));
 
 			const players = {
@@ -70,15 +72,22 @@ const TelegramBridge = (token: string) => {
 				new Promise<[string, string, string[]]>((resolve, reject) => {
 					const rejection = setTimeout(
 						() => reject(new Error("/list took too long!")),
-						300000,
+						15 * 1000,
 					);
+
+					const cleanup = () => {
+						clearTimeout(rejection);
+					};
+
+					events.once("close", cleanup);
 
 					return events.once("minecraft:playercount", count => {
 						clearTimeout(rejection);
+						events.off("close", cleanup);
 						resolve([
 							count.current,
 							count.max,
-							count.players
+							(count.players || "")
 								.split(/\s*,\s*/)
 								.filter((l: string) => l.length > 0),
 						]);
@@ -90,16 +99,22 @@ const TelegramBridge = (token: string) => {
 						players.list = ps;
 
 						// Poll for list every 5 seconds to tolerate unexpectedly missed login/logout
-						setInterval(() => server.send("list"), 5 * 60 * 1000);
+						const interval = setInterval(
+							() => server.send("list"),
+							5 * 60 * 1000,
+						);
+
+						events.on("close", () => clearInterval(interval));
 
 						events.on("minecraft:playercount", count => {
 							players.max = parseInt(count.max);
-							players.list = count.players
+							players.list = (count.players || "")
 								.split(/\s*,\s*/)
 								.filter((l: string) => l.length > 0);
 						});
 					})
 					.catch(e => {
+						if (e === "CANCEL") return;
 						throw new Error(e);
 					});
 
@@ -108,28 +123,37 @@ const TelegramBridge = (token: string) => {
 				bot.command("list", ctx =>
 					players.init
 						? ctx.reply(
-								`Players online (` +
-									`${code(players.list.length)}/${code(players.max)}):\n` +
-									code(players.list.join("\n")),
+								[
+									`Players online (`,
+									`${code(players.list.length)}/${code(players.max)})`,
+									players.list.length
+										? `:\n${code(players.list.join("\n"))}`
+										: "",
+								].join(""),
 								tgOpts,
 						  )
 						: ctx.reply("Player list not initialised."),
 				);
 			}
 
-			events.on("minecraft:user", ctx =>
-				send(code(ctx.user) + " " + escape(ctx.text)),
-			);
+			events.on("minecraft:message", ctx => {
+				return send(code(ctx.user) + " " + escapeHTML(ctx.text));
+			});
 
 			events.on("minecraft:self", ctx =>
 				send(code("* " + ctx.user + " " + ctx.text)),
 			);
 
-			events.on("minecraft:say", ctx => send(code(ctx.user + ": " + ctx.text)));
-
-			events.on("minecraft:join", ctx =>
-				send(code(players.add(ctx.user) + " joined the server")),
+			events.on("minecraft:say", ctx =>
+				send(code(ctx.user + " says: " + ctx.text)),
 			);
+
+			//todo(mkr): Make configurable, use title queue
+			events.on("minecraft:join", ctx => {
+				send(code(players.add(ctx.user) + " joined the server"));
+				server.send(`/title ${ctx.user} subtitle "what will you do today?"`);
+				server.send(`/title ${ctx.user} title "welcome to mkr/craft beta!"`);
+			});
 
 			events.on("minecraft:leave", ctx =>
 				send(code(players.remove(ctx.user) + " left the server")),
@@ -162,8 +186,6 @@ const TelegramBridge = (token: string) => {
 						code("[" + ctx.challenge + "]"),
 				),
 			);
-
-			events.on("close", () => bot.stop());
 
 			const captionMedia = (
 				name: string,
@@ -254,7 +276,13 @@ const TelegramBridge = (token: string) => {
 
 			bot.on(handledTypes, handler);
 
-			bot.catch(logError);
+			events.once("close", () => {
+				log("Stopping bot...");
+				bot.stop();
+				log("Bot stopped.");
+			});
+
+			bot.catch(error);
 
 			bot.launch(config.telegraf);
 		},
