@@ -114,7 +114,7 @@ export default ({ config, parser, store, plugins = [], io = process }: Ctx) => {
 
 		plugin.start(
 			{
-				events: getEvents(events, prefix),
+				events: getEvents(events, plugin.name),
 				store,
 				server,
 				console: getConsole(io, line => [prefix, line].join(" ")),
