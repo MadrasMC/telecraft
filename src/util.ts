@@ -21,8 +21,10 @@ export const ParserFactory = <P extends ParseGroup>(
 	};
 
 	for (const bit in parseGroup) {
-		boundParseGroup[bit] = (line: string) =>
-			new RegExp(parseGroup[bit]()).exec(line);
+		//todo(mkr): find cleaner way to do this
+		if (["timestamp", "loglevel", "prefix"].includes(bit)) continue;
+		const regexp = new RegExp(parseGroup.prefix() + parseGroup[bit]());
+		boundParseGroup[bit] = (line: string) => regexp.exec(line);
 	}
 
 	const Parser: Parser = (server, emit) => line => {
