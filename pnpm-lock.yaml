@@ -1,5 +1,5 @@
 dependencies:
-  '@telecraft/types': 0.2.0
+  '@telecraft/types': 'link:../../../../../../mkr/.nvs/node/14.5.0/x64/pnpm-global/node_modules/@telecraft/types'
   telegraf: 3.38.0
   tslib: 2.0.1
 devDependencies:
@@ -7,10 +7,6 @@ devDependencies:
   typescript: 3.9.5
 lockfileVersion: 5.1
 packages:
-  /@telecraft/types/0.2.0:
-    dev: false
-    resolution:
-      integrity: sha512-PFmyF4bxn/Vaf8lji34iuqQwpMQLLqC9d6rWf36ifghpB5EhVhqF/ZAwJRbVBqnLsocRH4s4GKgjwBuSvlHbOQ==
   /@types/node/14.0.14:
     dev: true
     resolution:

@@ -1,6 +1,6 @@
 {
 	"name": "@telecraft/telegram",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "Telegram-Minecraft two-way chat bridge, powered by Telecraft",
 	"main": "dist",
 	"scripts": {

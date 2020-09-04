@@ -10,33 +10,20 @@ import {
 } from "telegraf/typings/telegraf";
 // --
 
+import pkg from "../package.json";
+
 import { code, MCChat, ChatComponent, escapeHTML } from "./utils";
 
 const tgOpts = { parse_mode: "HTML" } as const;
 
-const log = (...messages: string[]) =>
-	console.log("[@telecraft/telegram] ", ...messages);
-
-const error = (error: Error) =>
-	console.error(
-		"[@telecraft/telegram] ",
-		[error.name, error.message].join(": "),
-	);
-
 const createError = (...str: string[]) =>
-	new Error("[@telecraft/telegram] " + str.join(" "));
+	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
 
-const TelegramBridge = (token: string) => {
-	if (!token) throw createError("'token' was not provided");
+type exports = { send: (user: string, msg: string) => void };
 
-	const bot = new Telegraf(token);
-	const botID = token.split(":")[0];
-
-	const telegram = {
-		send: (user: string, msg: string) => bot.telegram.sendMessage(user, msg),
-	};
-
-	const plugin: Plugin<{
+const Telegram: Plugin<
+	{
+		token: string;
 		enable: boolean;
 		chatId: string;
 		allowList: boolean;
@@ -44,13 +31,30 @@ const TelegramBridge = (token: string) => {
 			polling?: LaunchPollingOptions;
 			webhook?: LaunchWebhookOptions;
 		};
-	}> = {
-		name: "telegram",
-		plugin: ({ config } = {}) => (events, store, server) => {
-			if (!config?.enable) return;
+	},
+	[],
+	exports
+> = opts => {
+	if (!opts.token) throw createError("'token' was not provided");
+
+	const bot = new Telegraf(opts.token);
+	const botID = opts.token.split(":")[0];
+
+	const telegram = {
+		send: (user: string, msg: string) => {
+			bot.telegram.sendMessage(user, msg);
+		},
+	};
+
+	return {
+		name: pkg.name,
+		version: pkg.version,
+		exports: telegram,
+		start: ({ events, store, server, console }) => {
+			if (!opts?.enable) return;
 
 			const send = (msg: string) =>
-				bot.telegram.sendMessage(config.chatId, msg, tgOpts);
+				bot.telegram.sendMessage(opts.chatId, msg, tgOpts);
 
 			bot.command("chatid", ctx => ctx.reply(ctx.chat?.id?.toString()!));
 
@@ -68,7 +72,7 @@ const TelegramBridge = (token: string) => {
 				},
 			};
 
-			if (config.allowList) {
+			if (opts.allowList) {
 				new Promise<[string, string, string[]]>((resolve, reject) => {
 					const rejection = setTimeout(
 						() => reject(new Error("/list took too long!")),
@@ -79,11 +83,11 @@ const TelegramBridge = (token: string) => {
 						clearTimeout(rejection);
 					};
 
-					events.once("close", cleanup);
+					events.once("core:close", cleanup);
 
 					return events.once("minecraft:playercount", count => {
 						clearTimeout(rejection);
-						events.off("close", cleanup);
+						events.off("core:close", cleanup);
 						resolve([
 							count.current,
 							count.max,
@@ -104,7 +108,7 @@ const TelegramBridge = (token: string) => {
 							5 * 60 * 1000,
 						);
 
-						events.on("close", () => clearInterval(interval));
+						events.on("core:close", () => clearInterval(interval));
 
 						events.on("minecraft:playercount", count => {
 							players.max = parseInt(count.max);
@@ -236,7 +240,7 @@ const TelegramBridge = (token: string) => {
 			];
 
 			const handler: Middleware<TelegrafContext> = (ctx, next) => {
-				const isLinkedGroup = String(ctx.message?.chat.id) === config.chatId;
+				const isLinkedGroup = String(ctx.message?.chat.id) === opts.chatId;
 				const arePlayersOnline = players.list.length > 0;
 				if (!isLinkedGroup || !arePlayersOnline) return next();
 
@@ -276,22 +280,17 @@ const TelegramBridge = (token: string) => {
 
 			bot.on(handledTypes, handler);
 
-			events.once("close", () => {
-				log("Stopping bot...");
+			events.once("core:close", () => {
+				console.log("Stopping bot...");
 				bot.stop();
-				log("Bot stopped.");
+				console.log("Bot stopped.");
 			});
 
-			bot.catch(error);
+			bot.catch(console.error);
 
-			bot.launch(config.telegraf);
+			bot.launch(opts.telegraf);
 		},
-	};
-
-	return {
-		telegram,
-		plugin,
 	};
 };
 
-export default TelegramBridge;
+export default Telegram;
