@@ -33,7 +33,7 @@ export const fallCause = `fell (${[
 	"out of the world",
 ].join("|")})`;
 
-export const otherCause = [
+export const otherCause = `(${[
 	"hugged a cactus",
 	"walked into a cactus whilst trying to escape .+",
 	"drowned( whilst trying to escape .+)?",
@@ -54,4 +54,4 @@ export const otherCause = [
 	"didn't want to live in the same world as .+",
 	"withered away( whilst fighting .+)?",
 	"died( because of .+)?",
-].join("|");
+].join("|")})`;
