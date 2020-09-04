@@ -1,6 +1,6 @@
 {
 	"name": "@telecraft/parser",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Minecraft stdout parser for Telecraft",
 	"main": "dist",
 	"files": [
@@ -24,7 +24,7 @@
 		"typescript": "^3.9.5"
 	},
 	"dependencies": {
-		"@telecraft/types": "^0.2.0",
+		"@telecraft/types": "^0.4.0",
 		"tslib": "^2.0.0"
 	}
 }
