@@ -7,7 +7,7 @@ const V1162 = {
 		return "^\\[(?<time>\\d{2}:\\d{2}:\\d{2})]";
 	},
 	loglevel: function () {
-		return "\\[(?<thread>.*?)/(?<loglevel>.*?)\\]:";
+		return "\\[(?<thread>.*?)\\/(?<loglevel>.*?)\\]:";
 	},
 	prefix: function () {
 		return [this.timestamp(), this.loglevel(), ""].join(" ");
@@ -20,11 +20,16 @@ const V1162 = {
 	},
 
 	/* messages */
-	deathCauses: function () {
-		return [wasCause, fallCause, otherCause].join("|");
+	deathcauses: function () {
+		return [
+			// add groups here
+			wasCause,
+			fallCause,
+			otherCause,
+		].join("|");
 	},
 	death: function () {
-		return `(?<user>${this.username()})` + `(?<text>${this.deathCauses()})$`;
+		return `(?<user>${this.username()}) (?<text>${this.deathcauses()})$`;
 	},
 	advancement: function () {
 		return (
@@ -71,7 +76,7 @@ const V1162 = {
 	leave: function () {
 		return "(?<user>" + this.username() + ") left the game$";
 	},
-	playersOnline: function () {
+	playersonline: function () {
 		return (
 			"(?<players>(" +
 			this.username() +
@@ -80,10 +85,10 @@ const V1162 = {
 			"))*)$"
 		);
 	},
-	playerCount: function () {
+	playercount: function () {
 		return (
 			"There are (?<current>\\d+) of a max (of )?(?<max>\\d+) players online: " +
-			this.playersOnline()
+			this.playersonline()
 		);
 	},
 	say: function () {
@@ -92,7 +97,7 @@ const V1162 = {
 	self: function () {
 		return "\\* (?<user>" + this.username() + ") " + this.text();
 	},
-	user: function () {
+	message: function () {
 		return "<(?<user>" + this.username() + ")> " + this.text();
 	},
 	started: function () {
