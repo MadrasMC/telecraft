@@ -1,44 +1,12 @@
-import { Events } from "@telecraft/types";
+import { EventEmitter } from "events";
 
-type Listener = Parameters<Events["on"]>[1];
+export default function Event() {
+	const events = new EventEmitter();
 
-export default () => {
-	const listeners: {
-		[event: string]: Listener[];
-	} = {};
-
-	const populate = (event: string) => {
-		if (!listeners[event]) {
-			listeners[event] = [];
-		}
-	};
-
-	const events: Events = {
-		emit: (event, ctx) => {
-			listeners[event]?.forEach(listener => listener(ctx));
-			return events;
-		},
-		on: (event, listener) => {
-			populate(event);
-			listeners[event].push(listener);
-			return events;
-		},
-		off: (event, listener) => {
-			const list = listeners?.[event];
-			if (list) {
-				const idx = list.findIndex(listener);
-				list.splice(idx, 1);
-			}
-			return events;
-		},
-		once: (event, listener) => {
-			events.on(event, ctx => {
-				listener(ctx); // trigger listener once and turn it off
-				events.off(event, listener);
-			});
-			return events;
-		},
-	};
+	(["on", "off", "once", "emit"] as const).forEach(f => {
+		//@ts-ignore TypeScript unable to understand:
+		events[f] = events[f].bind(events);
+	});
 
 	return events;
-};
+}
