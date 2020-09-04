@@ -126,7 +126,7 @@ export default ({ config, parser, store, plugins = [], io = process }: Ctx) => {
 	});
 
 	plugins.forEach(plugin => {
-		events.emit("[core]:pluginloaded", {
+		events.emit("core:pluginloaded", {
 			name: plugin.name,
 			version: plugin.version,
 		});
@@ -145,7 +145,7 @@ export default ({ config, parser, store, plugins = [], io = process }: Ctx) => {
 			server.send("stop");
 			alreadyExiting = true;
 		}
-		events.emit("[core]:close", {});
+		events.emit("core:close", {});
 		events.removeAllListeners();
 
 		process.on("SIGINT", () => process.exit(500));
