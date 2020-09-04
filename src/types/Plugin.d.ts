@@ -2,7 +2,11 @@ import { Events } from "./Events";
 import { Store } from "./Store";
 import { Server } from "./Server";
 
-export type Plugin<Opts = never, Deps extends any[] = any[], Exports = any> = (
+export type Plugin<
+	Opts = never,
+	Deps extends any[] | [] = [],
+	Exports = any
+> = (
 	opts: Opts,
 ) => {
 	name: string;
