@@ -37,10 +37,10 @@ const getConsole = (
 	mapper: (line: string) => string,
 ) => {
 	const stdout = new PassThrough();
-	rl(stdout).on("line", line => io.stdout.write(mapper(line) + "\n"));
+	rl(stdout).on("line", line => io.stdout.write(mapper(line) + EOL));
 
 	const stderr = new PassThrough();
-	rl(stderr).on("line", line => io.stderr.write(mapper(line) + "\n"));
+	rl(stderr).on("line", line => io.stderr.write(mapper(line) + EOL));
 
 	return new Console(stdout, stderr);
 };
@@ -59,7 +59,9 @@ export default ({ config, parser, store, plugins = [], io = process }: Ctx) => {
 
 	const console = getConsole(io, line => [corePrefix, line].join(" "));
 
-	const minecraft = spawn(launch, options, { cwd: config.cwd });
+	// detached so that Minecraft gets to terminate gracefully on SIGINT
+	// child process should be exited by @telecraft/core instead of OS
+	const minecraft = spawn(launch, options, { cwd: config.cwd, detached: true });
 
 	type Reader = Parameters<Server["read"]>[number];
 	const readers: Reader[] = [];
