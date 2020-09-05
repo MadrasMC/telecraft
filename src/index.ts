@@ -7,8 +7,9 @@ import { PassThrough, Writable } from "stream";
 
 import { decodeStream } from "iconv-lite";
 
-import pkg from "../package.json";
 import Event from "./util/Event";
+
+const pkg = require("../package.json") as { name: string; version: string };
 
 type Config = {
 	launch: string;
@@ -36,10 +37,10 @@ const getConsole = (
 	mapper: (line: string) => string,
 ) => {
 	const stdout = new PassThrough();
-	rl(stdout).on("line", line => io.stdout.write(mapper(line)));
+	rl(stdout).on("line", line => io.stdout.write(mapper(line) + "\n"));
 
 	const stderr = new PassThrough();
-	rl(stderr).on("line", line => io.stderr.write(mapper(line)));
+	rl(stderr).on("line", line => io.stderr.write(mapper(line) + "\n"));
 
 	return new Console(stdout, stderr);
 };
@@ -70,11 +71,8 @@ export default ({ config, parser, store, plugins = [], io = process }: Ctx) => {
 	stdout.pipe(io.stdout);
 	stderr.pipe(io.stderr);
 
-	rl(stdout).on("line", line => console.log(line));
-	rl(stderr).on("line", line => console.error(line));
-
 	const minecraftOutput = rl(stdout);
-	const cliInput = rl(process.stdin);
+	const cliInput = rl(io.stdin);
 
 	// Create plugin dependencies
 
@@ -119,6 +117,7 @@ export default ({ config, parser, store, plugins = [], io = process }: Ctx) => {
 				server,
 				console: getConsole(io, line => [prefix, line].join(" ")),
 			},
+			// @ts-ignore
 			plugins
 				.filter(p => plugin.dependencies?.includes(p.name))
 				.map(p => p.exports) || [],
@@ -135,13 +134,14 @@ export default ({ config, parser, store, plugins = [], io = process }: Ctx) => {
 	let alreadyExiting = false;
 
 	const cleanup = () => {
-		console.log("Telecraft core is exiting, cleaning up before we go...");
+		console.log("We're exiting, cleaning up before we go...");
 		console.log(
 			"Ctrl+C now will dangerously close, potentially losing or corrupting data!",
 		);
-		process.stdin.pause();
+		io.stdin.pause();
 		cliInput.close();
 		if (!minecraft.killed) {
+			console.log("Stopping server.");
 			server.send("stop");
 			alreadyExiting = true;
 		}
