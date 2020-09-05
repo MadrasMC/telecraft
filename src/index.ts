@@ -10,9 +10,9 @@ import {
 } from "telegraf/typings/telegraf";
 // --
 
-import pkg from "../package.json";
-
 import { code, MCChat, ChatComponent, escapeHTML } from "./utils";
+
+const pkg = require("../package.json") as { name: string; version: string };
 
 const tgOpts = { parse_mode: "HTML" } as const;
 

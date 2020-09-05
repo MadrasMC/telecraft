@@ -1,16 +1,21 @@
 dependencies:
-  '@telecraft/types': 'link:../../../../../../mkr/.nvs/node/14.5.0/x64/pnpm-global/node_modules/@telecraft/types'
+  '@telecraft/types': 0.4.1
   telegraf: 3.38.0
   tslib: 2.0.1
 devDependencies:
-  '@types/node': 14.0.14
-  typescript: 3.9.5
+  '@types/node': 14.6.4
+  typescript: 4.0.2
 lockfileVersion: 5.1
 packages:
-  /@types/node/14.0.14:
-    dev: true
+  /@telecraft/types/0.4.1:
+    dependencies:
+      '@types/node': 14.6.4
+    dev: false
     resolution:
-      integrity: sha512-syUgf67ZQpaJj01/tRTknkMNoBBLWJOBODF0Zm4NrXmiSuxjymFrxnTu1QVYRubhVkRcZLYZG8STTwJRdVm/WQ==
+      integrity: sha512-dA/Y0rB+D/7LDnuJpQc0XxvAOKP3dJnJNVjUZoDHit9ZTJqlF7zbwYTvWuPrw02eoZbz/FieS2mbOEBI8VurJA==
+  /@types/node/14.6.4:
+    resolution:
+      integrity: sha512-Wk7nG1JSaMfMpoMJDKUsWYugliB2Vy55pdjLpmLixeyMi7HizW2I/9QoxsPCkXl3dO+ZOVqPumKaDUv5zJu2uQ==
   /debug/4.1.1:
     dependencies:
       ms: 2.1.2
@@ -63,16 +68,16 @@ packages:
     dev: false
     resolution:
       integrity: sha512-SgIkNheinmEBgx1IUNirK0TUD4X9yjjBRTqqjggWCU3pUEqIk3/Uwl3yRixYKT6WjQuGiwDv4NomL3wqRCj+CQ==
-  /typescript/3.9.5:
+  /typescript/4.0.2:
     dev: true
     engines:
       node: '>=4.2.0'
     hasBin: true
     resolution:
-      integrity: sha512-hSAifV3k+i6lEoCJ2k6R2Z/rp/H3+8sdmcn5NrS3/3kE7+RyZXm9aqvxWqjEXHAd8b0pShatpcdMTvEdvAJltQ==
+      integrity: sha512-e4ERvRV2wb+rRZ/IQeb3jm2VxBsirQLpQhdxplZ2MEzGvDkkMmPglecnNDfSUBivMjP93vRbngYYDQqQ/78bcQ==
 specifiers:
-  '@telecraft/types': ^0.2.0
-  '@types/node': ^14.0.14
+  '@telecraft/types': ^0.4.1
+  '@types/node': ^14.6.4
   telegraf: ^3.38.0
   tslib: ^2.0.1
-  typescript: ^3.9.5
+  typescript: ^4.0.2
