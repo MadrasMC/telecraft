@@ -21,20 +21,28 @@ const createError = (...str: string[]) =>
 
 type exports = { send: (user: string, msg: string) => void };
 
-const Telegram: Plugin<
-	{
-		token: string;
-		enable: boolean;
-		chatId: string;
-		allowList: boolean;
-		telegraf?: {
-			polling?: LaunchPollingOptions;
-			webhook?: LaunchWebhookOptions;
-		};
-	},
-	[],
-	exports
-> = opts => {
+type Opts = {
+	/** Enable the plugin */
+	enable: boolean;
+	/** Telegram Bot Token */
+	token: string;
+	/** Telegram Chat ID */
+	chatId: string;
+	/** /list Options */
+	list?: {
+		/** Allow the use of /list */
+		allow?: boolean;
+		/** Time to wait for list, in milliseconds */
+		timeout?: number;
+	};
+	/** Telegraf Options */
+	telegraf?: {
+		polling?: LaunchPollingOptions;
+		webhook?: LaunchWebhookOptions;
+	};
+};
+
+const Telegram: Plugin<Opts, [], exports> = opts => {
 	if (!opts.token) throw createError("'token' was not provided");
 
 	const bot = new Telegraf(opts.token);
@@ -72,11 +80,11 @@ const Telegram: Plugin<
 				},
 			};
 
-			if (opts.allowList) {
+			if (opts.list?.allow) {
 				new Promise<[string, string, string[]]>((resolve, reject) => {
 					const rejection = setTimeout(
 						() => reject(new Error("/list took too long!")),
-						15 * 1000,
+						opts.list?.timeout || 15 * 1000,
 					);
 
 					const cleanup = () => {
