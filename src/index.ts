@@ -22,7 +22,8 @@ const StoreProvider = (location: string) => {
 					store
 						.get(key)
 						// parse to object before returning
-						.then(value => JSON.parse(value.toString("utf-8"))),
+						.then(value => JSON.parse(value.toString("utf-8")))
+						.catch(() => null),
 				set: (key, value) =>
 					store
 						// stringify to JSON before writing
