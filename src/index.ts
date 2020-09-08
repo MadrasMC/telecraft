@@ -6,7 +6,16 @@ import path from "path";
 import levelup from "levelup";
 import leveldown from "leveldown";
 
-const StoreProvider = (location: string) => {
+const nativeConsole = console;
+
+type Opts = { debug?: boolean; console?: Console };
+
+const pkg = require("../package.json") as { version: string };
+
+const StoreProvider = (
+	location: string,
+	{ debug = false, console = nativeConsole }: Opts = {},
+) => {
 	const stat = fs.statSync(location);
 
 	if (!stat.isDirectory()) throw new TypeError("No directory at " + location);
@@ -23,7 +32,15 @@ const StoreProvider = (location: string) => {
 						.get(key)
 						// parse to object before returning
 						.then(value => JSON.parse(value.toString("utf-8")))
-						.catch(() => null),
+						.catch(e => {
+							if (debug) {
+								console.error(
+									`[@telecraft/store@${pkg.version}] Error while fetching ${key} from store ${name}`,
+								);
+								console.error(e);
+							}
+							return null;
+						}),
 				set: (key, value) =>
 					store
 						// stringify to JSON before writing
