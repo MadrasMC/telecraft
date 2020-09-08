@@ -14,21 +14,24 @@ const StoreProvider = (location: string) => {
 	fs.accessSync(location, fs.constants.R_OK | fs.constants.W_OK);
 
 	return (name: string): Store => {
-		const store = levelup(leveldown(path.resolve(location, name)));
+		return () => {
+			const store = levelup(leveldown(path.resolve(location, name)));
 
-		return {
-			get: key =>
-				store
-					.get(key)
-					// parse to object before returning
-					.then(value => JSON.parse(value.toString("utf-8"))),
-			set: (key, value) =>
-				store
-					// stringify to JSON before writing
-					.put(key, Buffer.from(JSON.stringify(value), "utf-8"))
-					.then(() => value),
-			remove: key => store.del(key),
-			clear: () => store.clear(),
+			return {
+				get: key =>
+					store
+						.get(key)
+						// parse to object before returning
+						.then(value => JSON.parse(value.toString("utf-8"))),
+				set: (key, value) =>
+					store
+						// stringify to JSON before writing
+						.put(key, Buffer.from(JSON.stringify(value), "utf-8"))
+						.then(() => value),
+				remove: key => store.del(key),
+				clear: () => store.clear(),
+				close: () => store.close(),
+			};
 		};
 	};
 };

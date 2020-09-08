@@ -1,5 +1,5 @@
 dependencies:
-  '@telecraft/types': 0.4.1
+  '@telecraft/types': 0.5.0
   leveldown: 5.6.0
   levelup: 4.4.0
   tslib: 2.0.0
@@ -10,12 +10,12 @@ devDependencies:
   typescript: 3.9.5
 lockfileVersion: 5.1
 packages:
-  /@telecraft/types/0.4.1:
+  /@telecraft/types/0.5.0:
     dependencies:
       '@types/node': 14.6.4
     dev: false
     resolution:
-      integrity: sha512-dA/Y0rB+D/7LDnuJpQc0XxvAOKP3dJnJNVjUZoDHit9ZTJqlF7zbwYTvWuPrw02eoZbz/FieS2mbOEBI8VurJA==
+      integrity: sha512-l7jmg6T+PTxQM2qsvf7WSafizUEe54sotDpuXbieupL8PWdFdAZMMIDkNcuGAR6HVEJwQU4BZnGZza+TYWGkpg==
   /@types/abstract-leveldown/5.0.1:
     dev: true
     resolution:
@@ -181,6 +181,7 @@ packages:
     resolution:
       integrity: sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==
   /tslib/2.0.0:
+    dev: false
     resolution:
       integrity: sha512-lTqkx847PI7xEDYJntxZH89L2/aXInsyF2luSafe/+0fHOMjlBNXdH6th7f70qxLDhul7KZK0zC8V5ZIyHl0/g==
   /typescript/3.9.5:
@@ -201,7 +202,7 @@ packages:
     resolution:
       integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
 specifiers:
-  '@telecraft/types': ^0.4.1
+  '@telecraft/types': ^0.5.0
   '@types/leveldown': ^4.0.2
   '@types/levelup': ^4.3.0
   '@types/node': ^14.0.14
