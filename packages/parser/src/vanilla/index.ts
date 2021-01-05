@@ -1,4 +1,4 @@
-import { wasCause, fallCause, otherCause } from "./death";
+import { deathCauses } from "./death";
 import { ParserFactory } from "../util";
 
 const V1162 = {
@@ -21,15 +21,17 @@ const V1162 = {
 
 	/* messages */
 	deathcauses: function () {
-		return [
-			// add groups here
-			wasCause,
-			fallCause,
-			otherCause,
-		].join("|");
+		/* extensible or replaceable via parser extender */
+		return deathCauses;
 	},
 	death: function () {
 		return `(?<user>${this.username()}) (?<text>${this.deathcauses()})$`;
+	},
+	op: function () {
+		return `Made (?<user>${this.username()}) a server operator`;
+	},
+	deop: function () {
+		return `Made (?<user>${this.username()}) no longer a server operator`;
 	},
 	advancement: function () {
 		return (
