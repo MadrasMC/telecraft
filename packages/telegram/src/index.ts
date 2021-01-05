@@ -1,5 +1,7 @@
 import { Plugin } from "@telecraft/types";
 
+import { EventEmitter } from "events";
+
 // Telegraf
 import Telegraf, { Middleware } from "telegraf";
 import { TelegrafContext } from "telegraf/typings/context";
@@ -10,7 +12,7 @@ import {
 } from "telegraf/typings/telegraf";
 // --
 
-import { code, MCChat, ChatComponent, escapeHTML } from "./utils";
+import { code, MCChat, ChatComponent, escapeHTML, MsgContext } from "./utils";
 
 const pkg = require("../package.json") as { name: string; version: string };
 
@@ -48,10 +50,18 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 	const bot = new Telegraf(opts.token);
 	const botID = opts.token.split(":")[0];
 
+	const listeners: Record<string, ((data: any) => void)[]> = { message: [] };
+
+	const ev = new EventEmitter();
+	const { on, off, once, emit } = ev;
+
 	const telegram = {
-		send: (user: string, msg: string) => {
+		send(user: string, msg: string) {
 			bot.telegram.sendMessage(user, msg);
 		},
+		on: on.bind(ev),
+		once: once.bind(ev),
+		off: off.bind(ev),
 	};
 
 	return {
@@ -264,10 +274,10 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 						);
 				};
 
-				const chatMessage = MCChat.message({
+				const emitCtx: MsgContext = {
 					from: getSender(ctx),
 					text: getCaptioned(ctx.message) || "",
-					isTelegram: isFromTelegramUser(ctx),
+					source: isFromTelegramUser(ctx) ? "telegram" : "minecraft",
 					...(reply && {
 						replyTo: {
 							from:
@@ -278,10 +288,17 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 								(isFromTelegramUser(reply)
 									? getCaptioned(reply)
 									: removeMinecraftUsername(reply?.text)) || "",
-							isTelegram: isFromTelegramUser(reply),
+							source: isFromTelegramUser(reply) ? "telegram" : "minecraft",
 						},
 					}),
-				});
+				};
+
+				const chatMessage = MCChat.message(emitCtx);
+
+				emit(
+					"message",
+					Object.assign(emitCtx, { normalised: stringify(chatMessage) }),
+				);
 
 				server.send("tellraw @a " + JSON.stringify(chatMessage));
 			};
