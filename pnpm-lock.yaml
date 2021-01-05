@@ -1,0 +1,33 @@
+dependencies:
+  '@telecraft/types': 0.4.1
+  tslib: 2.0.1
+devDependencies:
+  '@types/node': 14.6.4
+  typescript: 4.0.2
+lockfileVersion: 5.1
+packages:
+  /@telecraft/types/0.4.1:
+    dependencies:
+      '@types/node': 14.6.4
+    dev: false
+    resolution:
+      integrity: sha512-dA/Y0rB+D/7LDnuJpQc0XxvAOKP3dJnJNVjUZoDHit9ZTJqlF7zbwYTvWuPrw02eoZbz/FieS2mbOEBI8VurJA==
+  /@types/node/14.6.4:
+    resolution:
+      integrity: sha512-Wk7nG1JSaMfMpoMJDKUsWYugliB2Vy55pdjLpmLixeyMi7HizW2I/9QoxsPCkXl3dO+ZOVqPumKaDUv5zJu2uQ==
+  /tslib/2.0.1:
+    dev: false
+    resolution:
+      integrity: sha512-SgIkNheinmEBgx1IUNirK0TUD4X9yjjBRTqqjggWCU3pUEqIk3/Uwl3yRixYKT6WjQuGiwDv4NomL3wqRCj+CQ==
+  /typescript/4.0.2:
+    dev: true
+    engines:
+      node: '>=4.2.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-e4ERvRV2wb+rRZ/IQeb3jm2VxBsirQLpQhdxplZ2MEzGvDkkMmPglecnNDfSUBivMjP93vRbngYYDQqQ/78bcQ==
+specifiers:
+  '@telecraft/types': ^0.4.1
+  '@types/node': ^14.6.4
+  tslib: ^2.0.1
+  typescript: ^4.0.2
