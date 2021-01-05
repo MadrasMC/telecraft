@@ -1,4 +1,4 @@
-export const wasCause = `was (${[
+const wasCause = `was (${[
 	"shot by .+",
 	"shot off (some vines|a ladder) by .+",
 	"pricked to death",
@@ -21,7 +21,7 @@ export const wasCause = `was (${[
 	"pummeled by .+",
 ].join("|")})`;
 
-export const fallCause = `fell (${[
+const fallCause = `fell (${[
 	"from a high place( and fell out of the world)?",
 	"off a ladder",
 	"off to death( whilst fighting .+)?",
@@ -33,7 +33,7 @@ export const fallCause = `fell (${[
 	"out of the world",
 ].join("|")})`;
 
-export const otherCause = `(${[
+const otherCause = `(${[
 	"hugged a cactus",
 	"walked into a cactus whilst trying to escape .+",
 	"drowned( whilst trying to escape .+)?",
@@ -55,3 +55,10 @@ export const otherCause = `(${[
 	"withered away( whilst fighting .+)?",
 	"died( because of .+)?",
 ].join("|")})`;
+
+export const deathCauses = [
+	// add groups here
+	wasCause,
+	fallCause,
+	otherCause,
+].join("|");
