@@ -1,0 +1,25 @@
+{
+	"name": "telecraft",
+	"version": "0.0.0",
+	"description": "Pluggable Minecraft server bridge and administration tools.",
+	"license": "MIT",
+	"author": "Feathers Studio <@feathersstudio> (https://feathers.studio)",
+	"contributors": [
+		"Muthu Kumar <@MKRhere> (https://mkr.pw)"
+	],
+	"homepage": "https://github.com/telecraft/telecraft#readme",
+	"bugs": {
+		"url": "https://github.com/telecraft/telecraft/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/telecraft/telecraft.git"
+	},
+	"keywords": [
+		"Minecraft",
+		"Telegram",
+		"bridge",
+		"authentication",
+		"plugins"
+	]
+}
