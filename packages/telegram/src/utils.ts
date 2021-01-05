@@ -13,6 +13,17 @@ export const code = (s: string | number) => {
 	return `<code>${escapeHTML(String(s))}</code>`;
 };
 
+export type MsgContext = {
+	from: string;
+	text: string | ChatComponent[];
+	source?: "telegram" | "minecraft";
+	replyTo?: {
+		from: string;
+		text: string | ChatComponent[];
+		source?: "telegram" | "minecraft";
+	};
+};
+
 export type ChatComponent =
 	| {
 			text: string;
@@ -101,25 +112,16 @@ export const MCChat = {
 		"> ",
 	],
 
-	message: (message: {
-		from: string;
-		text: string | ChatComponent[];
-		isTelegram?: boolean;
-		replyTo?: {
-			from: string;
-			text: string | ChatComponent[];
-			isTelegram?: boolean;
-		};
-	}): ChatComponent[] => [
+	message: (message: MsgContext): ChatComponent[] => [
 		...MCChat.sender(
 			message.from,
-			message.isTelegram,
+			message.source === "telegram",
 			message.replyTo &&
 				MCChat.hoverUser(
 					"Reply",
 					message.replyTo.from,
 					message.replyTo.text,
-					message.replyTo.isTelegram,
+					message.replyTo.source === "telegram",
 				),
 		),
 		...MCChat.text(message.text),
