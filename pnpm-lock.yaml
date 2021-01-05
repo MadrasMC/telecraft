@@ -1,0 +1,82 @@
+dependencies:
+  '@telecraft/types': 0.2.0
+  telegraf: 3.38.0
+  tslib: 2.0.1
+devDependencies:
+  '@types/node': 14.0.14
+  typescript: 3.9.5
+lockfileVersion: 5.1
+packages:
+  /@telecraft/types/0.2.0:
+    dev: false
+    resolution:
+      integrity: sha512-PFmyF4bxn/Vaf8lji34iuqQwpMQLLqC9d6rWf36ifghpB5EhVhqF/ZAwJRbVBqnLsocRH4s4GKgjwBuSvlHbOQ==
+  /@types/node/14.0.14:
+    dev: true
+    resolution:
+      integrity: sha512-syUgf67ZQpaJj01/tRTknkMNoBBLWJOBODF0Zm4NrXmiSuxjymFrxnTu1QVYRubhVkRcZLYZG8STTwJRdVm/WQ==
+  /debug/4.1.1:
+    dependencies:
+      ms: 2.1.2
+    dev: false
+    resolution:
+      integrity: sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
+  /minimist/1.2.5:
+    dev: false
+    resolution:
+      integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
+  /module-alias/2.2.2:
+    dev: false
+    resolution:
+      integrity: sha512-A/78XjoX2EmNvppVWEhM2oGk3x4lLxnkEA4jTbaK97QKSDjkIoOsKQlfylt/d3kKKi596Qy3NP5XrXJ6fZIC9Q==
+  /ms/2.1.2:
+    dev: false
+    resolution:
+      integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
+  /node-fetch/2.6.0:
+    dev: false
+    engines:
+      node: 4.x || >=6.0.0
+    resolution:
+      integrity: sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
+  /sandwich-stream/2.0.2:
+    dev: false
+    engines:
+      node: '>= 0.10'
+    resolution:
+      integrity: sha512-jLYV0DORrzY3xaz/S9ydJL6Iz7essZeAfnAavsJ+zsJGZ1MOnsS52yRjU3uF3pJa/lla7+wisp//fxOwOH8SKQ==
+  /telegraf/3.38.0:
+    dependencies:
+      debug: 4.1.1
+      minimist: 1.2.5
+      module-alias: 2.2.2
+      node-fetch: 2.6.0
+      sandwich-stream: 2.0.2
+      telegram-typings: 3.6.1
+    dev: false
+    engines:
+      node: '>=8'
+    hasBin: true
+    resolution:
+      integrity: sha512-va4VlrKWp64JrowFoZX/NPzzA6q38kvaIukVXOWFO1V+jR1G8+hCfgJy4TX8Z3rwLJzwaBEet1QhikHDRZWl3A==
+  /telegram-typings/3.6.1:
+    dev: false
+    resolution:
+      integrity: sha512-njVv1EAhIZnmQVLocZEADYUyqA1WIXuVcDYlsp+mXua/XB0pxx+PKtMSPeZ/EE4wPWTw9h/hA9ASTT6yQelkiw==
+  /tslib/2.0.1:
+    dev: false
+    resolution:
+      integrity: sha512-SgIkNheinmEBgx1IUNirK0TUD4X9yjjBRTqqjggWCU3pUEqIk3/Uwl3yRixYKT6WjQuGiwDv4NomL3wqRCj+CQ==
+  /typescript/3.9.5:
+    dev: true
+    engines:
+      node: '>=4.2.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-hSAifV3k+i6lEoCJ2k6R2Z/rp/H3+8sdmcn5NrS3/3kE7+RyZXm9aqvxWqjEXHAd8b0pShatpcdMTvEdvAJltQ==
+specifiers:
+  '@telecraft/types': ^0.2.0
+  '@types/node': ^14.0.14
+  telegraf: ^3.38.0
+  tslib: ^2.0.1
+  typescript: ^3.9.5
