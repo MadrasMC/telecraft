@@ -19,9 +19,9 @@ type Config = {
 type Ctx = {
 	config: Config;
 	parser: Parser;
-	store: Store;
+	store: (name: string) => Store;
 	io?: IO;
-	plugins: ReturnType<Plugin<any>>[];
+	plugins: ReturnType<Plugin<any, any, any>>[];
 };
 
 const rl = (stream: NodeJS.ReadableStream) =>
@@ -52,7 +52,13 @@ const getEvents = (events: Events, prefix: string): Events => {
 	return { ...events, emit };
 };
 
-export default ({ config, parser, store, plugins = [], io = process }: Ctx) => {
+export default ({
+	config,
+	parser,
+	store: StoreProvider,
+	plugins = [],
+	io = process,
+}: Ctx) => {
 	const [launch, ...options] = config.launch.split(" ");
 
 	const corePrefix = "[" + pkg.name + "@" + pkg.version + "]";
@@ -115,7 +121,7 @@ export default ({ config, parser, store, plugins = [], io = process }: Ctx) => {
 		plugin.start(
 			{
 				events: getEvents(events, plugin.name),
-				store,
+				store: StoreProvider(plugin.name),
 				server,
 				console: getConsole(io, line => [prefix, line].join(" ")),
 			},
