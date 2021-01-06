@@ -177,7 +177,7 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 				send(code(ctx.user + " says: " + ctx.text)),
 			);
 
-			//todo(mkr): Make configurable, use title queue
+			// Todo(mkr) IMPORTANT: Make configurable, implement and use title queue
 			events.on("minecraft:join", ctx => {
 				send(code(players.add(ctx.user) + " joined the server"));
 				server.send(`/title ${ctx.user} subtitle "what will you do today?"`);

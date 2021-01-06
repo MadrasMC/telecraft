@@ -1,6 +1,7 @@
 {
 	"name": "telecraft",
 	"version": "0.0.0",
+	"private": true,
 	"description": "Pluggable Minecraft server bridge and administration tools.",
 	"license": "MIT",
 	"author": "Feathers Studio <@feathersstudio> (https://feathers.studio)",
