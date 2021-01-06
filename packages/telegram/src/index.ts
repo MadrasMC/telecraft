@@ -12,7 +12,14 @@ import {
 } from "telegraf/typings/telegraf";
 // --
 
-import { code, MCChat, ChatComponent, escapeHTML, MsgContext } from "./utils";
+import {
+	code,
+	MCChat,
+	ChatComponent,
+	escapeHTML,
+	MsgContext,
+	normaliseStrinify,
+} from "./utils";
 
 const pkg = require("../package.json") as { name: string; version: string };
 
@@ -297,7 +304,9 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 
 				emit(
 					"message",
-					Object.assign(emitCtx, { normalised: stringify(chatMessage) }),
+					Object.assign(emitCtx, {
+						normalised: normaliseStrinify(chatMessage),
+					}),
 				);
 
 				server.send("tellraw @a " + JSON.stringify(chatMessage));

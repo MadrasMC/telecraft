@@ -62,6 +62,10 @@ export type ChatComponent =
 	  }
 	| string;
 
+// TODO(mkr): implement function
+export const normaliseStrinify = (text: ChatComponent[]): string =>
+	JSON.stringify(text);
+
 export const MCChat = {
 	text: (text: string | ChatComponent[]): ChatComponent[] =>
 		typeof text === "string"
