@@ -62,7 +62,7 @@ export type ChatComponent =
 	  }
 	| string;
 
-// TODO(mkr): implement function
+// Todo(mkr): implement function
 export const normaliseStrinify = (text: ChatComponent[]): string =>
 	JSON.stringify(text);
 
