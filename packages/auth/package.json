@@ -1,5 +1,5 @@
 {
-	"name": "@telecraft/telegram-auth",
+	"name": "@telecraft/auth",
 	"version": "0.0.1",
 	"description": " Telegram auth for Minecraft servers, powered by Telecraft",
 	"main": "dist",
@@ -11,18 +11,19 @@
 		"type": "git",
 		"url": "git@github.com:telecraft/plugin"
 	},
-	"author": "Feathers Studio <@feathersstudio> (https://feathers.studio)",
+	"author": "Feathers Studio <@feathers_studio> (https://feathers.studio)",
 	"contributors": [
 		"Muthu Kumar <@MKRhere> (https://mkr.pw)"
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^14.0.14",
-		"typescript": "^3.9.5"
+		"@types/node": "^14.14.20",
+		"typescript": "^4.1.3"
 	},
 	"dependencies": {
-		"@telecraft/types": "^0.2.0",
-		"telegraf": "^3.38.0",
+		"@telecraft/types": "workspace:*",
+		"nbt-ts": "^1.3.3",
+		"prismarine-nbt": "^1.3.0",
 		"tslib": "^2.0.1"
 	}
 }
