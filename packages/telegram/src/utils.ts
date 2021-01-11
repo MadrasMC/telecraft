@@ -12,9 +12,9 @@ type UnionToIntersection<U> = (
 	? I
 	: never;
 
-type Deunionize<T extends object> = T & Partial<UnionToIntersection<T>>;
+type Deunionise<T extends object> = T & Partial<UnionToIntersection<T>>;
 
-export const deunionize = <T extends object>(t: T): Deunionize<T> => t;
+export const deunionise = <T extends object>(t: T): Deunionise<T> => t;
 
 export const escapeHTML = (s: string) =>
 	s.replace(/<|>|&|"|'/g, r => escapables[r as keyof typeof escapables] || r);
@@ -71,10 +71,6 @@ export type ChatComponent =
 			};
 	  }
 	| string;
-
-// Todo(mkr): implement function
-export const normaliseStrinify = (text: ChatComponent[]): string =>
-	JSON.stringify(text);
 
 export const MCChat = {
 	text: (text: string | ChatComponent[]): ChatComponent[] =>

@@ -13,8 +13,7 @@ import {
 	ChatComponent,
 	escapeHTML,
 	MsgContext,
-	normaliseStrinify,
-	deunionize,
+	deunionise,
 } from "./utils";
 
 const pkg = require("../package.json") as { name: string; version: string };
@@ -266,15 +265,16 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 			const handler: Middleware<Context> = (ctx, next) => {
 				const isLinkedGroup = String(ctx.message?.chat.id) === opts.chatId;
 				const arePlayersOnline = players.list.length > 0;
-				if (!isLinkedGroup || !arePlayersOnline) return next();
+				const isBotPM = ctx.message?.chat.type === "private";
+				if ((!isLinkedGroup || !arePlayersOnline) && !isBotPM) return next();
 
-				// TODO(mkr): fix the type assertion after 4.0.1
+				// Todo(mkr): fix the type assertion after 4.0.1
 				const reply = (ctx.message &&
-					deunionize(ctx.message)?.reply_to_message) as Message | undefined;
+					deunionise(ctx.message)?.reply_to_message) as Message | undefined;
 
 				const getCaptioned = (msg: Message | undefined) => {
 					const thisType = handledTypes.find(type => msg && type in msg);
-					if (thisType === "text") return msg && deunionize(msg)?.text;
+					if (thisType === "text") return msg && deunionise(msg)?.text;
 					if (thisType)
 						return captionMedia(
 							thisType.split("_").join(" ").toUpperCase(),
