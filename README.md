@@ -21,7 +21,7 @@ Quick setup:
 npm i -g pnpm
 
 # install node modules for all packages
-pnpm recursive install
+pnpm install -r
 
 # run typescript build on all packages, so they're ready to go
 pnpm build -r
@@ -32,12 +32,13 @@ pnpm build:w -r --parallel
 
 Now you're ready to go tinker with the packages and TypeScript will automatically build as you edit files! Packages within the monorepo are automatically linked by the `workspace:` protocol. Before publishing, pnpm will automatically convert them to the correct versions of those packages.
 
-To update node modules used in all packages across the entire workspace, use `pnpm recursive install typescript@latest` from the root. The root repo is never meant to be published.
+To update node modules used in all packages across the entire workspace, use `pnpm recursive install typescript@latest` from the root.
 
-### Do not:
+### Do NOT:
 
 - Use npm, yarn, or another package manager in the root repo or any of the packages
-- Install package specific modules from the root with or without recursive. cd into the package and install them.
+- Install package specific modules from the root with or without recursive. `cd` into the package and install them.
+- Publish the root repo. It's a container and not meant to be published.
 
 ### Do:
 
