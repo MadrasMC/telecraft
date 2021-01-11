@@ -3,13 +3,8 @@ import { Plugin } from "@telecraft/types";
 import { EventEmitter } from "events";
 
 // Telegraf
-import Telegraf, { Middleware } from "telegraf";
-import { TelegrafContext } from "telegraf/typings/context";
-import { Message, MessageSubTypes } from "telegraf/typings/telegram-types";
-import {
-	LaunchPollingOptions,
-	LaunchWebhookOptions,
-} from "telegraf/typings/telegraf";
+import { Telegraf, Middleware, Context } from "telegraf";
+import { Message, MessageSubType } from "telegraf/typings/telegram-types";
 // --
 
 import {
@@ -19,6 +14,7 @@ import {
 	escapeHTML,
 	MsgContext,
 	normaliseStrinify,
+	deunionize,
 } from "./utils";
 
 const pkg = require("../package.json") as { name: string; version: string };
@@ -46,8 +42,7 @@ type Opts = {
 	};
 	/** Telegraf Options */
 	telegraf?: {
-		polling?: LaunchPollingOptions;
-		webhook?: LaunchWebhookOptions;
+		// Telegraf.LaunchOptions after 4.0.1
 	};
 };
 
@@ -57,10 +52,12 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 	const bot = new Telegraf(opts.token);
 	const botID = opts.token.split(":")[0];
 
-	const listeners: Record<string, ((data: any) => void)[]> = { message: [] };
-
 	const ev = new EventEmitter();
-	const { on, off, once, emit } = ev;
+
+	const on = ev.on.bind(ev);
+	const off = ev.off.bind(ev);
+	const once = ev.off.bind(ev);
+	const emit = ev.emit.bind(ev);
 
 	const telegram = {
 		send(user: string, msg: string) {
@@ -226,8 +223,8 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 					{ text: "]", color: "white" },
 				];
 
-				return msg?.caption
-					? coloured.concat(MCChat.text(msg?.caption))
+				return msg && "caption" in msg
+					? coloured.concat(MCChat.text(msg?.caption || ""))
 					: coloured;
 			};
 
@@ -245,12 +242,14 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 			const isFromTelegramUser = (ctx?: { from?: { id: number } }) =>
 				String(ctx?.from?.id) !== botID;
 
-			const getSender = (ctx: TelegrafContext) =>
+			const getSender = (ctx: Context) =>
 				isFromTelegramUser(ctx)
 					? getTelegramName(ctx.message)
-					: extractMinecraftUsername(ctx.message?.text || "");
+					: extractMinecraftUsername(
+							ctx.message && "text" in ctx.message ? ctx.message.text : "",
+					  );
 
-			const handledTypes: MessageSubTypes[] = [
+			const handledTypes: MessageSubType[] = [
 				"text",
 				"audio",
 				"document",
@@ -264,16 +263,18 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 				"video_note",
 			];
 
-			const handler: Middleware<TelegrafContext> = (ctx, next) => {
+			const handler: Middleware<Context> = (ctx, next) => {
 				const isLinkedGroup = String(ctx.message?.chat.id) === opts.chatId;
 				const arePlayersOnline = players.list.length > 0;
 				if (!isLinkedGroup || !arePlayersOnline) return next();
 
-				const reply = ctx.message?.reply_to_message;
+				// TODO(mkr): fix the type assertion after 4.0.1
+				const reply = (ctx.message &&
+					deunionize(ctx.message)?.reply_to_message) as Message | undefined;
 
 				const getCaptioned = (msg: Message | undefined) => {
 					const thisType = handledTypes.find(type => msg && type in msg);
-					if (thisType === "text") return msg?.text;
+					if (thisType === "text") return msg && deunionize(msg)?.text;
 					if (thisType)
 						return captionMedia(
 							thisType.split("_").join(" ").toUpperCase(),
@@ -289,12 +290,14 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 						replyTo: {
 							from:
 								String(reply.from?.id) === botID
-									? extractMinecraftUsername(reply.text)
+									? extractMinecraftUsername("text" in reply ? reply.text : "")
 									: getTelegramName(reply),
 							text:
 								(isFromTelegramUser(reply)
 									? getCaptioned(reply)
-									: removeMinecraftUsername(reply?.text)) || "",
+									: removeMinecraftUsername(
+											"text" in reply ? reply.text : "",
+									  )) || "",
 							source: isFromTelegramUser(reply) ? "telegram" : "minecraft",
 						},
 					}),
