@@ -1,4 +1,4 @@
-import { Events, Plugin } from "@telecraft/types";
+import { Plugin } from "@telecraft/types";
 
 import { parse } from "nbt-ts";
 
@@ -31,8 +31,10 @@ type gamemodes = typeof gamemodes[number];
 
 type Messenger = {
 	send: (user: string, msg: string) => Promise<void>;
-	on: (type: string, content: string) => void;
+	on: (type: string, listener: (context: any) => void) => void;
 };
+
+type Pos = [number, number, number];
 
 const auth: Plugin<
 	{ enable: boolean; use: "@telecraft/telegram" | "@telecraft/irc" },
@@ -68,27 +70,24 @@ const auth: Plugin<
 			if (isOp) server.send(`op ${user}`);
 		};
 
+		const tpLock = (player: string, dimension: string, pos: Pos) =>
+			setInterval(() => {
+				server.send(
+					`execute in ${dimension} run tp ${player} ${pos.join(" ")}`,
+				);
+			}, 400);
+
 		events.on("minecraft:join", async ctx => {
 			const tgUser = await authstore.get("mc:" + ctx.user);
 
 			server.send(`data get entity ${ctx.user}`);
 
-			type Pos = [number, number, number];
-
 			let playerGameType: gamemodes;
 			let pos: Pos;
 			let dimension: string;
+			let lockRef: NodeJS.Timeout;
 
 			lock(ctx.user);
-
-			const interval = setInterval(() => {
-				pos &&
-					server.send(
-						`execute in ${dimension} run tp ${ctx.user} ${pos.join(" ")}`,
-					);
-			}, 400);
-
-			console.log(ctx.user);
 
 			events.once("minecraft:data", ctx => {
 				const data = parse(ctx.data) as any;
@@ -96,6 +95,8 @@ const auth: Plugin<
 				playerGameType = data.playerGameType;
 				pos = data.Pos as Pos;
 				dimension = data.Dimension;
+
+				lockRef = tpLock(ctx.user, dimension, pos);
 			});
 
 			if (typeof tgUser === "string") {
