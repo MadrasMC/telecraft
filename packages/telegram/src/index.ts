@@ -40,15 +40,14 @@ type Opts = {
 		timeout?: number;
 	};
 	/** Telegraf Options */
-	telegraf?: {
-		// Telegraf.LaunchOptions after 4.0.1
-	};
+	// Todo(mkr): Telegraf.Options after 4.0.1
+	telegraf?: any;
 };
 
 const Telegram: Plugin<Opts, [], exports> = opts => {
 	if (!opts.token) throw createError("'token' was not provided");
 
-	const bot = new Telegraf(opts.token);
+	const bot = new Telegraf(opts.token, opts.telegraf);
 	const botID = opts.token.split(":")[0];
 
 	const ev = new EventEmitter();
