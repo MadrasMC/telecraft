@@ -305,12 +305,9 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 
 				const chatMessage = MCChat.message(emitCtx);
 
-				emit(
-					"message",
-					Object.assign(emitCtx, {
-						normalised: normaliseStrinify(chatMessage),
-					}),
-				);
+				// if (typeof emitCtx.text === "string" && isCommandText(emitCtx.text)) {
+				// } else
+				emit("message", emitCtx);
 
 				server.send("tellraw @a " + JSON.stringify(chatMessage));
 			};
