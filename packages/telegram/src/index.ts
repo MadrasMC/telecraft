@@ -14,6 +14,8 @@ import {
 	escapeHTML,
 	MsgContext,
 	deunionise,
+	isCommand,
+	parseCommand,
 } from "./utils";
 
 const pkg = require("../package.json") as { name: string; version: string };
@@ -172,11 +174,8 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 				send(code(ctx.user + " says: " + ctx.text)),
 			);
 
-			// Todo(mkr) IMPORTANT: Make configurable, implement and use title queue
 			events.on("minecraft:join", ctx => {
 				send(code(players.add(ctx.user) + " joined the server"));
-				server.send(`/title ${ctx.user} subtitle "what will you do today?"`);
-				server.send(`/title ${ctx.user} title "welcome to mkr/craft beta!"`);
 			});
 
 			events.on("minecraft:leave", ctx =>
@@ -304,9 +303,10 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 
 				const chatMessage = MCChat.message(emitCtx);
 
-				// if (typeof emitCtx.text === "string" && isCommandText(emitCtx.text)) {
-				// } else
-				emit("message", emitCtx);
+				if (typeof emitCtx.text === "string" && isCommand(emitCtx.text)) {
+					const cmd = parseCommand(emitCtx.text);
+					emit(cmd.cmd, Object.assign(emitCtx, cmd));
+				} else emit("message", emitCtx);
 
 				server.send("tellraw @a " + JSON.stringify(chatMessage));
 			};
