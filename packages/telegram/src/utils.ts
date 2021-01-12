@@ -16,6 +16,18 @@ type Deunionise<T extends object> = T & Partial<UnionToIntersection<T>>;
 
 export const deunionise = <T extends object>(t: T): Deunionise<T> => t;
 
+const commandRegex = "/(?<cmd>[a-zA-Z0-9_]+)";
+
+type CommandText = `/${string}`;
+
+export const isCommand = (s: string): s is CommandText =>
+	Boolean(s.match(new RegExp(commandRegex)));
+
+export const parseCommand = <S extends string>(
+	s: S,
+): typeof s extends CommandText ? { cmd: string; value: string } : null =>
+	s.match(new RegExp(commandRegex + "( (?<value>.*))?"))?.groups as any;
+
 export const escapeHTML = (s: string) =>
 	s.replace(/<|>|&|"|'/g, r => escapables[r as keyof typeof escapables] || r);
 
