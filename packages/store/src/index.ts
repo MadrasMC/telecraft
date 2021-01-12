@@ -46,6 +46,31 @@ const StoreProvider = (
 						// stringify to JSON before writing
 						.put(key, Buffer.from(JSON.stringify(value), "utf-8"))
 						.then(() => value),
+				find: key => {
+					const rs = store.createReadStream({ keys: true, values: true });
+
+					return new Promise((resolve, reject) => {
+						const listener = (
+							data: { key?: Uint8Array; value?: Uint8Array } | null,
+						) => {
+							if (data) {
+								const dataLocal = String(data.key);
+
+								if (
+									(typeof key === "string" && dataLocal.includes(key)) ||
+									dataLocal.match(key)
+								) {
+									rs.off("data", listener);
+									return resolve(dataLocal);
+								}
+							}
+						};
+
+						rs.on("data", listener);
+						// Todo(mkr): on error
+						// Todo(mkr): on close/end
+					});
+				},
 				remove: key => store.del(key),
 				clear: () => store.clear(),
 				close: () => store.close(),
