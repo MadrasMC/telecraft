@@ -3,6 +3,11 @@
 	"version": "0.0.0",
 	"private": true,
 	"description": "Pluggable Minecraft server bridge and administration tools.",
+	"scripts": {
+		"build": "pnpm build -r",
+		"build:w": "pnpm build:w -r --parallel",
+		"dev": "node packages/cli/dist"
+	},
 	"license": "MIT",
 	"author": "Feathers Studio <@feathersstudio> (https://feathers.studio)",
 	"contributors": [

@@ -24,10 +24,13 @@ npm i -g pnpm
 pnpm install -r
 
 # run typescript build on all packages, so they're ready to go
-pnpm build -r
+pnpm build
 
 # if you're actively developing, you'll want to run build in watch mode
-pnpm build:w -r --parallel
+pnpm build:w
+
+# run cli package during development (alias to `node packages/cli/dist`)
+pnpm dev
 ```
 
 Now you're ready to go tinker with the packages and TypeScript will automatically build as you edit files! Packages within the monorepo are automatically linked by the `workspace:` protocol. Before publishing, pnpm will automatically convert them to the correct versions of those packages.
