@@ -102,8 +102,22 @@ const auth: Plugin<
 			if (typeof tgUser === "string") {
 				messenger.send(tgUser, "Send /auth to authenticate yourself.");
 			} else {
-				server.send(`tellraw ${ctx.user} "Send /link to the Telegram bot."`);
+				server.send(`tellraw ${ctx.user} "Send /link to the bridge bot."`);
 			}
+
+			const clearOnLeave = (ctx2: { user: string }) => {
+				if (ctx.user === ctx2.user) {
+					clearTimeout(lockRef);
+					events.off("minecraft:leave", clearOnLeave);
+				}
+			};
+
+			events.on("minecraft:leave", clearOnLeave);
+
+			// messenger.on("message", ctx => {
+			// 	if (ctx.text === "/link") {
+			// 	}
+			// });
 		});
 
 		// events.on(`${config.use}:link`, async ctx => {
