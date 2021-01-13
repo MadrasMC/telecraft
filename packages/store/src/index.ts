@@ -46,27 +46,27 @@ const StoreProvider = (
 						// stringify to JSON before writing
 						.put(key, Buffer.from(JSON.stringify(value), "utf-8"))
 						.then(() => value),
-				find: key => {
-					const rs = store.createReadStream({ keys: true, values: true });
-
+				find: value => {
 					return new Promise((resolve, reject) => {
 						const listener = (
-							data: { key?: Uint8Array; value?: Uint8Array } | null,
+							data: { key?: any; value?: any } | null,
 						) => {
 							if (data) {
-								const dataLocal = String(data.key);
-
+								const dataLocal = String(data.value);
+								console.log(dataLocal);
 								if (
-									(typeof key === "string" && dataLocal.includes(key)) ||
-									dataLocal.match(key)
+									(typeof value === "string" && dataLocal.includes(value)) ||
+									dataLocal.match(value)
 								) {
-									rs.off("data", listener);
-									return resolve(dataLocal);
+									return resolve(String(data.key));
 								}
 							}
 						};
 
-						rs.on("data", listener);
+						store.createReadStream({ keys: true, values: true })
+							.on("data", listener)
+							.on("error", () => { console.log("Fuck this") })
+							.on("close", () => { console.log("It's ded") });
 						// Todo(mkr): on error
 						// Todo(mkr): on close/end
 					});

@@ -163,7 +163,7 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 			}
 
 			events.on("minecraft:message", ctx => {
-				return send(code(ctx.user) + " " + escapeHTML(ctx.text));
+				send(code(ctx.user) + " " + escapeHTML(ctx.text));
 			});
 
 			events.on("minecraft:self", ctx =>
@@ -302,13 +302,22 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 				};
 
 				const chatMessage = MCChat.message(emitCtx);
+				let extras: any = {};
+				extras.fromID = ctx.from?.id;
+				extras.chatID = ctx.chat?.id;
+				extras.fromUsername = ctx.from?.username;
 
 				if (typeof emitCtx.text === "string" && isCommand(emitCtx.text)) {
 					const cmd = parseCommand(emitCtx.text);
-					emit(cmd.cmd, Object.assign(emitCtx, cmd));
+					extras = Object.assign(extras, cmd);
+					emit(cmd.cmd, Object.assign(emitCtx, extras));
 				} else emit("message", emitCtx);
 
-				server.send("tellraw @a " + JSON.stringify(chatMessage));
+				const message = JSON.stringify(chatMessage);
+
+				if (!isCommand(message)) {
+					server.send("tellraw @a " + JSON.stringify(message));
+				}
 			};
 
 			bot.on(handledTypes, handler);
