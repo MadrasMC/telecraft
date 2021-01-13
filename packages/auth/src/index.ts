@@ -36,6 +36,28 @@ type Messenger = {
 
 type Pos = [number, number, number];
 
+type AuthCode = {
+	player: string,
+	code: string
+}
+
+const authCodes = {
+	list: [] as AuthCode[],
+	add<T extends AuthCode>(code: T): T {
+		this.list = this.list.filter(x => x.player !== code.player).concat([code]);
+		return code;
+	},
+	find<T extends string>(code: T): AuthCode | undefined {
+		const match = this.list.filter(x => x.code === code);
+		if(match.length > 0) {
+			this.list = this.list.filter(x => x !== match[0]);
+			return match[0];
+		} else {
+			return undefined;
+		}
+	},
+};
+
 const auth: Plugin<
 	{ enable: boolean; use: "@telecraft/telegram" | "@telecraft/irc" },
 	[Messenger]
@@ -64,8 +86,8 @@ const auth: Plugin<
 			mode: typeof gamemodes[number],
 			isOp: boolean = false,
 		) => {
-			server.send(`effect clear ${user} minecraft:blindness 1000000`);
-			server.send(`effect clear ${user} minecraft:slowness 1000000 255`);
+			server.send(`effect clear ${user} minecraft:blindness`);
+			server.send(`effect clear ${user} minecraft:slowness`);
 			server.send(`gamemode ${mode} ${user}`);
 			if (isOp) server.send(`op ${user}`);
 		};
@@ -78,7 +100,7 @@ const auth: Plugin<
 			}, 400);
 
 		events.on("minecraft:join", async ctx => {
-			const tgUser = await authstore.get("mc:" + ctx.user);
+			const tgUser = await authstore.get(ctx.user);
 
 			server.send(`data get entity ${ctx.user}`);
 
@@ -102,7 +124,13 @@ const auth: Plugin<
 			if (typeof tgUser === "string") {
 				messenger.send(tgUser, "Send /auth to authenticate yourself.");
 			} else {
-				server.send(`tellraw ${ctx.user} "Send /link to the bridge bot."`);
+				const code: AuthCode = {
+					player: ctx.user,
+					code: rand()
+				}
+
+				authCodes.add(code);
+				server.send(`tellraw ${ctx.user} "Send /link ${code.code} to the bridge bot."`);
 			}
 
 			const clearOnLeave = (ctx2: { user: string }) => {
@@ -114,10 +142,34 @@ const auth: Plugin<
 
 			events.on("minecraft:leave", clearOnLeave);
 
-			// messenger.on("message", ctx => {
-			// 	if (ctx.text === "/link") {
-			// 	}
-			// });
+			messenger.on("link", async ctx => {
+				const chatId = ctx.chatID;
+
+				if(ctx.value !== undefined) {
+					const match = authCodes.find(ctx.value);
+
+					if(match !== undefined) {
+						await authstore.set(match.player, ctx.fromID);
+						messenger.send(chatId, "Link successful!");
+					} else {
+						messenger.send(chatId, "Incorrect code!");
+					}
+				} else {
+					messenger.send(chatId, "No code provided!");
+				}
+			});
+
+			messenger.on("auth", async ctx => {
+				const chatID = ctx.chatID;
+				const mcName = await authstore.find(ctx.fromID);
+
+				if(mcName !== undefined) {
+					unlock(String(mcName), "survival");
+					messenger.send(chatID, "You have successfully authenticated yourself!");
+				} else {
+					messenger.send(chatID, "You must link before using auth!");
+				}
+			});
 		});
 
 		// events.on(`${config.use}:link`, async ctx => {
