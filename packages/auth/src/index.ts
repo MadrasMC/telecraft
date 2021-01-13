@@ -122,6 +122,7 @@ const auth: Plugin<
 			});
 
 			if (typeof tgUser === "string") {
+				server.send(`tellraw ${ctx.user} "Send /auth to the bridge bot."`);
 				messenger.send(tgUser, "Send /auth to authenticate yourself.");
 			} else {
 				const code: AuthCode = {
@@ -164,6 +165,7 @@ const auth: Plugin<
 				const mcName = await authstore.find(ctx.fromID);
 
 				if(mcName !== undefined) {
+					clearTimeout(lockRef);
 					unlock(String(mcName), "survival");
 					messenger.send(chatID, "You have successfully authenticated yourself!");
 				} else {
