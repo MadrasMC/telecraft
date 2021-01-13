@@ -43,23 +43,27 @@ const auth: Plugin<
 				"Plugin was enabled, but dependency 'messenger' was not passed",
 			);
 
-		const authstore = await store<{
-			telegram: number;
+		const authStore = await store<{
+			telegram?: number;
 			gameMode?: string;
 			op?: boolean;
 		}>();
 
-		const authCache: AuthCache = {};
+		const authCache = new Map<
+			string,
+			{
+				lockRef?: NodeJS.Timeout;
+				code?: string;
+				gameMode?: gameModes;
+				op?: boolean;
+			}
+		>();
 
 		const setAuthCache = (
 			player: string,
 			details: Partial<AuthCache[string]>,
 		) => {
-			return Object.assign(
-				// @ts-ignore
-				authCache[player] || (authCache[player] = {}),
-				details,
-			);
+			authCache.set(player, { ...authCache.get(player), ...details });
 		};
 
 		const lock = (user: string) => {
@@ -70,10 +74,12 @@ const auth: Plugin<
 		};
 
 		const unlock = async (user: string) => {
-			const opts = await authstore.get(user);
+			const opts = await authStore.get(user);
 
-			const mode = opts?.gameMode || authCache[user].gameMode;
-			const op = opts?.op || authCache[user].op;
+			const mode = opts?.gameMode || authCache.get(user)?.gameMode;
+			const op = opts?.op || authCache.get(user)?.op;
+
+			authCache.delete(user);
 
 			server.send(`effect clear ${user} minecraft:blindness`);
 			server.send(`effect clear ${user} minecraft:slowness`);
@@ -98,7 +104,7 @@ const auth: Plugin<
 
 		events.on("minecraft:join", async (ctx: { user: string }) => {
 			const player = ctx.user;
-			const storeUser = await authstore.get(player);
+			const storeUser = await authStore.get(player);
 
 			server.send(`data get entity ${player}`);
 
@@ -119,7 +125,7 @@ const auth: Plugin<
 
 				tpLock(player, dimension, pos, playerGameType);
 
-				if (storeUser) {
+				if (storeUser?.telegram) {
 					server.send(`tellraw ${player} "Send /auth to the bridge bot."`);
 					messenger.send(
 						storeUser.telegram,
@@ -130,10 +136,12 @@ const auth: Plugin<
 
 					server.send(
 						// Todo(mkr): make link copyable
-						`tellraw ${player} "Send \`/link ${authCache[player].code}\` to the bridge bot."`,
+						`tellraw ${player} "Send \`/link ${
+							authCache.get(player)!.code
+						}\` to the bridge bot."`,
 					);
 					server.send(
-						`title ${player} title "Send /link ${authCache[player].code}"`,
+						`title ${player} title "Send /link ${authCache.get(player)!.code}"`,
 					);
 					server.send(`title ${player} subtitle "to bridge bot"`);
 				}
@@ -141,20 +149,21 @@ const auth: Plugin<
 		});
 
 		events.on("minecraft:leave", async (ctx: { user: string }) => {
-			if (!authCache[ctx.user]) return;
+			const cacheUser = authCache.get(ctx.user);
 
-			clearTimeout(authCache[ctx.user].lockRef);
+			if (!cacheUser) return;
 
-			const storeUser = await authstore.get(ctx.user);
+			const storeUser = await authStore.get(ctx.user);
 
-			if (storeUser)
-				await authstore.set(ctx.user, {
-					telegram: storeUser.telegram,
-					gameMode: authCache[ctx.user].gameMode,
-					op: authCache[ctx.user].op,
-				});
+			await authStore.set(ctx.user, {
+				telegram: storeUser?.telegram,
+				gameMode: cacheUser.gameMode,
+				op: cacheUser.op,
+			});
 
-			delete authCache[ctx.user];
+			cacheUser.lockRef && clearTimeout(cacheUser.lockRef);
+
+			authCache.delete(ctx.user);
 		});
 
 		messenger.on("link", async ctx => {
@@ -163,29 +172,30 @@ const auth: Plugin<
 
 			if (fromId !== chatId) return messenger.send(chatId, "Send link in PM.");
 
-			if (!Object.keys(authCache).length)
+			if (![...authCache.entries()].length)
 				return messenger.send(fromId, "Login to the server first.");
 
 			if (!ctx.value) return messenger.send(fromId, "No code provided.");
 
-			const match = Object.keys(authCache).find(
-				player => authCache[player].code === ctx.value,
+			const match = [...authCache.keys()].find(
+				player => authCache.get(player)!.code === ctx.value,
 			);
 
 			if (!match) return messenger.send(fromId, "Incorrect code.");
 
+			const cacheUser = authCache.get(match);
+
 			// Todo(mkr): Refactor link & auth common tasks into one
 			await unlock(match);
-			clearTimeout(authCache[match]?.lockRef);
-			delete authCache[match];
-			await authstore.set(match, { telegram: fromId });
+			cacheUser?.lockRef && clearTimeout(cacheUser.lockRef);
+			await authStore.set(match, { telegram: fromId });
 
 			messenger.send(fromId, "Link successful!");
 		});
 
 		messenger.on("auth", async ctx => {
 			const fromId = ctx.from.id;
-			const result = await authstore.find(fromId);
+			const result = await authStore.find(fromId);
 
 			if (!result)
 				return messenger.send(
@@ -195,14 +205,15 @@ const auth: Plugin<
 
 			const [mcName, record] = result;
 
-			if (!authCache[mcName])
+			const cacheUser = authCache.get(mcName);
+
+			if (!cacheUser)
 				return messenger.send(fromId, "Login to the server first.");
 
 			// Todo(mkr): Refactor link & auth common tasks into one
 			await unlock(mcName);
-			clearTimeout(authCache[mcName]?.lockRef);
-			delete authCache[mcName];
-			await authstore.set(mcName, { telegram: record.telegram });
+			cacheUser?.lockRef && clearTimeout(cacheUser.lockRef);
+			await authStore.set(mcName, { telegram: record.telegram });
 
 			return messenger.send(
 				fromId,
@@ -212,7 +223,7 @@ const auth: Plugin<
 
 		events.on("core:close", () => {
 			// cleanup
-			authstore.close();
+			authStore.close();
 		});
 	},
 });
