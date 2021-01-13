@@ -25,7 +25,7 @@ const tgOpts = { parse_mode: "HTML" } as const;
 const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
 
-type exports = { send: (user: string, msg: string) => void };
+type exports = { send: (user: string | number, msg: string) => void };
 
 type Opts = {
 	/** Enable the plugin */
@@ -60,7 +60,7 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 	const emit = ev.emit.bind(ev);
 
 	const telegram = {
-		send(user: string, msg: string) {
+		send(user: string | number, msg: string) {
 			bot.telegram.sendMessage(user, msg);
 		},
 		on: on.bind(ev),
@@ -328,8 +328,7 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 				} else {
 					emit("message", emitCtx);
 
-					const message = JSON.stringify(chatMessage);
-					server.send("tellraw @a " + JSON.stringify(message));
+					server.send("tellraw @a " + JSON.stringify(chatMessage));
 				}
 			};
 

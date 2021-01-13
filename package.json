@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "pnpm build -r",
 		"build:w": "pnpm build:w -r --parallel",
-		"dev": "node packages/cli/dist"
+		"dev": "node --trace-warnings packages/cli/dist"
 	},
 	"license": "MIT",
 	"author": "Feathers Studio <@feathersstudio> (https://feathers.studio)",
