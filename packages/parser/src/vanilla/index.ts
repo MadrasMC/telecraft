@@ -28,10 +28,10 @@ const V1162 = {
 		return `(?<user>${this.username()}) (?<text>${this.deathcauses()})$`;
 	},
 	op: function () {
-		return `Made (?<user>${this.username()}) a server operator`;
+		return `(Made (?<user>${this.username()}) a server operator)|(Nothing changed. The player already is an operator)`;
 	},
 	deop: function () {
-		return `Made (?<user>${this.username()}) no longer a server operator`;
+		return `(Made (?<user>${this.username()}) (?<op>no longer a server operator))|(?<notop>Nothing changed. The player is not an operator)`;
 	},
 	advancement: function () {
 		return (
