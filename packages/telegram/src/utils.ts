@@ -140,7 +140,7 @@ export const MCChat = {
 
 	message: (message: MsgContext): ChatComponent[] => [
 		...MCChat.sender(
-			message.from,
+			message.from.name,
 			message.source === "telegram",
 			message.replyTo &&
 				MCChat.hoverUser(
