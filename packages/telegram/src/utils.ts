@@ -16,7 +16,7 @@ type Deunionise<T extends object> = T & Partial<UnionToIntersection<T>>;
 
 export const deunionise = <T extends object>(t: T): Deunionise<T> => t;
 
-const commandRegex = "/(?<cmd>[a-zA-Z0-9_]+)";
+const commandRegex = "^/(?<cmd>[a-zA-Z0-9_]+)";
 
 type CommandText = `/${string}`;
 
@@ -36,15 +36,19 @@ export const code = (s: string | number) => {
 };
 
 export type MsgContext = {
-	from: string;
 	text: string | ChatComponent[];
-	source?: "telegram" | "minecraft";
 	replyTo?: {
 		from: string;
 		text: string | ChatComponent[];
 		source?: "telegram" | "minecraft";
 	};
-};
+} & (
+	| {
+			source: "telegram";
+			from: { name: string; username: string; id: number; chat: number };
+	  }
+	| { source: "minecraft"; from: { name: string } }
+);
 
 export type ChatComponent =
 	| {

@@ -280,42 +280,55 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 						);
 				};
 
-				const emitCtx: MsgContext = {
-					from: getSender(ctx),
-					text: getCaptioned(ctx.message) || "",
-					source: isFromTelegramUser(ctx) ? "telegram" : "minecraft",
-					...(reply && {
-						replyTo: {
-							from:
-								String(reply.from?.id) === botID
-									? extractMinecraftUsername("text" in reply ? reply.text : "")
-									: getTelegramName(reply),
-							text:
-								(isFromTelegramUser(reply)
-									? getCaptioned(reply)
-									: removeMinecraftUsername(
-											"text" in reply ? reply.text : "",
-									  )) || "",
-							source: isFromTelegramUser(reply) ? "telegram" : "minecraft",
-						},
-					}),
+				const isFromTelegram = isFromTelegramUser(ctx);
+
+				const fromDetails = isFromTelegram
+					? {
+							from: {
+								name: getSender(ctx),
+								username: ctx.from?.username!,
+								id: ctx.from?.id!,
+								chat: ctx.chat?.id!,
+							},
+							source: "telegram" as const,
+					  }
+					: {
+							from: { name: getSender(ctx) },
+							source: "minecraft" as const,
+					  };
+
+				const replyDetails = reply && {
+					replyTo: {
+						from:
+							String(reply.from?.id) === botID
+								? extractMinecraftUsername("text" in reply ? reply.text : "")
+								: getTelegramName(reply),
+						text:
+							(isFromTelegramUser(reply)
+								? getCaptioned(reply)
+								: removeMinecraftUsername("text" in reply ? reply.text : "")) ||
+							"",
+						source: isFromTelegramUser(reply)
+							? ("telegram" as const)
+							: ("minecraft" as const),
+					},
 				};
 
+				const emitCtx: MsgContext = Object.assign(
+					{ text: getCaptioned(ctx.message) || "" },
+					fromDetails,
+					replyDetails,
+				);
+
 				const chatMessage = MCChat.message(emitCtx);
-				let extras: any = {};
-				extras.fromID = ctx.from?.id;
-				extras.chatID = ctx.chat?.id;
-				extras.fromUsername = ctx.from?.username;
 
 				if (typeof emitCtx.text === "string" && isCommand(emitCtx.text)) {
 					const cmd = parseCommand(emitCtx.text);
-					extras = Object.assign(extras, cmd);
-					emit(cmd.cmd, Object.assign(emitCtx, extras));
-				} else emit("message", emitCtx);
+					emit(cmd.cmd, Object.assign(emitCtx, cmd));
+				} else {
+					emit("message", emitCtx);
 
-				const message = JSON.stringify(chatMessage);
-
-				if (!isCommand(message)) {
+					const message = JSON.stringify(chatMessage);
 					server.send("tellraw @a " + JSON.stringify(message));
 				}
 			};
