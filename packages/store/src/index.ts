@@ -23,8 +23,11 @@ const StoreProvider = (
 	fs.accessSync(location, fs.constants.R_OK | fs.constants.W_OK);
 
 	return (name: string): Store => {
-		return () => {
-			const store = levelup(leveldown(path.resolve(location, name)));
+		return async () => {
+			const targetPath = path.resolve(location, name);
+
+			await fs.promises.mkdir(targetPath, { recursive: true });
+			const store = levelup(leveldown(targetPath));
 
 			return {
 				get: key =>
@@ -46,29 +49,30 @@ const StoreProvider = (
 						// stringify to JSON before writing
 						.put(key, Buffer.from(JSON.stringify(value), "utf-8"))
 						.then(() => value),
-				find: value => {
+				find: query => {
 					return new Promise((resolve, reject) => {
-						const listener = (
-							data: { key?: any; value?: any } | null,
-						) => {
+						let resolved = false;
+
+						const listener = (data: { key: Buffer; value?: Buffer } | null) => {
 							if (data) {
-								const dataLocal = String(data.value);
-								console.log(dataLocal);
+								const key = String(data.key);
+								const value = String(data.value);
+
 								if (
-									(typeof value === "string" && dataLocal.includes(value)) ||
-									dataLocal.match(value)
+									(typeof query === "string" && value.includes(query)) ||
+									value.match(query)
 								) {
-									return resolve(String(data.key));
+									resolved = true;
+									return resolve([String(key), JSON.parse(String(value))]);
 								}
 							}
 						};
 
-						store.createReadStream({ keys: true, values: true })
+						store
+							.createReadStream({ keys: true, values: true })
 							.on("data", listener)
-							.on("error", () => { console.log("Fuck this") })
-							.on("close", () => { console.log("It's ded") });
-						// Todo(mkr): on error
-						// Todo(mkr): on close/end
+							.on("error", (err: Error) => reject(err))
+							.on("close", () => !resolved && resolve(null));
 					});
 				},
 				remove: key => store.del(key),
