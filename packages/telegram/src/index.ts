@@ -247,17 +247,23 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 					  );
 
 			const handledTypes: MessageSubType[] = [
-				"text",
-				"audio",
-				"document",
-				"photo",
-				"sticker",
-				"video",
 				"voice",
-				"contact",
-				"location",
-				"game",
 				"video_note",
+				"video",
+				"animation",
+				"venue",
+				"text",
+				"successful_payment",
+				"sticker",
+				"photo",
+				"location",
+				"invoice",
+				"game",
+				"dice",
+				"document",
+				"contact",
+				"audio",
+				"poll",
 			];
 
 			const handler: Middleware<Context> = (ctx, next) => {
