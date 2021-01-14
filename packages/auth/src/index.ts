@@ -195,20 +195,18 @@ const auth: Plugin<
 
 		messenger.on("auth", async ctx => {
 			const fromId = ctx.from.id;
+			const chatId = ctx.from.chat;
 			const result = await authStore.find(fromId);
 
 			if (!result)
-				return messenger.send(
-					ctx.from.chat,
-					"You must link first before using auth.",
-				);
+				return messenger.send(chatId, "You must link first before using auth.");
 
 			const [mcName, record] = result;
 
 			const cacheUser = authCache.get(mcName);
 
 			if (!cacheUser)
-				return messenger.send(fromId, "Login to the server first.");
+				return messenger.send(chatId, "Login to the server first.");
 
 			// Todo(mkr): Refactor link & auth common tasks into one
 			await unlock(mcName);
@@ -216,7 +214,7 @@ const auth: Plugin<
 			await authStore.set(mcName, { telegram: record.telegram });
 
 			return messenger.send(
-				fromId,
+				chatId,
 				"You have successfully authenticated yourself.",
 			);
 		});
