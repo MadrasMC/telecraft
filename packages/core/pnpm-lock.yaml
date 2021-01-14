@@ -1,5 +1,5 @@
 dependencies:
-  '@telecraft/types': 'link:../types'
+  '@telecraft/types': link:../types
   '@types/node': 14.14.20
   iconv-lite: 0.6.2
 devDependencies:
@@ -35,7 +35,7 @@ packages:
     resolution:
       integrity: sha512-B3ZIOf1IKeH2ixgHhj6la6xdwR9QrLC5d1VKeCSY4tvkqhF2eqd9O7txNlS0PO3GrBAFIdr3L1ndNwteUbZLYg==
 specifiers:
-  '@telecraft/types': 'workspace:*'
+  '@telecraft/types': workspace:*
   '@types/node': ^14.14.20
   iconv-lite: ^0.6.2
   tslib: ^2.0.0

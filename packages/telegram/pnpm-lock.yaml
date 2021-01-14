@@ -1,6 +1,6 @@
 dependencies:
   '@telecraft/types': link:../types
-  telegraf: 4.0.0
+  telegraf: 4.0.1
   tslib: 2.0.1
 devDependencies:
   '@types/node': 14.14.20
@@ -68,7 +68,7 @@ packages:
       node: '>= 0.10'
     resolution:
       integrity: sha512-jLYV0DORrzY3xaz/S9ydJL6Iz7essZeAfnAavsJ+zsJGZ1MOnsS52yRjU3uF3pJa/lla7+wisp//fxOwOH8SKQ==
-  /telegraf/4.0.0:
+  /telegraf/4.0.1:
     dependencies:
       abort-controller: 3.0.0
       debug: 4.3.1
@@ -83,7 +83,7 @@ packages:
       node: '>=12'
     hasBin: true
     resolution:
-      integrity: sha512-e4m9uJuAzzKe1gNUOn3z3NTLscfteV4GE4la5pfWFbm75OLWK3cp/qvz7Evy4oPpvc/bPlcDCyNgXnk4n2TBcw==
+      integrity: sha512-kpl3vFDnIjlGxDuzNq3McUnJo9jGOlJEYtBeDPZc0Zvx878HFSO64uJeJ2HW6Tg3/76xh3dX77B7IdTGjuTOWA==
   /tslib/2.0.1:
     dev: false
     resolution:
@@ -102,6 +102,6 @@ packages:
 specifiers:
   '@telecraft/types': workspace:*
   '@types/node': ^14.14.20
-  telegraf: ^4.0.0
+  telegraf: ^4.0.1
   tslib: ^2.0.1
   typescript: ^4.1.3
