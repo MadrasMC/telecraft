@@ -32,6 +32,7 @@
 		"@telecraft/parser": "workspace:*",
 		"@telecraft/store": "workspace:*",
 		"@telecraft/telegram": "workspace:*",
+		"@telecraft/youtube": "workspace:*",
 		"@types/node": "^14.14.20",
 		"tslib": "^2.0.1"
 	},
