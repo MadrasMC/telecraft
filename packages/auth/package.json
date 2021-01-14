@@ -1,6 +1,6 @@
 {
 	"name": "@telecraft/auth",
-	"version": "0.0.1",
+	"version": "1.0.0-alpha1",
 	"description": " Telegram auth for Minecraft servers, powered by Telecraft",
 	"main": "dist",
 	"scripts": {
