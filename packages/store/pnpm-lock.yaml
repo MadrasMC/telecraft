@@ -1,5 +1,5 @@
 dependencies:
-  '@telecraft/types': 'link:../types'
+  '@telecraft/types': link:../types
   leveldown: 5.6.0
   levelup: 4.4.0
   tslib: 2.0.0
@@ -197,7 +197,7 @@ packages:
     resolution:
       integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
 specifiers:
-  '@telecraft/types': 'workspace:*'
+  '@telecraft/types': workspace:*
   '@types/leveldown': ^4.0.2
   '@types/levelup': ^4.3.0
   '@types/node': ^14.14.20

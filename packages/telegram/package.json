@@ -25,7 +25,7 @@
 	},
 	"dependencies": {
 		"@telecraft/types": "workspace:*",
-		"telegraf": "^4.0.0",
+		"telegraf": "^4.0.1",
 		"tslib": "^2.0.1"
 	}
 }
