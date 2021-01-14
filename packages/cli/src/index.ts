@@ -13,7 +13,7 @@ core({
 			"/usr/bin/env java -Xmx3096M -Xms1024M -jar /home/Library/betacraft/server.jar nogui",
 		cwd: "/home/Library/betacraft",
 	},
-	parser: Vanilla["1.16.2"],
+	parser: Vanilla["1.16"],
 	store: StoreProvider("/home/Library/betacraft/.telecraft/store"),
 	plugins: [
 		Telegram({ token, enable: true, chatId, list: { allow: true } }),

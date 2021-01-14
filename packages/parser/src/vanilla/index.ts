@@ -1,7 +1,7 @@
 import { deathCauses } from "./death";
 import { ParserFactory } from "../util";
 
-const V1162 = {
+const V116 = {
 	/* base */
 	timestamp: function () {
 		return "^\\[(?<time>\\d{2}:\\d{2}:\\d{2})]";
@@ -63,10 +63,6 @@ const V1162 = {
 		return "Keeping entity (?<game>\\w+):(?<mob>\\w+) that already exists with UUID (?<uuid>.+)$";
 	},
 	join: function () {
-		return "UUID of player (?<user>" + this.username() + ") is (?<uuid>.+)$";
-	},
-	vjoin: function () {
-		// Vanilla only
 		return (
 			"(?<user>" +
 			this.username() +
@@ -108,7 +104,7 @@ const V1162 = {
 };
 
 const Vanilla = {
-	"1.16.2": ParserFactory(V1162),
+	"1.16": ParserFactory(V116),
 };
 
 export default Vanilla;
