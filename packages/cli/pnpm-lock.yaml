@@ -1,6 +1,7 @@
 dependencies:
   '@telecraft/auth': link:../auth
   '@telecraft/core': link:../core
+  '@telecraft/discord': link:../discord
   '@telecraft/parser': link:../parser
   '@telecraft/store': link:../store
   '@telecraft/telegram': link:../telegram
@@ -29,6 +30,7 @@ packages:
 specifiers:
   '@telecraft/auth': workspace:*
   '@telecraft/core': workspace:*
+  '@telecraft/discord': workspace:*
   '@telecraft/parser': workspace:*
   '@telecraft/store': workspace:*
   '@telecraft/telegram': workspace:*
