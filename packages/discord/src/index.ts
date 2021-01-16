@@ -1,6 +1,7 @@
 import { Plugin } from "@telecraft/types";
 import DiscordJS from "discord.js";
-import { MCChat, escapeHTML, code } from "./utils";
+import { EventEmitter } from "events";
+import { MCChat, escapeHTML, code, isCommand, parseCommand } from "./utils";
 
 const pkg = require("../package.json") as { name: string; version: string };
 
@@ -12,14 +13,31 @@ const Discord: Plugin<{
 	token: string;
 	channelId: string;
 }> = opts => {
+	let channel: DiscordJS.Channel | undefined;
+	const ev = new EventEmitter();
+
+	const on = ev.on.bind(ev);
+	const off = ev.off.bind(ev);
+	const once = ev.off.bind(ev);
+	const emit = ev.emit.bind(ev);
+
+	const discord = {
+		send(msg: string) {
+			if (!channel) return;
+			channel.send(msg);
+		},
+		on: on.bind(ev),
+		once: once.bind(ev),
+		off: off.bind(ev),
+	};
+
 	return {
 		name: pkg.name,
 		version: pkg.version,
 		dependencies: [],
-		exports: null,
+		exports: discord,
 		start: async ({ events, server, console }, []) => {
 			if (opts.enable) {
-				let channel: DiscordJS.Channel | undefined;
 				const client = new DiscordJS.Client();
 				let playersOnline = 0;
 
@@ -38,13 +56,20 @@ const Discord: Plugin<{
 				events.on("minecraft:started", () => {
 					client.on("message", message => {
 						if (playersOnline > 0 && message.author.id !== client.user?.id) {
-							const chatMessage = MCChat.message({
-								from: message.author.username,
-								text: message.content,
-								channel: message.channel.name,
-							});
+							const messageText = message.content;
 
-							server.send("tellraw @a " + JSON.stringify(chatMessage));
+							if (isCommand(messageText)) {
+								const cmd = parseCommand(messageText);
+								emit(cmd.cmd, cmd);
+							} else {
+								const chatMessage = MCChat.message({
+									from: message.author.username,
+									text: messageText,
+									channel: message.channel.name,
+								});
+
+								server.send("tellraw @a " + JSON.stringify(chatMessage));
+							}
 						}
 					});
 
