@@ -41,11 +41,6 @@ const Discord: Plugin<{
 				const client = new DiscordJS.Client();
 				let playersOnline = 0;
 
-				const send = (message: string) => {
-					if (!channel) return;
-					channel.send(message);
-				};
-
 				client.on("ready", () => {
 					channel = client.channels.cache.get(opts.channelId);
 					if (!channel)
@@ -74,33 +69,33 @@ const Discord: Plugin<{
 					});
 
 					events.on("minecraft:message", ctx => {
-						send(code(ctx.user) + " " + escapeHTML(ctx.text));
+						discord.send(code(ctx.user) + " " + escapeHTML(ctx.text));
 					});
 
 					events.on("minecraft:join", ctx => {
-						send(code(ctx.user + " joined the server"));
+						discord.send(code(ctx.user + " joined the server"));
 						playersOnline += 1;
 					});
 
 					events.on("minecraft:leave", ctx => {
-						send(code(ctx.user + " left the server"));
+						discord.send(code(ctx.user + " left the server"));
 						playersOnline -= 1;
 					});
 
 					events.on("minecraft:self", ctx =>
-						send(code("* " + ctx.user + " " + ctx.text)),
+						discord.send(code("* " + ctx.user + " " + ctx.text)),
 					);
 
 					events.on("minecraft:say", ctx =>
-						send(code(ctx.user + " says: " + ctx.text)),
+						discord.send(code(ctx.user + " says: " + ctx.text)),
 					);
 
 					events.on("minecraft:death", ctx =>
-						send(code(ctx.user + " " + ctx.text)),
+						discord.send(code(ctx.user + " " + ctx.text)),
 					);
 
 					events.on("minecraft:advancement", ctx =>
-						send(
+						discord.send(
 							code(ctx.user) +
 								" has made the advancement " +
 								code("[" + ctx.advancement + "]"),
@@ -108,7 +103,7 @@ const Discord: Plugin<{
 					);
 
 					events.on("minecraft:goal", ctx =>
-						send(
+						discord.send(
 							code(ctx.user) +
 								" has reached the goal " +
 								code("[" + ctx.goal + "]"),
@@ -116,7 +111,7 @@ const Discord: Plugin<{
 					);
 
 					events.on("minecraft:challenge", ctx =>
-						send(
+						discord.send(
 							code(ctx.user) +
 								" has completed the challenge " +
 								code("[" + ctx.challenge + "]"),
