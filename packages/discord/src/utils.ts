@@ -4,6 +4,19 @@ export type MsgContext = {
 	channel: string
 };
 
+const escapables = {
+	"<": "&lt;",
+	">": "&gt;",
+	"&": "&amp;",
+	"'": "&#39;",
+	'"': "&quot;",
+};
+
+export const escapeHTML = (s: string) =>
+	s.replace(/<|>|&|"|'/g, r => escapables[r as keyof typeof escapables] || r);
+
+export const code = (message: string) => `\`${message}\``
+
 export type ChatComponent =
 	| {
 			text: string;
