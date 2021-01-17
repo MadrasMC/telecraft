@@ -115,8 +115,6 @@ const auth: Plugin<
 
 			server.send(`data get entity ${player}`);
 
-			lock(player);
-
 			events.once(
 				"minecraft:deop",
 				(ctx: { user?: string; op?: string; notop?: string }) =>
@@ -124,6 +122,8 @@ const auth: Plugin<
 			);
 
 			events.once("minecraft:data", ctx => {
+				lock(player);
+
 				const data = parse(ctx.data) as any;
 
 				const playerGameType: gameModes = gameModes[data.playerGameType.value];
