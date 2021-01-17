@@ -54,17 +54,11 @@ const StoreProvider = (
 						let resolved = false;
 
 						const listener = (data: { key: Buffer; value?: Buffer } | null) => {
-							if (data) {
-								const key = String(data.key);
-								const value = String(data.value);
-
-								if (
-									(typeof query === "string" && value.includes(query)) ||
-									value.match(query)
-								) {
-									resolved = true;
-									return resolve([String(key), JSON.parse(String(value))]);
-								}
+							if (!data) return;
+							const key = String(data.key);
+							const value = data.value ? JSON.parse(String(data.value)) : null;
+							if (query(value)) {
+								resolve([key, value]);
 							}
 						};
 
