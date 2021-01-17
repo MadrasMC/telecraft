@@ -1,0 +1,29 @@
+{
+	"name": "@telecraft/discord",
+	"version": "1.0.0-alpha1",
+	"description": "Discord chat synchronisation for Minecraft servers, powered by Telecraft.",
+	"main": "dist",
+	"scripts": {
+		"build": "tsc --importHelpers",
+		"build:w": "tsc --importHelpers -w"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:telecraft/plugin"
+	},
+	"author": "Udit Karode <@uditkarode> (https://uditkarode.github.io)",
+	"contributors": [
+		"Udit Karode <@uditkarode> (https://uditkarode.github.io)"
+	],
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^14.14.20",
+		"typescript": "^4.1.3"
+	},
+	"dependencies": {
+		"@telecraft/types": "workspace:*",
+		"discord.js": "^12.5.1",
+		"@types/ws": "^7.4.0",
+		"tslib": "^2.0.1"
+	}
+}
