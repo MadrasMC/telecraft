@@ -30,7 +30,10 @@ type AuthCache = {
 };
 
 const auth: Plugin<
-	{ enable: boolean; use: "@telecraft/telegram" | "@telecraft/irc" },
+	{
+		enable: boolean;
+		use: "@telecraft/telegram" | "@telecraft/discord" | "@telecraft/irc";
+	},
 	[Messenger]
 > = config => ({
 	name: pkg.name,
@@ -44,7 +47,7 @@ const auth: Plugin<
 			);
 
 		const authStore = await store<{
-			telegram?: number;
+			messengerId?: string | number;
 			gameMode?: string;
 			op?: boolean;
 		}>();
@@ -73,8 +76,9 @@ const auth: Plugin<
 			server.send(`deop ${user}`);
 		};
 
-		const unlock = async (user: string) => {
+		const unlock = async (user: string, messengerId: string | number) => {
 			const opts = await authStore.get(user);
+			const cacheUser = authCache.get(user);
 
 			const mode = opts?.gameMode || authCache.get(user)?.gameMode;
 			const op = opts?.op || authCache.get(user)?.op;
@@ -85,6 +89,9 @@ const auth: Plugin<
 			server.send(`effect clear ${user} minecraft:slowness`);
 			server.send(`gamemode ${mode} ${user}`);
 			if (op) server.send(`op ${user}`);
+
+			cacheUser?.lockRef && clearTimeout(cacheUser.lockRef);
+			await authStore.set(user, { messengerId: messengerId });
 		};
 
 		const tpLock = (
@@ -125,10 +132,10 @@ const auth: Plugin<
 
 				tpLock(player, dimension, pos, playerGameType);
 
-				if (storeUser?.telegram) {
+				if (storeUser?.messengerId) {
 					server.send(`tellraw ${player} "Send /auth to the bridge bot."`);
 					messenger.send(
-						storeUser.telegram,
+						storeUser.messengerId,
 						"Send /auth to authenticate yourself.",
 					);
 				} else {
@@ -156,7 +163,7 @@ const auth: Plugin<
 			const storeUser = await authStore.get(ctx.user);
 
 			await authStore.set(ctx.user, {
-				telegram: storeUser?.telegram,
+				messengerId: storeUser?.messengerId,
 				gameMode: cacheUser.gameMode,
 				op: cacheUser.op,
 			});
@@ -166,58 +173,70 @@ const auth: Plugin<
 			authCache.delete(ctx.user);
 		});
 
-		messenger.on("link", async ctx => {
-			const fromId = ctx.from.id;
-			const chatId = ctx.from.chat;
+		messenger.on(
+			"link",
+			async (ctx: {
+				from: { id: string | number; chat: string | number };
+				cmd: string;
+				value: string;
+			}) => {
+				const fromId = ctx.from.id;
+				const chatId = ctx.from.chat;
 
-			if (fromId !== chatId) return messenger.send(chatId, "Send link in PM.");
+				if (fromId !== chatId)
+					return messenger.send(chatId, "Send link in PM.");
 
-			if (![...authCache.entries()].length)
-				return messenger.send(fromId, "Login to the server first.");
+				if (![...authCache.entries()].length)
+					return messenger.send(fromId, "Login to the server first.");
 
-			if (!ctx.value) return messenger.send(fromId, "No code provided.");
+				if (!ctx.value) return messenger.send(fromId, "No code provided.");
 
-			const match = [...authCache.keys()].find(
-				player => authCache.get(player)!.code === ctx.value,
-			);
+				const match = [...authCache.keys()].find(
+					player => authCache.get(player)!.code === ctx.value,
+				);
 
-			if (!match) return messenger.send(fromId, "Incorrect code.");
+				if (!match) return messenger.send(fromId, "Incorrect code.");
 
-			const cacheUser = authCache.get(match);
+				await unlock(match, fromId);
 
-			// Todo(mkr): Refactor link & auth common tasks into one
-			await unlock(match);
-			cacheUser?.lockRef && clearTimeout(cacheUser.lockRef);
-			await authStore.set(match, { telegram: fromId });
+				messenger.send(fromId, "Link successful!");
+			},
+		);
 
-			messenger.send(fromId, "Link successful!");
-		});
+		messenger.on(
+			"auth",
+			async (ctx: {
+				from: { id: string | number; chat: string | number };
+				cmd: string;
+				value: string;
+			}) => {
+				const fromId = ctx.from.id;
+				const chatId = ctx.from.chat;
+				const result = await authStore.find(
+					record => record?.messengerId === fromId,
+				);
 
-		messenger.on("auth", async ctx => {
-			const fromId = ctx.from.id;
-			const chatId = ctx.from.chat;
-			const result = await authStore.find(fromId);
+				const [mcName, record] = result || [];
 
-			if (!result)
-				return messenger.send(chatId, "You must link first before using auth.");
+				if (!mcName || !record?.messengerId)
+					return messenger.send(
+						chatId,
+						"You must link first before using auth.",
+					);
 
-			const [mcName, record] = result;
+				const cacheUser = authCache.get(mcName);
 
-			const cacheUser = authCache.get(mcName);
+				if (!cacheUser)
+					return messenger.send(chatId, "Login to the server first.");
 
-			if (!cacheUser)
-				return messenger.send(chatId, "Login to the server first.");
+				await unlock(mcName, record.messengerId);
 
-			// Todo(mkr): Refactor link & auth common tasks into one
-			await unlock(mcName);
-			cacheUser?.lockRef && clearTimeout(cacheUser.lockRef);
-			await authStore.set(mcName, { telegram: record.telegram });
-
-			return messenger.send(
-				chatId,
-				"You have successfully authenticated yourself.",
-			);
-		});
+				return messenger.send(
+					chatId,
+					"You have successfully authenticated yourself.",
+				);
+			},
+		);
 
 		events.on("core:close", () => {
 			// cleanup
