@@ -10,6 +10,9 @@ import { parser } from "./argumentParser.js";
 const red = chalk.red;
 const green = chalk.green;
 
+let questionAsked = false;
+let questionPromise = undefined;
+
 let store = undefined;
 let mode = "string";
 
@@ -27,16 +30,28 @@ const r = start({
   eval: (rawCmd, _, __, rawCallback) => {
     const callback = (str) => {
       const _callback = (val) => {
-        if (str != undefined) console.log(val);
+        if (val != undefined) console.log(val);
         rawCallback(null, undefined);
       };
 
       if (typeof str == "object") {
         str.then((val) => _callback(val));
+        if (questionAsked) {
+          questionAsked = false;
+          questionPromise = undefined;
+        }
       } else _callback(str);
     };
 
     const splitCmd = rawCmd.trim().split(" ");
+    if (questionAsked) {
+      if (splitCmd[0] == "y" || splitCmd[0] == "Y") {
+        return callback(questionPromise);
+      } else {
+        questionAsked = false;
+        return callback("cancelled");
+      }
+    }
     if (splitCmd[0] == "") return callback(undefined);
 
     const cmd = commands.find((x) => x.name === splitCmd[0]);
@@ -48,11 +63,13 @@ const r = start({
 
     let arg = undefined;
     if (splitCmd.length == 1) {
-      const initial = cmd.args[0];
-      if (initial[2]) {
-        return callback(
-          `${red("Missing argument")}: '${initial[0][0]}': ${initial[0][1]}`,
-        );
+      if (cmd.args.length > 0) {
+        const initial = cmd.args[0];
+        if (initial[2]) {
+          return callback(
+            `${red("Missing argument")}: '${initial[0]}': ${initial[1]}`,
+          );
+        }
       }
     } else {
       let parsed = parser(splitCmd.splice(1).join(" "));
@@ -127,8 +144,24 @@ const r = start({
             .catch((e) => `${red("couldn't set")}: ${e}`),
         );
       }
-    }
 
-    return callback("Something went wrong!");
+      case "del": {
+        return callback(
+          store.del(arg[0]).then(() => {
+            `${green("del")} ${arg[0]}`;
+          }).catch((e) => `${red("couldn't del")}: ${e}`),
+        );
+      }
+
+      case "clear": {
+        questionAsked = true;
+        questionPromise = store.clear().then(() => {
+          return `${green("cleared")}`;
+        }).catch((e) => `${red("couldn't clear")}: ${e}`);
+        return callback(
+          "This will clear the entire store. Proceed? (y/n on the next prompt)",
+        );
+      }
+    }
   },
 });
