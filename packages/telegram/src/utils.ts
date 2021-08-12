@@ -40,11 +40,11 @@ export type MsgContext = {
 	replyTo?: {
 		from: string;
 		text: string | ChatComponent[];
-		source?: "telegram" | "minecraft";
+		source?: "self" | "minecraft";
 	};
 } & (
 	| {
-			source: "telegram";
+			source: "self";
 			from: { name: string; username: string; id: number; chat: number };
 	  }
 	| { source: "minecraft"; from: { name: string } }
@@ -141,13 +141,13 @@ export const MCChat = {
 	message: (message: MsgContext): ChatComponent[] => [
 		...MCChat.sender(
 			message.from.name,
-			message.source === "telegram",
+			message.source === "self",
 			message.replyTo &&
 				MCChat.hoverUser(
 					"Reply",
 					message.replyTo.from,
 					message.replyTo.text,
-					message.replyTo.source === "telegram",
+					message.replyTo.source === "self",
 				),
 		),
 		...MCChat.text(message.text),
