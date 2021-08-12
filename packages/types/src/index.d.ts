@@ -4,4 +4,4 @@ export { Server } from "./types/Server";
 export { Store } from "./types/Store";
 export { IO } from "./types/IO";
 export { Plugin } from "./types/Plugin";
-export * as Messenger from "./types/Messenger";
+export { Messenger } from "./types/Messenger";
