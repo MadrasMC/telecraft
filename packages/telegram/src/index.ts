@@ -61,11 +61,12 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 
 	const telegram = {
 		send(user: string | number, msg: string) {
-			bot.telegram.sendMessage(user, msg);
+			bot.telegram.sendMessage(user, msg, tgOpts);
 		},
 		on: on.bind(ev),
 		once: once.bind(ev),
 		off: off.bind(ev),
+		cmdPrefix: "/",
 	};
 
 	return {
@@ -75,8 +76,7 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 		start: ({ events, store, server, console }) => {
 			if (!opts?.enable) return;
 
-			const send = (msg: string) =>
-				bot.telegram.sendMessage(opts.chatId, msg, tgOpts);
+			const send = (msg: string) => telegram.send(opts.chatId, msg);
 
 			bot.command("chatid", ctx => ctx.reply(ctx.chat?.id?.toString()!));
 
