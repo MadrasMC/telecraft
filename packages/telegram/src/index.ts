@@ -1,4 +1,4 @@
-import { Plugin } from "@telecraft/types";
+import { Plugin, Messenger } from "@telecraft/types";
 
 import { EventEmitter } from "events";
 
@@ -25,8 +25,6 @@ const tgOpts = { parse_mode: "HTML" } as const;
 const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
 
-type exports = { send: (user: string | number, msg: string) => void };
-
 type Opts = {
 	/** Enable the plugin */
 	enable: boolean;
@@ -46,7 +44,9 @@ type Opts = {
 	telegraf?: any;
 };
 
-const Telegram: Plugin<Opts, [], exports> = opts => {
+type messenger = Messenger<MsgContext>;
+
+const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 	if (!opts.token) throw createError("'token' was not provided");
 
 	const bot = new Telegraf(opts.token, opts.telegraf);
@@ -57,15 +57,15 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 	const on = ev.on.bind(ev);
 	const off = ev.off.bind(ev);
 	const once = ev.off.bind(ev);
-	const emit = ev.emit.bind(ev);
+	const emit: messenger["emit"] = ev.emit.bind(ev);
 
 	const telegram = {
-		send(user: string | number, msg: string) {
-			bot.telegram.sendMessage(user, msg, tgOpts);
+		async send(type: "private" | "chat", user: string | number, msg: string) {
+			await bot.telegram.sendMessage(user, msg, tgOpts);
 		},
-		on: on.bind(ev),
-		once: once.bind(ev),
-		off: off.bind(ev),
+		on,
+		once,
+		off,
 		cmdPrefix: "/",
 	};
 
@@ -76,7 +76,7 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 		start: ({ events, store, server, console }) => {
 			if (!opts?.enable) return;
 
-			const send = (msg: string) => telegram.send(opts.chatId, msg);
+			const send = (msg: string) => telegram.send("chat", opts.chatId, msg);
 
 			bot.command("chatid", ctx => ctx.reply(ctx.chat?.id?.toString()!));
 
@@ -236,15 +236,15 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 				return [from?.first_name, from?.last_name].filter(Boolean).join(" ");
 			};
 
-			const isFromTelegramUser = (ctx?: { from?: { id: number } }) =>
-				String(ctx?.from?.id) !== botID;
+			const isSelf = (ctx?: { from?: { id: number } }) =>
+				String(ctx?.from?.id) === botID;
 
 			const getSender = (ctx: Context) =>
-				isFromTelegramUser(ctx)
-					? getTelegramName(ctx.message)
-					: extractMinecraftUsername(
+				isSelf(ctx)
+					? extractMinecraftUsername(
 							ctx.message && "text" in ctx.message ? ctx.message.text : "",
-					  );
+					  )
+					: getTelegramName(ctx.message);
 
 			const handledTypes: MessageSubType[] = [
 				"voice",
@@ -286,21 +286,21 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 						);
 				};
 
-				const isFromTelegram = isFromTelegramUser(ctx);
+				const self = isSelf(ctx);
 
-				const fromDetails = isFromTelegram
+				const fromDetails = self
 					? {
+							from: { name: getSender(ctx) },
+							source: "minecraft" as const,
+					  }
+					: {
 							from: {
 								name: getSender(ctx),
 								username: ctx.from?.username!,
 								id: ctx.from?.id!,
 								chat: ctx.chat?.id!,
 							},
-							source: "telegram" as const,
-					  }
-					: {
-							from: { name: getSender(ctx) },
-							source: "minecraft" as const,
+							source: "self" as const,
 					  };
 
 				const replyDetails = reply && {
@@ -310,13 +310,10 @@ const Telegram: Plugin<Opts, [], exports> = opts => {
 								? extractMinecraftUsername("text" in reply ? reply.text : "")
 								: getTelegramName(reply),
 						text:
-							(isFromTelegramUser(reply)
-								? getCaptioned(reply)
-								: removeMinecraftUsername("text" in reply ? reply.text : "")) ||
-							"",
-						source: isFromTelegramUser(reply)
-							? ("telegram" as const)
-							: ("minecraft" as const),
+							(isSelf(reply)
+								? removeMinecraftUsername("text" in reply ? reply.text : "")
+								: getCaptioned(reply)) || "",
+						source: isSelf(reply) ? ("minecraft" as const) : ("self" as const),
 					},
 				};
 
