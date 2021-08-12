@@ -1,4 +1,4 @@
-import { Plugin } from "@telecraft/types";
+import { Plugin, Messenger } from "@telecraft/types";
 
 import { parse } from "nbt-ts";
 
@@ -8,15 +8,10 @@ const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
 
 // Get 4 random numbers
-const rand = () => String(Math.ceil(Math.random() * 10000));
+const rand = () => String(Math.floor(1000 + Math.random() * 9000));
 
 const gameModes = ["survival", "creative", "adventure", "spectator"] as const;
 type gameModes = typeof gameModes[number];
-
-type Messenger = {
-	send: (user: string | number, msg: string) => Promise<void>;
-	on: (type: string, listener: (context: any) => void) => void;
-};
 
 type Pos = [number, number, number];
 
@@ -34,7 +29,7 @@ const auth: Plugin<
 		enable: boolean;
 		use: "@telecraft/telegram" | "@telecraft/discord" | "@telecraft/irc";
 	},
-	[Messenger]
+	[Messenger.exports]
 > = config => ({
 	name: pkg.name,
 	version: pkg.version,
@@ -133,23 +128,25 @@ const auth: Plugin<
 				tpLock(player, dimension, pos, playerGameType);
 
 				if (storeUser?.messengerId) {
-					server.send(`tellraw ${player} "Send /auth to the bridge bot."`);
+					const cmd = messenger.cmdPrefix + "auth";
+
+					server.send(`tellraw ${player} "Send ${cmd} to the bridge bot."`);
 					messenger.send(
+						"private",
 						storeUser.messengerId,
-						"Send /auth to authenticate yourself.",
+						`Send ${cmd} to authenticate yourself.`,
 					);
 				} else {
-					setAuthCache(player, { code: rand() });
+					const cmd = messenger.cmdPrefix + "link";
+
+					const code = rand();
+					setAuthCache(player, { code });
 
 					server.send(
 						// Todo(mkr): make link copyable
-						`tellraw ${player} "Send \`/link ${
-							authCache.get(player)!.code
-						}\` to the bridge bot."`,
+						`tellraw ${player} "Send \`${cmd} ${code}\` to the bridge bot."`,
 					);
-					server.send(
-						`title ${player} title "Send /link ${authCache.get(player)!.code}"`,
-					);
+					server.send(`title ${player} title "Send ${cmd} ${code}"`);
 					server.send(`title ${player} subtitle "to bridge bot"`);
 				}
 			});
@@ -176,42 +173,56 @@ const auth: Plugin<
 		messenger.on(
 			"link",
 			async (ctx: {
-				from: { id: string | number; chat: string | number };
+				from: {
+					id: string | number;
+					source: string | number;
+					type: "private" | "chat";
+				};
 				cmd: string;
 				value: string;
 			}) => {
 				const fromId = ctx.from.id;
-				const chatId = ctx.from.chat;
+				const sourceId = ctx.from.source;
 
-				if (fromId !== chatId)
-					return messenger.send(chatId, "Send link in PM.");
+				if (ctx.from.type !== "private")
+					return messenger.send(
+						"chat",
+						sourceId,
+						"Send link command in private.",
+					);
 
 				if (![...authCache.entries()].length)
-					return messenger.send(fromId, "Login to the server first.");
+					return messenger.send("chat", fromId, "Login to the server first.");
 
-				if (!ctx.value) return messenger.send(fromId, "No code provided.");
+				if (!ctx.value)
+					return messenger.send(ctx.from.type, fromId, "No code provided.");
 
 				const match = [...authCache.keys()].find(
 					player => authCache.get(player)!.code === ctx.value,
 				);
 
-				if (!match) return messenger.send(fromId, "Incorrect code.");
+				if (!match)
+					return messenger.send(ctx.from.type, fromId, "Incorrect code.");
 
 				await unlock(match, fromId);
 
-				messenger.send(fromId, "Link successful!");
+				messenger.send(ctx.from.type, fromId, "Link successful!");
 			},
 		);
 
 		messenger.on(
 			"auth",
 			async (ctx: {
-				from: { id: string | number; chat: string | number };
+				from: {
+					id: string | number;
+					source: string | number;
+					type: "private" | "chat";
+				};
 				cmd: string;
 				value: string;
 			}) => {
 				const fromId = ctx.from.id;
-				const chatId = ctx.from.chat;
+				const sourceId = ctx.from.source;
 				const result = await authStore.find(
 					record => record?.messengerId === fromId,
 				);
@@ -220,19 +231,25 @@ const auth: Plugin<
 
 				if (!mcName || !record?.messengerId)
 					return messenger.send(
-						chatId,
+						ctx.from.type,
+						sourceId,
 						"You must link first before using auth.",
 					);
 
 				const cacheUser = authCache.get(mcName);
 
 				if (!cacheUser)
-					return messenger.send(chatId, "Login to the server first.");
+					return messenger.send(
+						ctx.from.type,
+						sourceId,
+						"Login to the server first.",
+					);
 
 				await unlock(mcName, record.messengerId);
 
 				return messenger.send(
-					chatId,
+					ctx.from.type,
+					sourceId,
 					"You have successfully authenticated yourself.",
 				);
 			},
