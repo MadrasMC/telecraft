@@ -29,6 +29,7 @@ const auth: Plugin<
 	{
 		enable: boolean;
 		use: "@telecraft/telegram" | "@telecraft/discord" | "@telecraft/irc";
+		timeout?: number;
 	},
 	[Messenger["exports"]]
 > = config => ({
@@ -42,11 +43,15 @@ const auth: Plugin<
 				"Plugin was enabled, but dependency 'messenger' was not passed",
 			);
 
-		const authStore = await store<{
+		const timeout = config.timeout || 60 * 1000;
+
+		type StoreUser = {
 			messengerId?: Messenger["identifier"];
 			gameMode?: string;
 			op?: boolean;
-		}>();
+		};
+
+		const authStore = await store<StoreUser>();
 
 		const authCache = new Map<
 			string,
@@ -56,7 +61,7 @@ const auth: Plugin<
 				gameMode?: gameModes;
 				op?: boolean;
 				hasTimedOut?: boolean;
-				hasSentAuth?: boolean;
+				hasAuthed?: boolean;
 			}
 		>();
 
@@ -67,10 +72,7 @@ const auth: Plugin<
 			authCache.set(player, { ...authCache.get(player), ...details });
 		};
 
-		// auth timeout in milliseconds
-		const AUTH_TIMEOUT = 60 * 1000;
-
-		const lock = async (user: string) => {
+		const lock = async (user: string, storeUser: StoreUser | null) => {
 			server.send(`effect give ${user} minecraft:blindness 1000000`);
 			server.send(`effect give ${user} minecraft:slowness 1000000 255`);
 			server.send(`gamemode spectator ${user}`);
@@ -81,10 +83,10 @@ const auth: Plugin<
 				const cacheUser = authCache.get(user);
 
 				// player auth'd before timeout
-				if(!cacheUser) return;
+				if (!cacheUser) return;
 
 				// player has auth'd but unlock is still in progress
-				if(cacheUser.hasSentAuth) return;
+				if (cacheUser.hasAuthed) return;
 
 				/*
 					In case the user auths after the timeout duration
@@ -98,21 +100,22 @@ const auth: Plugin<
 					fails for some reason the user could gain
 					access to the target account without auth
 				*/
-				_unlock(user, false);
-
-				messenger.send(
-					"chat",
-					undefined,
-					`Auth for ${user} timed out.`,
-				);
-
-				server.send(`kick ${user}`);
-			}, AUTH_TIMEOUT);
+				clearLock(user, storeUser?.messengerId, {
+					success: false,
+					reason: "Auth timed out. Try again.",
+				});
+			}, timeout);
 		};
 
-		const _unlock = async (
+		const clearLock = async (
 			user: string,
-			resetGamemode = true
+			messengerId: Messenger["identifier"],
+			{
+				success,
+				reason,
+			}:
+				| { success: true; reason?: never }
+				| { success: false; reason?: string },
 		) => {
 			const opts = await authStore.get(user);
 			const cacheUser = authCache.get(user);
@@ -122,20 +125,18 @@ const auth: Plugin<
 
 			authCache.delete(user);
 
-			server.send(`effect clear ${user} minecraft:blindness`);
-			server.send(`effect clear ${user} minecraft:slowness`);
-			if (resetGamemode) server.send(`gamemode ${mode} ${user}`);
-			if (op) server.send(`op ${user}`);
+			if (success) {
+				server.send(`effect clear ${user} minecraft:blindness`);
+				server.send(`effect clear ${user} minecraft:slowness`);
+				server.send(`gamemode ${mode} ${user}`);
+				if (op) server.send(`op ${user}`);
 
-			cacheUser?.lockRef && clearTimeout(cacheUser.lockRef);
-		}
-
-		const unlock = async (
-			user: string,
-			messengerId: Messenger["identifier"],
-		) => {
-			await _unlock(user);
-			await authStore.set(user, { messengerId: messengerId });
+				cacheUser?.lockRef && clearTimeout(cacheUser.lockRef);
+				await authStore.set(user, { messengerId: messengerId });
+			} else {
+				server.send(`kick ${user} ${reason}`);
+				messenger.send("private", messengerId, `Auth for ${user} ${reason}`);
+			}
 		};
 
 		const tpLock = (
@@ -168,10 +169,10 @@ const auth: Plugin<
 			const lockUser = (ctx: any) => {
 				const data = parse(ctx.data) as any;
 
-				if(data.user != player) return;
+				if (data.user != player) return;
 				else events.off("minecraft:data", lockUser);
 
-				lock(player);
+				lock(player, storeUser);
 
 				const playerGameType: gameModes = gameModes[data.playerGameType.value];
 				const pos: Pos = data.Pos as Pos;
@@ -249,7 +250,7 @@ const auth: Plugin<
 			if (!match)
 				return messenger.send(ctx.from.type, fromId, "Incorrect code.");
 
-			await unlock(match, fromId);
+			await clearLock(match, fromId, { success: true });
 
 			messenger.send(ctx.from.type, fromId, "Link successful!");
 		});
@@ -260,11 +261,15 @@ const auth: Plugin<
 			const username = ctx.from.name;
 
 			const existingUser = await authStore.find(
-				record => record?.messengerId ==  fromId
+				record => record?.messengerId == fromId,
 			);
 
-			if(!existingUser)
-				return messenger.send(ctx.from.type, sourceId, "You can't unlink if you never linked.");
+			if (!existingUser)
+				return messenger.send(
+					ctx.from.type,
+					sourceId,
+					"You can't unlink if you never linked.",
+				);
 
 			await authStore.remove(existingUser[0]);
 
@@ -276,7 +281,11 @@ const auth: Plugin<
 			*/
 			server.send(`kick ${existingUser[0]}`);
 
-			return messenger.send(ctx.from.type, sourceId, `Successfully unlinked ${username} from \`${existingUser[0]}\``);
+			return messenger.send(
+				ctx.from.type,
+				sourceId,
+				`Successfully unlinked ${username} from \`${existingUser[0]}\``,
+			);
 		});
 
 		messenger.on("auth", async (ctx: CtxBase) => {
@@ -309,10 +318,9 @@ const auth: Plugin<
 					be kicked in a few milliseconds.
 			*/
 			if (cacheUser.hasTimedOut) return;
+			cacheUser.hasAuthed = true;
 
-			cacheUser.hasSentAuth = true;
-
-			await unlock(mcName, record.messengerId);
+			await clearLock(mcName, record.messengerId, { success: true });
 
 			return messenger.send(
 				ctx.from.type,
