@@ -12,10 +12,8 @@ export const parser = (arg) => {
 
     if (char == " ") {
       if (isInEnc) buffer += char;
-      else {
-        if (isBeingEscaped) return [`Unknown escape \${char}`, undefined];
-        else continue;
-      }
+      else if (isBeingEscaped) return [`Unknown escape \${char}`, undefined];
+      continue;
     }
 
     if (char == ENC) {
