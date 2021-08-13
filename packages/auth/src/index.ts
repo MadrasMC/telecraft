@@ -35,7 +35,7 @@ const auth: Plugin<
 	name: pkg.name,
 	version: pkg.version,
 	dependencies: [config.use],
-	start: async ({ events, store, server, console }, [messenger]) => {
+	start: async ({ events, store, server }, [messenger]) => {
 		if (!config.enable) return;
 		if (!messenger)
 			throw createError(
@@ -55,6 +55,8 @@ const auth: Plugin<
 				code?: string;
 				gameMode?: gameModes;
 				op?: boolean;
+				hasTimedOut?: boolean;
+				hasSentAuth?: boolean;
 			}
 		>();
 
@@ -65,16 +67,52 @@ const auth: Plugin<
 			authCache.set(player, { ...authCache.get(player), ...details });
 		};
 
-		const lock = (user: string) => {
+		// auth timeout in milliseconds
+		const AUTH_TIMEOUT = 60 * 1000;
+
+		const lock = async (user: string) => {
 			server.send(`effect give ${user} minecraft:blindness 1000000`);
 			server.send(`effect give ${user} minecraft:slowness 1000000 255`);
 			server.send(`gamemode spectator ${user}`);
 			server.send(`deop ${user}`);
+
+			// auth timeout
+			setTimeout(() => {
+				const cacheUser = authCache.get(user);
+
+				// player auth'd before timeout
+				if(!cacheUser) return;
+
+				// player has auth'd but unlock is still in progress
+				if(cacheUser.hasSentAuth) return;
+
+				/*
+					In case the user auths after the timeout duration
+					but before they could be kicked.
+				*/
+				cacheUser.hasTimedOut = true;
+
+				/*
+					Unlock the user but avoid setting their
+					gamemode back to survival, since if the kick
+					fails for some reason the user could gain
+					access to the target account without auth
+				*/
+				_unlock(user, false);
+
+				messenger.send(
+					"chat",
+					undefined,
+					`Auth for ${user} timed out.`,
+				);
+
+				server.send(`kick ${user}`);
+			}, AUTH_TIMEOUT);
 		};
 
-		const unlock = async (
+		const _unlock = async (
 			user: string,
-			messengerId: Messenger["identifier"],
+			resetGamemode = true
 		) => {
 			const opts = await authStore.get(user);
 			const cacheUser = authCache.get(user);
@@ -86,10 +124,17 @@ const auth: Plugin<
 
 			server.send(`effect clear ${user} minecraft:blindness`);
 			server.send(`effect clear ${user} minecraft:slowness`);
-			server.send(`gamemode ${mode} ${user}`);
+			if (resetGamemode) server.send(`gamemode ${mode} ${user}`);
 			if (op) server.send(`op ${user}`);
 
 			cacheUser?.lockRef && clearTimeout(cacheUser.lockRef);
+		}
+
+		const unlock = async (
+			user: string,
+			messengerId: Messenger["identifier"],
+		) => {
+			await _unlock(user);
 			await authStore.set(user, { messengerId: messengerId });
 		};
 
@@ -120,10 +165,13 @@ const auth: Plugin<
 					setAuthCache(player, { op: Boolean(ctx.op) }),
 			);
 
-			events.once("minecraft:data", ctx => {
-				lock(player);
-
+			const lockUser = (ctx: any) => {
 				const data = parse(ctx.data) as any;
+
+				if(data.user != player) return;
+				else events.off("minecraft:data", lockUser);
+
+				lock(player);
 
 				const playerGameType: gameModes = gameModes[data.playerGameType.value];
 				const pos: Pos = data.Pos as Pos;
@@ -153,13 +201,16 @@ const auth: Plugin<
 					server.send(`title ${player} title "Send ${cmd} ${code}"`);
 					server.send(`title ${player} subtitle "to bridge bot"`);
 				}
-			});
+			};
+
+			events.on("minecraft:data", lockUser);
 		});
 
 		events.on("minecraft:leave", async (ctx: { user: string }) => {
 			const cacheUser = authCache.get(ctx.user);
 
 			if (!cacheUser) return;
+			if (cacheUser.hasTimedOut) return;
 
 			const storeUser = await authStore.get(ctx.user);
 
@@ -203,6 +254,31 @@ const auth: Plugin<
 			messenger.send(ctx.from.type, fromId, "Link successful!");
 		});
 
+		messenger.on("unlink", async (ctx: CtxBase) => {
+			const fromId = ctx.from.id;
+			const sourceId = ctx.from.source;
+			const username = ctx.from.name;
+
+			const existingUser = await authStore.find(
+				record => record?.messengerId ==  fromId
+			);
+
+			if(!existingUser)
+				return messenger.send(ctx.from.type, sourceId, "You can't unlink if you never linked.");
+
+			await authStore.remove(existingUser[0]);
+
+			/*
+				Kick the player in case they're still logged in.
+				We could check if the player is online, but this
+				action is fairly lightweight and harmless, so just
+				doing it regardless wouldn't hurt.
+			*/
+			server.send(`kick ${existingUser[0]}`);
+
+			return messenger.send(ctx.from.type, sourceId, `Successfully unlinked ${username} from \`${existingUser[0]}\``);
+		});
+
 		messenger.on("auth", async (ctx: CtxBase) => {
 			const fromId = ctx.from.id;
 			const sourceId = ctx.from.source;
@@ -227,6 +303,14 @@ const auth: Plugin<
 					sourceId,
 					"Login to the server first.",
 				);
+
+			/*
+					If auth has timed out, the user will
+					be kicked in a few milliseconds.
+			*/
+			if (cacheUser.hasTimedOut) return;
+
+			cacheUser.hasSentAuth = true;
 
 			await unlock(mcName, record.messengerId);
 

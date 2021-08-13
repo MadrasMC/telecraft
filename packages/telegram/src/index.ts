@@ -266,24 +266,34 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				"poll",
 			];
 
+			const getCaptioned = (msg: Message | undefined) => {
+				const thisType = handledTypes.find(type => msg && type in msg);
+				if (thisType === "text") return msg && deunionise(msg)?.text;
+				if (thisType)
+					return captionMedia(
+						thisType.split("_").join(" ").toUpperCase(),
+						msg,
+					);
+			};
+
 			const handler: Middleware<Context> = (ctx, next) => {
 				const isLinkedGroup = String(ctx.message?.chat.id) === opts.chatId;
-				const arePlayersOnline = players.list.length > 0;
 				const isBotPM = ctx.message?.chat.type === "private";
-				if ((!isLinkedGroup || !arePlayersOnline) && !isBotPM) return next();
+				const messageText = getCaptioned(ctx.message) || "";
+				const isMessageCommand = typeof messageText == "string" && isCommand(messageText);
+
+				if(isMessageCommand) {
+					// commands can be from either PM or linked group
+					if(!(isLinkedGroup || isBotPM)) return next();
+				} else {
+					 // regular texts must be from linked group
+					if(!isLinkedGroup || isBotPM) return next();
+					// if it's indeed from the linked group but
+					// no players are online, don't relay
+					else if(players.list.length < 1) return next();
+				}
 
 				const reply = ctx.message && deunionise(ctx.message)?.reply_to_message;
-
-				const getCaptioned = (msg: Message | undefined) => {
-					const thisType = handledTypes.find(type => msg && type in msg);
-					if (thisType === "text") return msg && deunionise(msg)?.text;
-					if (thisType)
-						return captionMedia(
-							thisType.split("_").join(" ").toUpperCase(),
-							msg,
-						);
-				};
-
 				const self = isSelf(ctx);
 
 				const fromDetails = self
@@ -317,7 +327,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				};
 
 				const emitCtx = Object.assign(
-					{ text: getCaptioned(ctx.message) || "" },
+					{ text: messageText },
 					fromDetails,
 					replyDetails,
 				);
