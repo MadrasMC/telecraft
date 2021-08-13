@@ -1,5 +1,10 @@
-import { Plugin } from "@telecraft/types";
-import DiscordJS from "discord.js";
+import { Plugin, Messenger } from "@telecraft/types";
+import DiscordJS, {
+	Intents,
+	TextBasedChannels,
+	Channel,
+	TextChannel,
+} from "discord.js";
 import { EventEmitter } from "events";
 import { MCChat, escapeHTML, code, isCommand, parseCommand } from "./utils";
 
@@ -8,49 +13,86 @@ const pkg = require("../package.json") as { name: string; version: string };
 const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
 
-const Discord: Plugin<{
+const isGuildTextChannel = (
+	channel: TextBasedChannels | Channel,
+): channel is TextChannel => channel.type === "GUILD_TEXT";
+
+type Opts = {
 	enable: boolean;
 	token: string;
 	channelId: string;
-}> = opts => {
-	let channel: DiscordJS.Channel | undefined;
+};
+
+type Context = {
+	cmd: string;
+	value: string;
+};
+
+type DiscordMessenger = Messenger<Context, string, "chat">;
+
+const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
+	const client = new DiscordJS.Client({
+		intents: [Intents.FLAGS.GUILD_MESSAGES],
+	});
 	const ev = new EventEmitter();
 
 	const on = ev.on.bind(ev);
 	const off = ev.off.bind(ev);
 	const once = ev.off.bind(ev);
-	const emit = ev.emit.bind(ev);
+	const emit: DiscordMessenger["emit"] = ev.emit.bind(ev);
 
-	const discord = {
-		send(msg: string) {
-			if (!channel) return;
+	const discord: DiscordMessenger["exports"] = {
+		async send(type: "chat", channelId: string, msg) {
+			const channel = await client.channels.cache.get(channelId);
+			if (!channel || !channel.isText()) return;
 			channel.send(msg);
 		},
-		on: on.bind(ev),
-		once: once.bind(ev),
-		off: off.bind(ev),
+		on,
+		once,
+		off,
+		cmdPrefix: "!",
 	};
 
 	return {
 		name: pkg.name,
 		version: pkg.version,
-		dependencies: [],
 		exports: discord,
 		start: async ({ events, server, console }, []) => {
 			if (opts.enable) {
-				const client = new DiscordJS.Client();
 				let playersOnline = 0;
 
-				client.on("ready", () => {
-					channel = client.channels.cache.get(opts.channelId);
-					if (!channel)
-						throw createError("Could not obtain requested channel!");
-					console.log(`Plugin bound to channel '${channel.name}'`);
+				let channel: TextChannel;
+
+				const send = (msg: string) => channel && channel.send(msg);
+
+				client.on("ready", async () => {
+					const chan = await client.channels.cache.get(opts.channelId);
+
+					if (!chan || !isGuildTextChannel(chan))
+						throw createError(
+							"Fatal: Could not obtain requested channel, or it was not a text channel!",
+						);
+
+					channel = chan;
+
+					console.log(`Bound to channel '${chan.name}'`);
 				});
 
 				events.on("minecraft:started", () => {
 					client.on("message", message => {
-						if (playersOnline > 0 && message.author.id !== client.user?.id) {
+						const channel = message.channel;
+
+						if (
+							// nobody online
+							playersOnline < 1 &&
+							// itsa me, bot
+							message.author.id === client.user?.id &&
+							// not the chosen one
+							channel.id !== opts.channelId
+						)
+							return;
+
+						if (isGuildTextChannel(channel)) {
 							const messageText = message.content;
 
 							if (isCommand(messageText)) {
@@ -59,8 +101,8 @@ const Discord: Plugin<{
 							} else {
 								const chatMessage = MCChat.message({
 									from: message.author.username,
+									channel: channel.id,
 									text: messageText,
-									channel: message.channel.name,
 								});
 
 								server.send("tellraw @a " + JSON.stringify(chatMessage));
@@ -69,33 +111,33 @@ const Discord: Plugin<{
 					});
 
 					events.on("minecraft:message", ctx => {
-						discord.send(code(ctx.user) + " " + escapeHTML(ctx.text));
+						send(code(ctx.user) + " " + escapeHTML(ctx.text));
 					});
 
 					events.on("minecraft:join", ctx => {
-						discord.send(code(ctx.user + " joined the server"));
+						send(code(ctx.user + " joined the server"));
 						playersOnline += 1;
 					});
 
 					events.on("minecraft:leave", ctx => {
-						discord.send(code(ctx.user + " left the server"));
+						send(code(ctx.user + " left the server"));
 						playersOnline -= 1;
 					});
 
 					events.on("minecraft:self", ctx =>
-						discord.send(code("* " + ctx.user + " " + ctx.text)),
+						send(code("* " + ctx.user + " " + ctx.text)),
 					);
 
 					events.on("minecraft:say", ctx =>
-						discord.send(code(ctx.user + " says: " + ctx.text)),
+						send(code(ctx.user + " says: " + ctx.text)),
 					);
 
 					events.on("minecraft:death", ctx =>
-						discord.send(code(ctx.user + " " + ctx.text)),
+						send(code(ctx.user + " " + ctx.text)),
 					);
 
 					events.on("minecraft:advancement", ctx =>
-						discord.send(
+						send(
 							code(ctx.user) +
 								" has made the advancement " +
 								code("[" + ctx.advancement + "]"),
@@ -103,7 +145,7 @@ const Discord: Plugin<{
 					);
 
 					events.on("minecraft:goal", ctx =>
-						discord.send(
+						send(
 							code(ctx.user) +
 								" has reached the goal " +
 								code("[" + ctx.goal + "]"),
@@ -111,7 +153,7 @@ const Discord: Plugin<{
 					);
 
 					events.on("minecraft:challenge", ctx =>
-						discord.send(
+						send(
 							code(ctx.user) +
 								" has completed the challenge " +
 								code("[" + ctx.challenge + "]"),
