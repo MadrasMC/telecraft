@@ -13,7 +13,6 @@ import {
 	MCChat,
 	ChatComponent,
 	escapeHTML,
-	MsgContext,
 	deunionise,
 	isCommand,
 	parseCommand,
@@ -45,7 +44,7 @@ type Opts = {
 	telegraf?: any;
 };
 
-type messenger = Messenger<MsgContext>;
+type messenger = Messenger<string | number>;
 
 const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 	if (!opts.token) throw createError("'token' was not provided");
@@ -297,7 +296,8 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 								name: getSender(ctx),
 								username: ctx.from?.username!,
 								id: ctx.from?.id!,
-								chat: ctx.chat?.id!,
+								source: ctx.chat?.id!,
+								type: isBotPM ? ("private" as const) : ("chat" as const),
 							},
 							source: "self" as const,
 					  };
@@ -316,19 +316,21 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 					},
 				};
 
-				const emitCtx: MsgContext = Object.assign(
+				const emitCtx = Object.assign(
 					{ text: getCaptioned(ctx.message) || "" },
 					fromDetails,
 					replyDetails,
 				);
 
-				const chatMessage = MCChat.message(emitCtx);
-
-				if (typeof emitCtx.text === "string" && isCommand(emitCtx.text)) {
+				if (
+					emitCtx.source === "self" &&
+					typeof emitCtx.text === "string" &&
+					isCommand(emitCtx.text)
+				) {
 					const cmd = parseCommand(emitCtx.text);
 					emit(cmd.cmd, Object.assign(emitCtx, cmd));
 				} else {
-					emit("message", emitCtx);
+					const chatMessage = MCChat.message(emitCtx);
 
 					server.send("tellraw @a " + JSON.stringify(chatMessage));
 				}

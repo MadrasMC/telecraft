@@ -1,3 +1,7 @@
+import { ChatComponent } from "@telecraft/types/types/Minecraft";
+
+export type { ChatComponent };
+
 const escapables = {
 	"<": "&lt;",
 	">": "&gt;",
@@ -42,51 +46,15 @@ export type MsgContext = {
 		text: string | ChatComponent[];
 		source?: "self" | "minecraft";
 	};
+	cmd: string;
+	value: string;
 } & (
 	| {
 			source: "self";
-			from: { name: string; username: string; id: number; chat: number };
+			from: { name: string; username: string; id: number; source: number };
 	  }
 	| { source: "minecraft"; from: { name: string } }
 );
-
-export type ChatComponent =
-	| {
-			text: string;
-			bold?: boolean;
-			italic?: boolean;
-			underlined?: boolean;
-			strikethrough?: boolean;
-			obfuscated?: boolean;
-			color?:
-				| "black"
-				| "dark_blue"
-				| "dark_green"
-				| "dark_aqua"
-				| "dark_red"
-				| "dark_purple"
-				| "gold"
-				| "gray"
-				| "dark_gray"
-				| "blue"
-				| "green"
-				| "aqua"
-				| "red"
-				| "light_purple"
-				| "yellow"
-				| "white"
-				| "reset";
-			insertion?: string;
-			clickEvent?: {
-				action: "open_url" | "run_command" | "suggest_command" | "change_page";
-				value: string;
-			};
-			hoverEvent?: {
-				action: "show_text" | "show_item" | "show_entity";
-				value: ChatComponent[];
-			};
-	  }
-	| string;
 
 export const MCChat = {
 	text: (text: string | ChatComponent[]): ChatComponent[] =>
@@ -138,7 +106,16 @@ export const MCChat = {
 		"> ",
 	],
 
-	message: (message: MsgContext): ChatComponent[] => [
+	message: (message: {
+		source: "self" | "minecraft";
+		text: string | ChatComponent[];
+		from: { name: string };
+		replyTo: {
+			from: string;
+			text: string | ChatComponent[];
+			source: "self" | "minecraft";
+		};
+	}): ChatComponent[] => [
 		...MCChat.sender(
 			message.from.name,
 			message.source === "self",

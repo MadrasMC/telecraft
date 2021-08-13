@@ -1,9 +1,10 @@
 type Listener<Context> = (context: Context) => void;
 
-export type CtxBase = {
+export type CtxBase<Identifier extends unknown = unknown> = {
 	from: {
-		id: string | number;
-		source: string | number;
+		id: Identifier;
+		name?: string;
+		source: Identifier;
 		type: "private" | "chat";
 	};
 	cmd: string;
@@ -11,10 +12,11 @@ export type CtxBase = {
 };
 
 export type Messenger<
+	Identifier extends unknown = unknown,
 	Context extends CtxBase = CtxBase,
-	Identifier extends string | number = string | number,
 	Type extends "private" | "chat" = "private" | "chat",
 > = {
+	identifier: Identifier;
 	context: Context;
 	listener: Listener<Context>;
 	emit: (ev: string, ctx: Context) => void;

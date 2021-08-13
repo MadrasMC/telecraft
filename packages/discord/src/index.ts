@@ -1,4 +1,6 @@
 import { Plugin, Messenger } from "@telecraft/types";
+import { CtxBase } from "@telecraft/types/types/Messenger";
+
 import DiscordJS, {
 	Intents,
 	TextBasedChannels,
@@ -23,12 +25,7 @@ type Opts = {
 	channelId: string;
 };
 
-type Context = {
-	cmd: string;
-	value: string;
-};
-
-type DiscordMessenger = Messenger<Context, string, "chat">;
+type DiscordMessenger = Messenger<string, CtxBase, "chat">;
 
 const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
 	const client = new DiscordJS.Client({
@@ -95,9 +92,23 @@ const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
 						if (isGuildTextChannel(channel)) {
 							const messageText = message.content;
 
+							type x = keyof number;
+
+							const x: object = { x: "" };
+
 							if (isCommand(messageText)) {
 								const cmd = parseCommand(messageText);
-								emit(cmd.cmd, cmd);
+
+								const ctx = {
+									from: {
+										id: message.author.id,
+										source: channel.id,
+										type: "chat" as const,
+									},
+									...cmd,
+								};
+
+								emit(cmd.cmd, ctx);
 							} else {
 								const chatMessage = MCChat.message({
 									from: message.author.username,
