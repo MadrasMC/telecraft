@@ -120,10 +120,13 @@ const auth: Plugin<
 					setAuthCache(player, { op: Boolean(ctx.op) }),
 			);
 
-			events.once("minecraft:data", ctx => {
-				lock(player);
-
+			const lockUser = (ctx: any) => {
 				const data = parse(ctx.data) as any;
+
+				if(data.user != player) return;
+				else events.off("minecraft:data", lockUser);
+
+				lock(player);
 
 				const playerGameType: gameModes = gameModes[data.playerGameType.value];
 				const pos: Pos = data.Pos as Pos;
@@ -153,7 +156,9 @@ const auth: Plugin<
 					server.send(`title ${player} title "Send ${cmd} ${code}"`);
 					server.send(`title ${player} subtitle "to bridge bot"`);
 				}
-			});
+			};
+
+			events.on("minecraft:data", lockUser);
 		});
 
 		events.on("minecraft:leave", async (ctx: { user: string }) => {
