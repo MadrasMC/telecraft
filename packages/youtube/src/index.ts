@@ -1,6 +1,8 @@
 import { Plugin } from "@telecraft/types";
 import axios from "axios";
+
 import { MCChat, MsgContext } from "./utils";
+import { LiveChatMessage } from "./types";
 
 const pkg = require("../package.json") as { name: string; version: string };
 
@@ -26,16 +28,20 @@ const YoutubeLive: Plugin<{
 				if (opts.enable) {
 					/* fetch live chat ID from video ID */
 					const liveDetails = await axios.get(
-						"https://www.googleapis.com/youtube/v3/videos" +
-							"?part=liveStreamingDetails" +
-							`&id=${opts.videoId}` +
-							`&key=${opts.apiKey}`,
+						"https://www.googleapis.com/youtube/v3/videos",
+						{
+							params: {
+								part: "liveStreamingDetails",
+								id: opts.videoId,
+								key: opts.apiKey,
+							},
+						},
 					);
 
 					const items = liveDetails.data.items;
 
 					if (!items || items.length != 1)
-						return createError("Cannot get live chat ID for video!");
+						throw createError("Cannot get live chat ID for video!");
 
 					const liveChatId = items[0].liveStreamingDetails.activeLiveChatId;
 
@@ -48,17 +54,22 @@ const YoutubeLive: Plugin<{
 						if (stopFetching) return;
 
 						if (playersOnline > 0) {
-							const messageHolder = await axios.get(
-								"https://www.googleapis.com/youtube/v3/liveChat/messages" +
-									`?&maxResults=${opts.maxResults || 100}` +
-									"&part=id,snippet,authorDetails" +
-									`&liveChatId=${liveChatId}` +
-									`&key=${opts.apiKey}`,
-							);
+							const messageHolder: { data: { items: LiveChatMessage[] } } =
+								await axios.get(
+									"https://www.googleapis.com/youtube/v3/liveChat/messages",
+									{
+										params: {
+											maxResults: opts.maxResults || 100,
+											part: "id,snippet,authorDetails",
+											liveChatId,
+											key: opts.apiKey,
+										},
+									},
+								);
 
 							console.log("Got messages", messageHolder.data.items.length);
 
-							const messages: Array<any> = messageHolder.data.items;
+							const messages = messageHolder.data.items;
 							for (let message of messages) {
 								try {
 									if (message.snippet.hasDisplayContent) {
