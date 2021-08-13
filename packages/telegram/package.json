@@ -20,12 +20,12 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^14.14.20",
-		"typescript": "^4.1.3"
+		"@types/node": "^14.17.9",
+		"typescript": "^4.3.5"
 	},
 	"dependencies": {
-		"@telecraft/types": "workspace:*",
-		"telegraf": "^4.0.1",
-		"tslib": "^2.0.1"
+		"@telecraft/types": "workspace:../types",
+		"telegraf": "^4.4.1",
+		"tslib": "^2.3.1"
 	}
 }

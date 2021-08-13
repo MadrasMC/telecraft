@@ -45,4 +45,4 @@ To update node modules used in all packages across the entire workspace, use `pn
 
 ### Do:
 
-- Use `pnpm install @telecraft/parser@workspace:*` to add one package from this repo as a dependency to another
+- Use `pnpm install @telecraft/parser@workspace:../parser` to add one package from this repo as a dependency to another
