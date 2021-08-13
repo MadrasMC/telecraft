@@ -13,7 +13,8 @@
 	},
 	"author": "Udit Karode <@uditkarode> (https://uditkarode.github.io)",
 	"contributors": [
-		"Udit Karode <@uditkarode> (https://uditkarode.github.io)"
+		"Udit Karode <@uditkarode> (https://uditkarode.github.io)",
+		"Muthu Kumar <@MKRhere> (https://mkr.pw)"
 	],
 	"license": "MIT",
 	"devDependencies": {
