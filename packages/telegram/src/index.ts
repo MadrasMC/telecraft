@@ -4,7 +4,8 @@ import { EventEmitter } from "events";
 
 // Telegraf
 import { Telegraf, Middleware, Context } from "telegraf";
-import { Message, MessageSubType } from "telegraf/typings/telegram-types";
+import { MessageSubType } from "telegraf/typings/telegram-types";
+import { Message } from "telegraf/typings/core/types/typegram";
 // --
 
 import {
@@ -272,9 +273,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				const isBotPM = ctx.message?.chat.type === "private";
 				if ((!isLinkedGroup || !arePlayersOnline) && !isBotPM) return next();
 
-				// Todo(mkr): fix the type assertion after 4.0.1
-				const reply = (ctx.message &&
-					deunionise(ctx.message)?.reply_to_message) as Message | undefined;
+				const reply = ctx.message && deunionise(ctx.message)?.reply_to_message;
 
 				const getCaptioned = (msg: Message | undefined) => {
 					const thisType = handledTypes.find(type => msg && type in msg);
