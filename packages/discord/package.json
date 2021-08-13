@@ -22,7 +22,6 @@
 	},
 	"dependencies": {
 		"@telecraft/types": "workspace:../types",
-		"@types/ws": "^7.4.7",
 		"discord.js": "13",
 		"tslib": "^2.3.1"
 	}
