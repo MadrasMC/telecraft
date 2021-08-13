@@ -203,6 +203,31 @@ const auth: Plugin<
 			messenger.send(ctx.from.type, fromId, "Link successful!");
 		});
 
+		messenger.on("unlink", async (ctx: CtxBase) => {
+			const fromId = ctx.from.id;
+			const sourceId = ctx.from.source;
+			const username = ctx.from.name;
+
+			const existingUser = await authStore.find(
+				record => record?.messengerId ==  fromId
+			);
+
+			if(!existingUser)
+				return messenger.send(ctx.from.type, sourceId, "You can't unlink if you never linked.");
+
+			await authStore.remove(existingUser[0]);
+
+			/*
+				Kick the player in case they're still logged in.
+				We could check if the player is online, but this
+				action is fairly lightweight and harmless, so just
+				doing it regardless wouldn't hurt.
+			*/
+			server.send(`kick ${existingUser[0]}`);
+
+			return messenger.send(ctx.from.type, sourceId, `Successfully unlinked ${username} from \`${existingUser[0]}\``);
+		});
+
 		messenger.on("auth", async (ctx: CtxBase) => {
 			const fromId = ctx.from.id;
 			const sourceId = ctx.from.source;
