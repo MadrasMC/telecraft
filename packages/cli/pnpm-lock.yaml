@@ -1,38 +1,43 @@
+lockfileVersion: 5.3
+
+specifiers:
+  '@telecraft/auth': workspace:../auth
+  '@telecraft/core': workspace:../core
+  '@telecraft/discord': workspace:../discord
+  '@telecraft/parser': workspace:../parser
+  '@telecraft/store': workspace:../store
+  '@telecraft/telegram': workspace:../telegram
+  '@telecraft/youtube': workspace:../youtube
+  '@types/node': ^14.17.9
+  tslib: ^2.3.1
+  typescript: ^4.3.5
+
 dependencies:
   '@telecraft/auth': link:../auth
   '@telecraft/core': link:../core
+  '@telecraft/discord': link:../discord
   '@telecraft/parser': link:../parser
   '@telecraft/store': link:../store
   '@telecraft/telegram': link:../telegram
   '@telecraft/youtube': link:../youtube
-  '@types/node': 14.14.20
-  tslib: 2.1.0
+  '@types/node': 14.17.9
+  tslib: 2.3.1
+
 devDependencies:
-  typescript: 4.1.3
-lockfileVersion: 5.2
+  typescript: 4.3.5
+
 packages:
-  /@types/node/14.14.20:
+
+  /@types/node/14.17.9:
+    resolution: {integrity: sha512-CMjgRNsks27IDwI785YMY0KLt3co/c0cQ5foxHYv/shC2w8oOnVwz5Ubq1QG5KzrcW+AXk6gzdnxIkDnTvzu3g==}
     dev: false
-    resolution:
-      integrity: sha512-Y93R97Ouif9JEOWPIUyU+eyIdyRqQR0I8Ez1dzku4hDx34NWh4HbtIc3WNzwB1Y9ULvNGeu5B8h8bVL5cAk4/A==
-  /tslib/2.1.0:
+
+  /tslib/2.3.1:
+    resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
     dev: false
-    resolution:
-      integrity: sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
-  /typescript/4.1.3:
-    dev: true
-    engines:
-      node: '>=4.2.0'
+
+  /typescript/4.3.5:
+    resolution: {integrity: sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==}
+    engines: {node: '>=4.2.0'}
     hasBin: true
-    resolution:
-      integrity: sha512-B3ZIOf1IKeH2ixgHhj6la6xdwR9QrLC5d1VKeCSY4tvkqhF2eqd9O7txNlS0PO3GrBAFIdr3L1ndNwteUbZLYg==
-specifiers:
-  '@telecraft/auth': workspace:*
-  '@telecraft/core': workspace:*
-  '@telecraft/parser': workspace:*
-  '@telecraft/store': workspace:*
-  '@telecraft/telegram': workspace:*
-  '@telecraft/youtube': workspace:*
-  '@types/node': ^14.14.20
-  tslib: ^2.0.1
-  typescript: ^4.1.3
+    dev: true

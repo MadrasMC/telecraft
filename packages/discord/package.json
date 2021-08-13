@@ -1,7 +1,7 @@
 {
-	"name": "@telecraft/youtube",
+	"name": "@telecraft/discord",
 	"version": "1.0.0-alpha1",
-	"description": "YouTube live chat synchronisation for Minecraft servers, powered by Telecraft.",
+	"description": "Discord chat synchronisation for Minecraft servers, powered by Telecraft.",
 	"main": "dist",
 	"scripts": {
 		"build": "tsc --importHelpers",
@@ -13,8 +13,7 @@
 	},
 	"author": "Udit Karode <@uditkarode> (https://uditkarode.github.io)",
 	"contributors": [
-		"Udit Karode <@uditkarode> (https://uditkarode.github.io)",
-		"Muthu Kumar <@MKRhere> (https://mkr.pw)"
+		"Udit Karode <@uditkarode> (https://uditkarode.github.io)"
 	],
 	"license": "MIT",
 	"devDependencies": {
@@ -23,7 +22,7 @@
 	},
 	"dependencies": {
 		"@telecraft/types": "workspace:../types",
-		"axios": "^0.21.1",
+		"discord.js": "13",
 		"tslib": "^2.3.1"
 	}
 }
