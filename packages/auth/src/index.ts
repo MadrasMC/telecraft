@@ -1,4 +1,5 @@
 import { Plugin, Messenger } from "@telecraft/types";
+import { CtxBase } from "@telecraft/types/types/Messenger";
 
 import { parse } from "nbt-ts";
 
@@ -29,7 +30,7 @@ const auth: Plugin<
 		enable: boolean;
 		use: "@telecraft/telegram" | "@telecraft/discord" | "@telecraft/irc";
 	},
-	[Messenger.exports]
+	[Messenger["exports"]]
 > = config => ({
 	name: pkg.name,
 	version: pkg.version,
@@ -42,7 +43,7 @@ const auth: Plugin<
 			);
 
 		const authStore = await store<{
-			messengerId?: string | number;
+			messengerId?: Messenger["identifier"];
 			gameMode?: string;
 			op?: boolean;
 		}>();
@@ -71,7 +72,10 @@ const auth: Plugin<
 			server.send(`deop ${user}`);
 		};
 
-		const unlock = async (user: string, messengerId: string | number) => {
+		const unlock = async (
+			user: string,
+			messengerId: Messenger["identifier"],
+		) => {
 			const opts = await authStore.get(user);
 			const cacheUser = authCache.get(user);
 
@@ -170,90 +174,68 @@ const auth: Plugin<
 			authCache.delete(ctx.user);
 		});
 
-		messenger.on(
-			"link",
-			async (ctx: {
-				from: {
-					id: string | number;
-					source: string | number;
-					type: "private" | "chat";
-				};
-				cmd: string;
-				value: string;
-			}) => {
-				const fromId = ctx.from.id;
-				const sourceId = ctx.from.source;
+		messenger.on("link", async (ctx: CtxBase) => {
+			const fromId = ctx.from.id;
+			const sourceId = ctx.from.source;
 
-				if (ctx.from.type !== "private")
-					return messenger.send(
-						"chat",
-						sourceId,
-						"Send link command in private.",
-					);
-
-				if (![...authCache.entries()].length)
-					return messenger.send("chat", fromId, "Login to the server first.");
-
-				if (!ctx.value)
-					return messenger.send(ctx.from.type, fromId, "No code provided.");
-
-				const match = [...authCache.keys()].find(
-					player => authCache.get(player)!.code === ctx.value,
+			if (ctx.from.type !== "private")
+				return messenger.send(
+					"chat",
+					sourceId,
+					"Send link command in private.",
 				);
 
-				if (!match)
-					return messenger.send(ctx.from.type, fromId, "Incorrect code.");
+			if (![...authCache.entries()].length)
+				return messenger.send("chat", fromId, "Login to the server first.");
 
-				await unlock(match, fromId);
+			if (!ctx.value)
+				return messenger.send(ctx.from.type, fromId, "No code provided.");
 
-				messenger.send(ctx.from.type, fromId, "Link successful!");
-			},
-		);
+			const match = [...authCache.keys()].find(
+				player => authCache.get(player)!.code === ctx.value,
+			);
 
-		messenger.on(
-			"auth",
-			async (ctx: {
-				from: {
-					id: string | number;
-					source: string | number;
-					type: "private" | "chat";
-				};
-				cmd: string;
-				value: string;
-			}) => {
-				const fromId = ctx.from.id;
-				const sourceId = ctx.from.source;
-				const result = await authStore.find(
-					record => record?.messengerId === fromId,
-				);
+			if (!match)
+				return messenger.send(ctx.from.type, fromId, "Incorrect code.");
 
-				const [mcName, record] = result || [];
+			await unlock(match, fromId);
 
-				if (!mcName || !record?.messengerId)
-					return messenger.send(
-						ctx.from.type,
-						sourceId,
-						"You must link first before using auth.",
-					);
+			messenger.send(ctx.from.type, fromId, "Link successful!");
+		});
 
-				const cacheUser = authCache.get(mcName);
+		messenger.on("auth", async (ctx: CtxBase) => {
+			const fromId = ctx.from.id;
+			const sourceId = ctx.from.source;
+			const result = await authStore.find(
+				record => record?.messengerId === fromId,
+			);
 
-				if (!cacheUser)
-					return messenger.send(
-						ctx.from.type,
-						sourceId,
-						"Login to the server first.",
-					);
+			const [mcName, record] = result || [];
 
-				await unlock(mcName, record.messengerId);
-
+			if (!mcName || !record?.messengerId)
 				return messenger.send(
 					ctx.from.type,
 					sourceId,
-					"You have successfully authenticated yourself.",
+					"You must link first before using auth.",
 				);
-			},
-		);
+
+			const cacheUser = authCache.get(mcName);
+
+			if (!cacheUser)
+				return messenger.send(
+					ctx.from.type,
+					sourceId,
+					"Login to the server first.",
+				);
+
+			await unlock(mcName, record.messengerId);
+
+			return messenger.send(
+				ctx.from.type,
+				sourceId,
+				"You have successfully authenticated yourself.",
+			);
+		});
 
 		events.on("core:close", () => {
 			// cleanup
