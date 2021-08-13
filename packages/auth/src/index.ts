@@ -61,7 +61,7 @@ const auth: Plugin<
 				gameMode?: gameModes;
 				op?: boolean;
 				hasTimedOut?: boolean;
-				hasAuthed?: boolean;
+				hasSentAuth?: boolean;
 			}
 		>();
 
@@ -86,7 +86,7 @@ const auth: Plugin<
 				if (!cacheUser) return;
 
 				// player has auth'd but unlock is still in progress
-				if (cacheUser.hasAuthed) return;
+				if (cacheUser.hasSentAuth) return;
 
 				/*
 					In case the user auths after the timeout duration
@@ -250,6 +250,13 @@ const auth: Plugin<
 			if (!match)
 				return messenger.send(ctx.from.type, fromId, "Incorrect code.");
 
+			// cannot be undefined since it's literally matched from authCache above
+			const cacheUser = authCache.get(match)!;
+
+			// auth has timed out; user will be kicked shortly
+			if (cacheUser.hasTimedOut) return;
+			cacheUser.hasSentAuth = true;
+
 			await clearLock(match, fromId, { success: true });
 
 			messenger.send(ctx.from.type, fromId, "Link successful!");
@@ -313,12 +320,9 @@ const auth: Plugin<
 					"Login to the server first.",
 				);
 
-			/*
-					If auth has timed out, the user will
-					be kicked in a few milliseconds.
-			*/
+			// auth has timed out; user will be kicked shortly
 			if (cacheUser.hasTimedOut) return;
-			cacheUser.hasAuthed = true;
+			cacheUser.hasSentAuth = true;
 
 			await clearLock(mcName, record.messengerId, { success: true });
 
