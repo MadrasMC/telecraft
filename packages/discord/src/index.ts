@@ -81,9 +81,9 @@ const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
 
 						if (
 							// nobody online
-							playersOnline < 1 &&
+							playersOnline < 1 ||
 							// itsa me, bot
-							message.author.id === client.user?.id &&
+							message.author.id === client.user?.id ||
 							// not the chosen one
 							channel.id !== opts.channelId
 						)
