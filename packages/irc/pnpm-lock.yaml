@@ -1,0 +1,79 @@
+lockfileVersion: 5.3
+
+specifiers:
+  '@telecraft/types': workspace:../types
+  '@types/irc': ^0.5.1
+  '@types/node': ^14.17.9
+  irc: ^0.5.2
+  tslib: ^2.3.1
+  typescript: ^4.3.5
+
+dependencies:
+  '@telecraft/types': link:../types
+  irc: 0.5.2
+  tslib: 2.3.1
+
+devDependencies:
+  '@types/irc': 0.5.1
+  '@types/node': 14.17.9
+  typescript: 4.3.5
+
+packages:
+
+  /@types/irc/0.5.1:
+    resolution: {integrity: sha512-lc0v1lY6OHkyrX/gJH8fRIeN1KBkyBF6Ot6mOUK0ontnzXJIOA2D3/ggrT6eZS3p/lp+kOUBtw30B1/rHBZbog==}
+    dependencies:
+      '@types/node': 14.17.9
+    dev: true
+
+  /@types/node/14.17.9:
+    resolution: {integrity: sha512-CMjgRNsks27IDwI785YMY0KLt3co/c0cQ5foxHYv/shC2w8oOnVwz5Ubq1QG5KzrcW+AXk6gzdnxIkDnTvzu3g==}
+    dev: true
+
+  /iconv/2.2.3:
+    resolution: {integrity: sha1-4ITWDut9c9p/CpwJbkyKvgkL+u0=}
+    engines: {node: '>=0.8.0'}
+    requiresBuild: true
+    dependencies:
+      nan: 2.15.0
+    dev: false
+    optional: true
+
+  /irc-colors/1.5.0:
+    resolution: {integrity: sha512-HtszKchBQTcqw1DC09uD7i7vvMayHGM1OCo6AHt5pkgZEyo99ClhHTMJdf+Ezc9ovuNNxcH89QfyclGthjZJOw==}
+    engines: {node: '>=6'}
+    dev: false
+
+  /irc/0.5.2:
+    resolution: {integrity: sha1-NxT0doNlqW0LL3dryRFmvrJGS7w=}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      irc-colors: 1.5.0
+    optionalDependencies:
+      iconv: 2.2.3
+      node-icu-charset-detector: 0.2.0
+    dev: false
+
+  /nan/2.15.0:
+    resolution: {integrity: sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==}
+    dev: false
+    optional: true
+
+  /node-icu-charset-detector/0.2.0:
+    resolution: {integrity: sha1-wjINo3Tdy2cfxUy0oOBB4Vb/1jk=}
+    engines: {node: '>=0.6'}
+    requiresBuild: true
+    dependencies:
+      nan: 2.15.0
+    dev: false
+    optional: true
+
+  /tslib/2.3.1:
+    resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
+    dev: false
+
+  /typescript/4.3.5:
+    resolution: {integrity: sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
