@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"outDir": "./dist",
+		"target": "es2020",
+		"module": "commonjs",
+		"strict": true /* Enable all strict type-checking options. */,
+		"sourceMap": true,
+		"declaration": true /* Generates corresponding d.ts files. */,
+		"noErrorTruncation": true /* Generates corresponding d.ts files. */,
+		"esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
+		"moduleResolution": "node"
+	},
+	"include": ["./src", "./src/**/*.ts"],
+	"exclude": ["node_modules"]
+}
