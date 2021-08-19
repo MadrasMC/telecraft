@@ -1,38 +1,46 @@
 {
-	"name": "store-cli",
-	"version": "0.1.0",
-	"description": "a repl for leveldb stores",
-	"main": "index.js",
-	"type": "module",
+	"name": "@telecraft/store-sh",
+	"version": "1.0.0-alpha1",
+	"description": "shell for @telecraft/store",
+	"main": "dist",
+	"bin": "./dist/index.js",
+	"files": [
+		"dist"
+	],
 	"scripts": {
-		"start": "node index.js"
+		"build": "tsc --importHelpers",
+		"build:w": "tsc --importHelpers -w"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/uditkarode/store-cli.git"
+		"url": "git+https://github.com/telecraft/telecraft.git"
 	},
 	"keywords": [
+		"telecraft",
+		"telecraft-store",
 		"store",
+		"shell",
 		"cli",
-		"leveldb",
-		"levelup",
 		"repl",
 		"node"
 	],
 	"author": "Udit Karode <udit.karode@gmail.com>",
+	"contributors": [
+		"Muthu Kumar <@MKRhere> (https://mkr.pw)"
+	],
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/uditkarode/store-cli/issues"
+		"url": "https://github.com/telecraft/telecraft/issues"
 	},
-	"homepage": "https://github.com/uditkarode/store-cli#readme",
+	"homepage": "https://github.com/telecraft/telecraft/tree/master/packages/store-cli#readme",
 	"dependencies": {
+		"@telecraft/store": "../store",
+		"@telecraft/types": "../types",
 		"chalk": "^4.1.2",
-		"leveldown": "^6.0.1",
-		"levelup": "^5.0.1",
-		"repl": "^0.1.3",
-		"@telecraft/store": "../store"
+		"tslib": "^2.3.1"
 	},
 	"devDependencies": {
-		"@types/node": "^16.6.1"
+		"@types/node": "^16.6.1",
+		"typescript": "^4.3.5"
 	}
 }
