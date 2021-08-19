@@ -1,34 +1,38 @@
 {
-  "name": "store-cli",
-  "version": "0.1.0",
-  "description": "a repl for leveldb stores",
-  "main": "index.js",
-  "type": "module",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/uditkarode/store-cli.git"
-  },
-  "keywords": [
-    "store",
-    "cli",
-    "leveldb",
-    "levelup",
-    "repl",
-    "node"
-  ],
-  "author": "Udit Karode <udit.karode@gmail.com>",
-  "license": "GPL-3.0-or-later",
-  "bugs": {
-    "url": "https://github.com/uditkarode/store-cli/issues"
-  },
-  "homepage": "https://github.com/uditkarode/store-cli#readme",
-  "dependencies": {
-    "chalk": "^4.1.2",
-    "leveldown": "^6.0.1",
-    "levelup": "^5.0.1",
-    "repl": "^0.1.3"
-  }
+	"name": "store-cli",
+	"version": "0.1.0",
+	"description": "a repl for leveldb stores",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"start": "node index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/uditkarode/store-cli.git"
+	},
+	"keywords": [
+		"store",
+		"cli",
+		"leveldb",
+		"levelup",
+		"repl",
+		"node"
+	],
+	"author": "Udit Karode <udit.karode@gmail.com>",
+	"license": "GPL-3.0-or-later",
+	"bugs": {
+		"url": "https://github.com/uditkarode/store-cli/issues"
+	},
+	"homepage": "https://github.com/uditkarode/store-cli#readme",
+	"dependencies": {
+		"chalk": "^4.1.2",
+		"leveldown": "^6.0.1",
+		"levelup": "^5.0.1",
+		"repl": "^0.1.3",
+		"@telecraft/store": "../store"
+	},
+	"devDependencies": {
+		"@types/node": "^16.6.1"
+	}
 }
