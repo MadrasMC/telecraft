@@ -32,7 +32,7 @@
 	"bugs": {
 		"url": "https://github.com/telecraft/telecraft/issues"
 	},
-	"homepage": "https://github.com/telecraft/telecraft/tree/master/packages/store-cli#readme",
+	"homepage": "https://github.com/telecraft/telecraft/tree/master/packages/store-sh#readme",
 	"dependencies": {
 		"@telecraft/store": "../store",
 		"@telecraft/types": "../types",
