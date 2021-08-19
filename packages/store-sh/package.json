@@ -3,7 +3,9 @@
 	"version": "1.0.0-alpha1",
 	"description": "shell for @telecraft/store",
 	"main": "dist",
-	"bin": "./dist/index.js",
+	"bin": {
+		"store-sh": "./dist/index.js"
+	},
 	"files": [
 		"dist"
 	],
