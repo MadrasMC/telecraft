@@ -7,8 +7,8 @@ export type Command = {
 export const commands: Command[] = [
 	{
 		name: "open",
-		args: [["location", "path to @telecraft/store instance", true]],
-		description: "open a leveldb database",
+		args: [["name", "store name/path", true]],
+		description: "open a telecraft store",
 	},
 	{
 		name: "get",
@@ -19,10 +19,9 @@ export const commands: Command[] = [
 		name: "set",
 		args: [
 			["key", "key to be set", true],
-			["value", "value to be set"],
+			["value", "value to be set", true],
 		],
-		description:
-			"fetch current mode or switch it between 'object' and 'string'",
+		description: "set value for given key in the store",
 	},
 	{
 		name: "del",

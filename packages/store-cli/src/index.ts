@@ -1,23 +1,55 @@
-import path from "path";
+#!/bin/env node
+
 import { start } from "repl";
-import chalk from "chalk";
+import { inspect } from "util";
+import { EOL } from "os";
+import { red, green, blue } from "chalk";
 import Store from "@telecraft/store";
+import type { Store as TelecraftStore } from "@telecraft/types";
 
 import { commands } from "./commands";
-import { parser } from "./argumentParser";
 
-// helper functions
-const red = chalk.red;
-const green = chalk.green;
+const getCmd = (
+	cmdx: string,
+	rest: string[],
+):
+	| false
+	| Error
+	| {
+			args: string[];
+			name: string;
+			description: string;
+	  } => {
+	const cmd = commands.find(x => x.name === cmdx);
+	if (!cmd) return false;
 
-let questionAsked = false;
-let questionPromise = undefined;
+	const required = cmd.args.filter(([, , req]) => req);
+	if (required.length > rest.length) {
+		const [arg, desc] = required[rest.length];
+		return new Error(`${red("missing argument")} '${arg}': ${desc}`);
+	}
 
-let store: ReturnType<typeof Store> | undefined = undefined;
-let mode = "string";
+	return { ...cmd, args: rest };
+};
+
+const dbPath = process.argv[2] || process.cwd();
+const store = Store(dbPath);
+
+type UnwrapP<P extends Promise<any>> = P extends Promise<infer X> ? X : never;
+
+type Context = {
+	store?: UnwrapP<ReturnType<TelecraftStore>> | undefined;
+	mode?: string;
+	asked?: [() => void, () => void];
+};
+
+const context: Context = {};
+
+console.log(`${green("database:")} ${dbPath}` + EOL);
 
 const r = start({
-	prompt: "store > ",
+	prompt: blue("# "),
+	writer: x => x,
 	ignoreUndefined: true,
 
 	completer: (line: string) => {
@@ -27,118 +59,80 @@ const r = start({
 		return [hits.length ? hits : completions, line];
 	},
 
-	eval: (line, _, __, _callback) => {
-		const callback = (str: string | Promise<string> | undefined) => {
-			Promise.resolve(str).then(val => _callback(null, val));
-			// if (questionAsked) {
-			// 	questionAsked = false;
-			// 	questionPromise = undefined;
-			// }
-		};
+	eval: async (line, _, __, _callback) => {
+		const callback = (str: string | Promise<string> | undefined) =>
+			Promise.resolve(str).then(val => _callback(null, val + EOL));
 
-		const splitCmd = line.trim().split(" ");
-		if (questionAsked) {
-			if (splitCmd[0] == "y" || splitCmd[0] == "Y") {
-				return callback(questionPromise);
+		const [cmdx, ...rest] = line.trim().split(" ");
+
+		if (context.asked) {
+			if (["y", "yes"].includes(cmdx.toLowerCase())) {
+				return context.asked[0]();
 			} else {
-				questionAsked = false;
-				return callback("cancelled");
+				return context.asked[1]();
 			}
 		}
 
-		if (splitCmd[0] == "") return callback(undefined);
+		const cmd = getCmd(cmdx, rest);
 
-		const cmd = commands.find(x => x.name === splitCmd[0]);
-		if (!cmd) {
-			return callback(`${red("command not found")}: ${splitCmd[0]}`);
+		if (!cmd) return callback(`${red("command not found")}: '${cmdx}'`);
+		if (cmd instanceof Error) return callback(cmd.message);
+
+		if (cmd.name === "exit") return r.close();
+		if (cmd.name === "open") {
+			const storeName = cmd.args[0];
+			context.store = await store(storeName)();
+			r.setPrompt(blue(storeName + " # "));
+			return callback(`${green("'open'")}: store '${storeName}'`);
 		}
 
-		let arg = undefined;
-		if (splitCmd.length == 1) {
-			if (cmd.args.length > 0) {
-				const initial = cmd.args[0];
-				if (initial[2]) {
-					return callback(
-						`${red("Missing argument")}: '${initial[0]}': ${initial[1]}`,
-					);
-				}
-			}
-		} else {
-			let parsed = parser(splitCmd.splice(1).join(" "));
-			if (parsed[0] !== undefined) {
-				return callback(`${red(`fatal: ${parsed[0]}`)}`);
-			} else {
-				arg = parsed[1];
-				if (arg.length !== cmd.args.length) {
-					return callback(
-						`${red(
-							`fatal: expected ${cmd.args.length} arguments, ${arg.length} given`,
-						)}`,
-					);
-				}
-			}
-		}
-
-		if (!store) {
-			if (!["exit", "open", "mode"].find(x => x === cmd.name)) {
-				return callback(`${red(`unable to '${cmd.name}'`)}: no store opened`);
-			}
-		}
+		if (!context.store)
+			return callback(`${red(`'${cmd.name}'`)}: no store opened`);
 
 		switch (cmd.name) {
-			case "exit":
-				return r.close();
-
-			case "open": {
-				store = levelup(leveldown(arg[0]));
-				return callback(`${green("store opened")} at ${path.resolve(arg[0])}`);
-			}
-
 			case "get": {
 				return callback(
-					store
-						.get(arg[0], { asBuffer: false })
-						.then(value => {
-							return mode == "object"
-								? JSON.parse(value.toString("utf-8"))
-								: value;
-						})
-						.catch(e => `${red("couldn't get")}: ${e}`),
+					context.store
+						.get(cmd.args[0])
+						.then(value => inspect(value, undefined, undefined, true))
+						.catch(e => `${red("'get'")}: ${e} not found`),
 				);
 			}
 
 			case "set": {
 				return callback(
-					store
-						.put(arg[0], Buffer.from(JSON.stringify(arg[1]), "utf-8"))
-						.then(
-							() => `${green("set")} ${arg[0]}${chalk.yellow(":")}${arg[1]}`,
-						)
-						.catch(e => `${red("couldn't set")}: ${e}`),
+					context.store
+						.set(cmd.args[0], JSON.parse(cmd.args.slice(1).join(" ")))
+						.then(() => `${green("'set'")}: ${cmd.args[0]}`)
+						.catch((e: Error) => `${red("'set'")}: ${e.message}`),
 				);
 			}
 
 			case "del": {
 				return callback(
-					store
-						.del(arg[0])
-						.then(() => {
-							`${green("del")} ${arg[0]}`;
-						})
-						.catch(e => `${red("couldn't del")}: ${e}`),
+					context.store
+						.remove(cmd.args[0])
+						.then(() => `${green("'del'")}: ${cmd.args[0]}`)
+						.catch((e: Error) => `${red("'del'")}: ${e.message}`),
 				);
 			}
 
 			case "clear": {
-				questionAsked = true;
-				questionPromise = store
-					.clear()
-					.then(() => {
-						return `${green("cleared")}`;
-					})
-					.catch(e => `${red("couldn't clear")}: ${e}`);
-				return callback(
-					"This will clear the entire store. Proceed? (y/n on the next prompt)",
+				const store = context.store;
+
+				context.asked = [
+					() =>
+						callback(
+							store
+								.clear()
+								.then(() => `${green("'clear'")}: success`)
+								.catch((e: Error) => `${red("'clear'")}: ${e.message}`),
+						),
+					() => callback("Cancelled."),
+				];
+
+				return process.stdout.write(
+					"This will clear the entire store. Proceed? (y/n)",
 				);
 			}
 		}
