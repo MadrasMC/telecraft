@@ -20,7 +20,7 @@
 		"node"
 	],
 	"author": "Udit Karode <udit.karode@gmail.com>",
-	"license": "GPL-3.0-or-later",
+	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/uditkarode/store-cli/issues"
 	},
