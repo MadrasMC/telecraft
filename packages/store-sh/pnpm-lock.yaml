@@ -3,8 +3,10 @@ lockfileVersion: 5.3
 specifiers:
   '@telecraft/store': ../store
   '@telecraft/types': ../types
+  '@types/lodash': ^4.14.172
   '@types/node': ^16.6.1
   chalk: ^4.1.2
+  lodash: ^4.17.21
   tslib: ^2.3.1
   typescript: ^4.3.5
 
@@ -12,13 +14,19 @@ dependencies:
   '@telecraft/store': link:../store
   '@telecraft/types': link:../types
   chalk: 4.1.2
+  lodash: 4.17.21
   tslib: 2.3.1
 
 devDependencies:
+  '@types/lodash': 4.14.172
   '@types/node': 16.6.1
   typescript: 4.3.5
 
 packages:
+
+  /@types/lodash/4.14.172:
+    resolution: {integrity: sha512-/BHF5HAx3em7/KkzVKm3LrsD6HZAXuXO1AJZQ3cRRBZj4oHZDviWPYu0aEplAqDFNHZPW6d3G7KN+ONcCCC7pw==}
+    dev: true
 
   /@types/node/16.6.1:
     resolution: {integrity: sha512-Sr7BhXEAer9xyGuCN3Ek9eg9xPviCF2gfu9kTfuU2HkTVAMYSDeX40fvpmo72n5nansg3nsBjuQBrsS28r+NUw==}
@@ -53,6 +61,10 @@ packages:
   /has-flag/4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
+    dev: false
+
+  /lodash/4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: false
 
   /supports-color/7.2.0:

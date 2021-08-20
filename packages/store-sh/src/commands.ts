@@ -16,10 +16,20 @@ export const commands: Command[] = [
 		description: "fetch the value for a key in the store",
 	},
 	{
+		name: "find",
+		args: [["value", "valid JSON to search for", true]],
+		description: "find key containing query JSON",
+	},
+	{
+		name: "list",
+		args: [],
+		description: "list all entries",
+	},
+	{
 		name: "set",
 		args: [
 			["key", "key to be set", true],
-			["value", "value to be set", true],
+			["value", "valid JSON value to be set", true],
 		],
 		description: "set value for given key in the store",
 	},
@@ -32,5 +42,10 @@ export const commands: Command[] = [
 		name: "clear",
 		args: [],
 		description: "clear the store",
+	},
+	{
+		name: "exit",
+		args: [],
+		description: "exit the shell",
 	},
 ];
