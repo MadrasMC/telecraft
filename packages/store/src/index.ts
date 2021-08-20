@@ -5,6 +5,7 @@ import path from "path";
 
 import levelup from "levelup";
 import leveldown from "leveldown";
+import { iterator } from "p-event";
 
 const nativeConsole = console;
 
@@ -68,6 +69,18 @@ const StoreProvider = (
 							.on("error", (err: Error) => reject(err))
 							.on("close", () => !resolved && resolve(null));
 					});
+				},
+				list: () => {
+					return iterator(
+						store.createReadStream({
+							keys: true,
+							values: true,
+							keyAsBuffer: false,
+							valueAsBuffer: false,
+						}),
+						"data",
+						{ resolutionEvents: ["close"], rejectionEvents: ["error"] },
+					);
 				},
 				remove: key => store.del(key),
 				clear: () => store.clear(),

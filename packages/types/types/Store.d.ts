@@ -1,4 +1,4 @@
-type JSONable = string | number | boolean | any[] | object | null;
+export type JSONable = string | number | boolean | any[] | object | null;
 
 export type Store = <J extends JSONable>() => Promise<{
 	get: (key: string) => Promise<J | null>;
@@ -6,6 +6,7 @@ export type Store = <J extends JSONable>() => Promise<{
 	find: <V extends J | null>(
 		query: (value: V) => boolean,
 	) => Promise<[string, V] | null>;
+	list: <V extends J | null>() => AsyncIterableIterator<[string, V][]>;
 	remove: (key: string) => Promise<void>;
 	clear: () => Promise<void>;
 	close: () => Promise<void>;
