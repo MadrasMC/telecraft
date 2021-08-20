@@ -3,9 +3,12 @@
 import { start } from "repl";
 import { inspect } from "util";
 import { EOL } from "os";
-import { red, green, blue } from "chalk";
+
 import Store from "@telecraft/store";
 import type { Store as TelecraftStore } from "@telecraft/types";
+
+import { red, green, blue } from "chalk";
+import { isMatch } from "lodash";
 
 import { commands } from "./commands";
 
@@ -31,6 +34,8 @@ const getCmd = (
 
 	return { ...cmd, args: rest };
 };
+
+const log = (str: any) => inspect(str, undefined, undefined, true);
 
 const dbPath = process.argv[2] || process.cwd();
 const store = Store(dbPath);
@@ -94,9 +99,40 @@ const r = start({
 				return callback(
 					context.store
 						.get(cmd.args[0])
-						.then(value => inspect(value, undefined, undefined, true))
+						.then(value => log(value))
 						.catch(e => `${red("'get'")}: ${e} not found`),
 				);
+			}
+
+			case "find": {
+				const jsonable = JSON.parse(cmd.args.join(" "));
+
+				return callback(
+					context.store
+						.find(val =>
+							typeof val === "object" && val
+								? isMatch(val, jsonable)
+								: val === jsonable,
+						)
+						.then(res =>
+							res
+								? `${green("'find'")}: found '${log(res)}'`
+								: `${green("'find'")}: did not find results`,
+						)
+						.catch((e: Error) => `${red("'set'")}: ${e.message}`),
+				);
+			}
+
+			case "list": {
+				try {
+					for await (const res of context.store.list()) {
+						console.log(log(res));
+					}
+				} catch (e: any) {
+					console.log(`${red("'list'")}: ${e.message}`);
+				}
+
+				return callback("");
 			}
 
 			case "set": {
