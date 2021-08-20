@@ -29,6 +29,7 @@
 		"@telecraft/types": "workspace:../types",
 		"leveldown": "^5.6.0",
 		"levelup": "^4.4.0",
+		"p-event": "^4.2.0",
 		"tslib": "^2.3.1"
 	}
 }

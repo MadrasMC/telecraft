@@ -7,6 +7,7 @@ specifiers:
   '@types/node': ^14.17.9
   leveldown: ^5.6.0
   levelup: ^4.4.0
+  p-event: ^4.2.0
   tslib: ^2.3.1
   typescript: ^4.3.5
 
@@ -14,6 +15,7 @@ dependencies:
   '@telecraft/types': link:../types
   leveldown: 5.6.0
   levelup: 4.4.0
+  p-event: 4.2.0
   tslib: 2.3.1
 
 devDependencies:
@@ -156,6 +158,25 @@ packages:
   /node-gyp-build/4.1.1:
     resolution: {integrity: sha512-dSq1xmcPDKPZ2EED2S6zw/b9NKsqzXRE6dVr8TVQnI3FJOTteUMuqF3Qqs6LZg+mLGYJWqQzMbIjMtJqTv87nQ==}
     hasBin: true
+    dev: false
+
+  /p-event/4.2.0:
+    resolution: {integrity: sha512-KXatOjCRXXkSePPb1Nbi0p0m+gQAwdlbhi4wQKJPI1HsMQS9g+Sqp2o+QHziPr7eYJyOZet836KoHEVM1mwOrQ==}
+    engines: {node: '>=8'}
+    dependencies:
+      p-timeout: 3.2.0
+    dev: false
+
+  /p-finally/1.0.0:
+    resolution: {integrity: sha1-P7z7FbiZpEEjs0ttzBi3JDNqLK4=}
+    engines: {node: '>=4'}
+    dev: false
+
+  /p-timeout/3.2.0:
+    resolution: {integrity: sha512-rhIwUycgwwKcP9yTOOFK/AKsAopjjCakVqLHePO3CC6Mir1Z99xT+R63jZxAT5lFZLa2inS5h+ZS2GvR99/FBg==}
+    engines: {node: '>=8'}
+    dependencies:
+      p-finally: 1.0.0
     dev: false
 
   /prr/1.0.1:
