@@ -217,8 +217,8 @@ const auth: Plugin<
 
 			await authStore.set(ctx.user, {
 				messengerId: storeUser?.messengerId,
-				gameMode: cacheUser.gameMode,
-				op: cacheUser.op,
+				gameMode: storeUser?.gameMode || cacheUser.gameMode,
+				op: storeUser?.op || cacheUser.op,
 			});
 
 			cacheUser.lockRef && clearTimeout(cacheUser.lockRef);
