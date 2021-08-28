@@ -43,7 +43,7 @@ const auth: Plugin<
 				"Plugin was enabled, but dependency 'messenger' was not passed",
 			);
 
-		const timeout = config.timeout || 60 * 1000;
+		const timeout = config.timeout || 20 * 1000;
 
 		type StoreUser = {
 			messengerId?: Messenger["identifier"];
@@ -125,13 +125,14 @@ const auth: Plugin<
 
 			authCache.delete(user);
 
+			cacheUser?.lockRef && clearInterval(cacheUser.lockRef);
+
 			if (success) {
 				server.send(`effect clear ${user} minecraft:blindness`);
 				server.send(`effect clear ${user} minecraft:slowness`);
 				server.send(`gamemode ${mode} ${user}`);
 				if (op) server.send(`op ${user}`);
 
-				cacheUser?.lockRef && clearTimeout(cacheUser.lockRef);
 				await authStore.set(user, { messengerId: messengerId });
 			} else {
 				server.send(`kick ${user} ${reason}`);
@@ -224,7 +225,7 @@ const auth: Plugin<
 				op: storeUser?.op || cacheUser.op,
 			});
 
-			cacheUser.lockRef && clearTimeout(cacheUser.lockRef);
+			cacheUser.lockRef && clearInterval(cacheUser.lockRef);
 
 			authCache.delete(ctx.user);
 		});
