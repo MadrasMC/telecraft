@@ -169,7 +169,7 @@ const auth: Plugin<
 			const lockUser = (ctx: any) => {
 				const data = parse(ctx.data) as any;
 
-				if (data.user != player) return;
+				if (ctx.user != player) return;
 				else events.off("minecraft:data", lockUser);
 
 				lock(player, storeUser);
