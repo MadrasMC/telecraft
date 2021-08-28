@@ -135,7 +135,10 @@ const auth: Plugin<
 				await authStore.set(user, { messengerId: messengerId });
 			} else {
 				server.send(`kick ${user} ${reason}`);
-				messenger.send("private", messengerId, `Auth for ${user} ${reason}`);
+
+				// messengerId can be null if unlinked user
+				if (messengerId)
+					messenger.send("private", messengerId, `Auth for ${user} ${reason}`);
 			}
 		};
 
