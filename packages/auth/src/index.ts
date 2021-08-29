@@ -94,12 +94,6 @@ const auth: Plugin<
 				*/
 				cacheUser.hasTimedOut = true;
 
-				/*
-					Unlock the user but avoid setting their
-					gamemode back to survival, since if the kick
-					fails for some reason the user could gain
-					access to the target account without auth
-				*/
 				clearLock(user, storeUser?.messengerId, {
 					success: false,
 					reason: "Auth timed out. Try again.",
@@ -123,11 +117,10 @@ const auth: Plugin<
 			const mode = opts?.gameMode || authCache.get(user)?.gameMode;
 			const op = opts?.op || authCache.get(user)?.op;
 
-			authCache.delete(user);
-
 			cacheUser?.lockRef && clearInterval(cacheUser.lockRef);
 
 			if (success) {
+				authCache.delete(user);
 				server.send(`effect clear ${user} minecraft:blindness`);
 				server.send(`effect clear ${user} minecraft:slowness`);
 				server.send(`gamemode ${mode} ${user}`);
@@ -138,8 +131,8 @@ const auth: Plugin<
 				server.send(`kick ${user} ${reason}`);
 
 				// messengerId can be null if unlinked user
-				if (messengerId)
-					messenger.send("private", messengerId, `Auth for ${user} ${reason}`);
+				if (messengerId && reason)
+					messenger.send("private", messengerId, reason);
 			}
 		};
 
@@ -215,7 +208,6 @@ const auth: Plugin<
 			const cacheUser = authCache.get(ctx.user);
 
 			if (!cacheUser) return;
-			if (cacheUser.hasTimedOut) return;
 
 			const storeUser = await authStore.get(ctx.user);
 
