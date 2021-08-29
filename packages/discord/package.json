@@ -1,6 +1,6 @@
 {
 	"name": "@telecraft/discord",
-	"version": "1.0.0-alpha1",
+	"version": "1.0.0-beta.1",
 	"description": "Discord chat synchronisation for Minecraft servers, powered by Telecraft.",
 	"main": "dist",
 	"scripts": {

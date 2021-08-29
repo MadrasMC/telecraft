@@ -1,6 +1,6 @@
 {
 	"name": "@telecraft/store",
-	"version": "1.0.0-alpha1",
+	"version": "1.0.0-beta.1",
 	"description": "Fast JSON KV store for Telecraft plugins, powered by LevelDB",
 	"main": "dist",
 	"scripts": {
