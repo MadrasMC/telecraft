@@ -40,7 +40,9 @@ const auth: Plugin<
 		if (!config.enable) return;
 		if (!messenger)
 			throw createError(
-				"Plugin was enabled, but dependency 'messenger' was not passed",
+				`Plugin was enabled, but dependency 'messenger' was not passed.${
+					config.use ? ` Is ${config.use} enabled?` : ""
+				}`,
 			);
 
 		const timeout = config.timeout || 20 * 1000;
