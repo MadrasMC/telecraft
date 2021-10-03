@@ -24,7 +24,7 @@
 		"typescript": "^4.3.5"
 	},
 	"dependencies": {
-		"@telecraft/types": "workspace:../types",
+		"@telecraft/types": "workspace:*",
 		"telegraf": "^4.4.1",
 		"tslib": "^2.3.1"
 	}
