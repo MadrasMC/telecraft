@@ -24,7 +24,7 @@
 		"typescript": "^4.3.5"
 	},
 	"dependencies": {
-		"@telecraft/types": "workspace:../types",
+		"@telecraft/types": "workspace:*",
 		"nbt-ts": "^1.3.4",
 		"prismarine-nbt": "^1.6.0",
 		"tslib": "^2.3.1"

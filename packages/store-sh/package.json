@@ -36,8 +36,8 @@
 	},
 	"homepage": "https://github.com/telecraft/telecraft/tree/master/packages/store-sh#readme",
 	"dependencies": {
-		"@telecraft/store": "../store",
-		"@telecraft/types": "../types",
+		"@telecraft/store": "workspace:*",
+		"@telecraft/types": "workspace:*",
 		"chalk": "^4.1.2",
 		"lodash": "^4.17.21",
 		"tslib": "^2.3.1"
