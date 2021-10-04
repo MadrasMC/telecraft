@@ -7,33 +7,33 @@ importers:
 
   packages/auth:
     specifiers:
-      '@telecraft/types': workspace:../types
-      '@types/node': ^14.17.9
+      '@telecraft/types': workspace:*
+      '@types/node': ^14.17.20
       nbt-ts: ^1.3.4
       prismarine-nbt: ^1.6.0
       tslib: ^2.3.1
-      typescript: ^4.3.5
+      typescript: ^4.4.3
     dependencies:
       '@telecraft/types': link:../types
       nbt-ts: 1.3.4
       prismarine-nbt: 1.6.0
       tslib: 2.3.1
     devDependencies:
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       typescript: 4.4.3
 
   packages/cli:
     specifiers:
-      '@telecraft/auth': workspace:../auth
-      '@telecraft/core': workspace:../core
-      '@telecraft/discord': workspace:../discord
-      '@telecraft/parser': workspace:../parser
-      '@telecraft/store': workspace:../store
-      '@telecraft/telegram': workspace:../telegram
-      '@telecraft/youtube': workspace:../youtube
-      '@types/node': ^14.17.9
+      '@telecraft/auth': workspace:*
+      '@telecraft/core': workspace:*
+      '@telecraft/discord': workspace:*
+      '@telecraft/parser': workspace:*
+      '@telecraft/store': workspace:*
+      '@telecraft/telegram': workspace:*
+      '@telecraft/youtube': workspace:*
+      '@types/node': ^14.17.20
       tslib: ^2.3.1
-      typescript: ^4.3.5
+      typescript: ^4.4.3
     dependencies:
       '@telecraft/auth': link:../auth
       '@telecraft/core': link:../core
@@ -42,21 +42,21 @@ importers:
       '@telecraft/store': link:../store
       '@telecraft/telegram': link:../telegram
       '@telecraft/youtube': link:../youtube
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       tslib: 2.3.1
     devDependencies:
       typescript: 4.4.3
 
   packages/core:
     specifiers:
-      '@telecraft/types': workspace:../types
-      '@types/node': ^14.17.9
+      '@telecraft/types': workspace:*
+      '@types/node': ^14.17.20
       iconv-lite: ^0.6.3
       tslib: ^2.3.1
-      typescript: ^4.3.5
+      typescript: ^4.4.3
     dependencies:
       '@telecraft/types': link:../types
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       iconv-lite: 0.6.3
     devDependencies:
       tslib: 2.3.1
@@ -64,60 +64,60 @@ importers:
 
   packages/discord:
     specifiers:
-      '@telecraft/types': workspace:../types
-      '@types/node': ^14.17.9
-      discord.js: '13'
+      '@telecraft/types': workspace:*
+      '@types/node': ^14.17.20
+      discord.js: ^13.1.0
       tslib: ^2.3.1
-      typescript: ^4.3.5
+      typescript: ^4.4.3
     dependencies:
       '@telecraft/types': link:../types
       discord.js: 13.1.0
       tslib: 2.3.1
     devDependencies:
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       typescript: 4.4.3
 
   packages/irc:
     specifiers:
-      '@telecraft/types': workspace:../types
+      '@telecraft/types': workspace:*
       '@types/irc': ^0.5.1
-      '@types/node': ^14.17.9
+      '@types/node': ^14.17.20
       irc: ^0.5.2
       tslib: ^2.3.1
-      typescript: ^4.3.5
+      typescript: ^4.4.3
     dependencies:
       '@telecraft/types': link:../types
       irc: 0.5.2
       tslib: 2.3.1
     devDependencies:
       '@types/irc': 0.5.1
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       typescript: 4.4.3
 
   packages/parser:
     specifiers:
-      '@telecraft/types': workspace:../types
-      '@types/node': ^14.17.9
+      '@telecraft/types': workspace:*
+      '@types/node': ^14.17.20
       tslib: ^2.3.1
-      typescript: ^4.3.5
+      typescript: ^4.4.3
     dependencies:
       '@telecraft/types': link:../types
       tslib: 2.3.1
     devDependencies:
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       typescript: 4.4.3
 
   packages/store:
     specifiers:
-      '@telecraft/types': workspace:../types
+      '@telecraft/types': workspace:*
       '@types/leveldown': ^4.0.3
       '@types/levelup': ^4.3.3
-      '@types/node': ^14.17.9
+      '@types/node': ^14.17.20
       leveldown: ^5.6.0
       levelup: ^4.4.0
       p-event: ^4.2.0
       tslib: ^2.3.1
-      typescript: ^4.3.5
+      typescript: ^4.4.3
     dependencies:
       '@telecraft/types': link:../types
       leveldown: 5.6.0
@@ -127,19 +127,19 @@ importers:
     devDependencies:
       '@types/leveldown': 4.0.3
       '@types/levelup': 4.3.3
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       typescript: 4.4.3
 
   packages/store-sh:
     specifiers:
-      '@telecraft/store': ../store
-      '@telecraft/types': ../types
-      '@types/lodash': ^4.14.172
-      '@types/node': ^16.6.1
+      '@telecraft/store': workspace:*
+      '@telecraft/types': workspace:*
+      '@types/lodash': ^4.14.175
+      '@types/node': ^16.10.2
       chalk: ^4.1.2
       lodash: ^4.17.21
       tslib: ^2.3.1
-      typescript: ^4.3.5
+      typescript: ^4.4.3
     dependencies:
       '@telecraft/store': link:../store
       '@telecraft/types': link:../types
@@ -147,47 +147,47 @@ importers:
       lodash: 4.17.21
       tslib: 2.3.1
     devDependencies:
-      '@types/lodash': 4.14.174
-      '@types/node': 16.10.1
+      '@types/lodash': 4.14.175
+      '@types/node': 16.10.2
       typescript: 4.4.3
 
   packages/telegram:
     specifiers:
-      '@telecraft/types': workspace:../types
-      '@types/node': ^14.17.9
-      telegraf: ^4.4.1
+      '@telecraft/types': workspace:*
+      '@types/node': ^14.17.20
+      telegraf: ^4.4.2
       tslib: ^2.3.1
-      typescript: ^4.3.5
+      typescript: ^4.4.3
     dependencies:
       '@telecraft/types': link:../types
       telegraf: 4.4.2
       tslib: 2.3.1
     devDependencies:
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       typescript: 4.4.3
 
   packages/types:
     specifiers:
-      '@types/node': ^14.17.9
-      typescript: ^4.3.5
+      '@types/node': ^14.17.20
+      typescript: ^4.4.3
     dependencies:
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
     devDependencies:
       typescript: 4.4.3
 
   packages/youtube:
     specifiers:
-      '@telecraft/types': workspace:../types
-      '@types/node': ^14.17.9
-      axios: ^0.21.1
+      '@telecraft/types': workspace:*
+      '@types/node': ^14.17.20
+      axios: ^0.21.4
       tslib: ^2.3.1
-      typescript: ^4.3.5
+      typescript: ^4.4.3
     dependencies:
       '@telecraft/types': link:../types
       axios: 0.21.4
       tslib: 2.3.1
     devDependencies:
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       typescript: 4.4.3
 
 packages:
@@ -214,7 +214,7 @@ packages:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
-      mime-types: 2.1.32
+      mime-types: 2.1.33
     dev: false
 
   /@sapphire/async-queue/1.1.4:
@@ -234,7 +234,7 @@ packages:
   /@types/irc/0.5.1:
     resolution: {integrity: sha512-lc0v1lY6OHkyrX/gJH8fRIeN1KBkyBF6Ot6mOUK0ontnzXJIOA2D3/ggrT6eZS3p/lp+kOUBtw30B1/rHBZbog==}
     dependencies:
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
     dev: true
 
   /@types/level-errors/3.0.0:
@@ -245,7 +245,7 @@ packages:
     resolution: {integrity: sha512-fzIXOuUCSZQKkRadWhURwu6mMYbfqi/nRDA+yBwz8kj7AK/L7L//u6A0MqSv0gsilzo7N/5+FlZOx8G6m03EVQ==}
     dependencies:
       '@types/abstract-leveldown': 5.0.2
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
     dev: true
 
   /@types/levelup/4.3.3:
@@ -253,24 +253,24 @@ packages:
     dependencies:
       '@types/abstract-leveldown': 5.0.2
       '@types/level-errors': 3.0.0
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
     dev: true
 
-  /@types/lodash/4.14.174:
-    resolution: {integrity: sha512-KMBLT6+g9qrGXpDt7ohjWPUD34WA/jasrtjTEHStF0NPdEwJ1N9SZ+4GaMVDeuk/y0+X5j9xFm6mNiXS7UoaLQ==}
+  /@types/lodash/4.14.175:
+    resolution: {integrity: sha512-XmdEOrKQ8a1Y/yxQFOMbC47G/V2VDO1GvMRnl4O75M4GW/abC5tnfzadQYkqEveqRM1dEJGFFegfPNA2vvx2iw==}
     dev: true
 
-  /@types/node/14.17.19:
-    resolution: {integrity: sha512-jjYI6NkyfXykucU6ELEoT64QyKOdvaA6enOqKtP4xUsGY0X0ZUZz29fUmrTRo+7v7c6TgDu82q3GHHaCEkqZwA==}
+  /@types/node/14.17.20:
+    resolution: {integrity: sha512-gI5Sl30tmhXsqkNvopFydP7ASc4c2cLfGNQrVKN3X90ADFWFsPEsotm/8JHSUJQKTHbwowAHtcJPeyVhtKv0TQ==}
 
-  /@types/node/16.10.1:
-    resolution: {integrity: sha512-4/Z9DMPKFexZj/Gn3LylFgamNKHm4K3QDi0gz9B26Uk0c8izYf97B5fxfpspMNkWlFupblKM/nV8+NA9Ffvr+w==}
+  /@types/node/16.10.2:
+    resolution: {integrity: sha512-zCclL4/rx+W5SQTzFs9wyvvyCwoK9QtBpratqz2IYJ3O8Umrn0m3nsTv0wQBk9sRGpvUe9CwPDrQFB10f1FIjQ==}
     dev: true
 
   /@types/ws/7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
     dev: false
 
   /abort-controller/3.0.0:
@@ -432,7 +432,6 @@ packages:
 
   /errno/0.1.8:
     resolution: {integrity: sha512-dJ6oBr5SQ1VSd9qkk7ByRgb/1SH4JZjCHSW/mr63/QcXO9zLVxvJ6Oy13nio03rxpSnVDDjFor75SjVeZWPW/A==}
-    hasBin: true
     dependencies:
       prr: 1.0.1
     dev: false
@@ -582,16 +581,16 @@ packages:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: false
 
-  /mime-db/1.49.0:
-    resolution: {integrity: sha512-CIc8j9URtOVApSFCQIF+VBkX1RwXp/oMMOrqdyXSBXq5RWNEsRfyj1kiRnQgmNXmHxPoFIxOroKA3zcU9P+nAA==}
+  /mime-db/1.50.0:
+    resolution: {integrity: sha512-9tMZCDlYHqeERXEHO9f/hKfNXhre5dK2eE/krIvUjZbS2KPcqGDfNShIWS1uW9XOTKQKqK6qbeOci18rbfW77A==}
     engines: {node: '>= 0.6'}
     dev: false
 
-  /mime-types/2.1.32:
-    resolution: {integrity: sha512-hJGaVS4G4c9TSMYh2n6SQAGrC4RnfU+daP8G7cSCmaqNjiOoUY0VHCMS42pxnQmVF1GWwFhbHWn3RIxCqTmZ9A==}
+  /mime-types/2.1.33:
+    resolution: {integrity: sha512-plLElXp7pRDd0bNZHw+nMd52vRYjLwQjygaNg7ddJ2uJtTlmnTCjWuPKxVu6//AdaRuME84SvLW91sIkBqGT0g==}
     engines: {node: '>= 0.6'}
     dependencies:
-      mime-db: 1.49.0
+      mime-db: 1.50.0
     dev: false
 
   /minimist/1.2.5:
@@ -628,7 +627,6 @@ packages:
 
   /node-gyp-build/4.1.1:
     resolution: {integrity: sha512-dSq1xmcPDKPZ2EED2S6zw/b9NKsqzXRE6dVr8TVQnI3FJOTteUMuqF3Qqs6LZg+mLGYJWqQzMbIjMtJqTv87nQ==}
-    hasBin: true
     dev: false
 
   /node-icu-charset-detector/0.2.0:
@@ -684,7 +682,6 @@ packages:
 
   /protodef-validator/1.3.1:
     resolution: {integrity: sha512-lZ5FWKZYR9xOjpMw1+EfZRfCjzNRQWPq+Dk+jki47Sikl2EeWEPnTfnJERwnU/EwFq6us+0zqHHzSsmLeYX+Lg==}
-    hasBin: true
     dependencies:
       ajv: 6.12.6
     dev: false
@@ -752,7 +749,6 @@ packages:
   /telegraf/4.4.2:
     resolution: {integrity: sha512-OGt9w1LbxYUOsRk3htAavBnL9hqWycmJNiOmS74oARzxKFnYS/MdwW8b5CX9VLCJt537AXkm8/eBNiEYD8E7lQ==}
     engines: {node: ^12.20.0 || >=14.13.1}
-    hasBin: true
     dependencies:
       abort-controller: 3.0.0
       debug: 4.3.2
@@ -790,7 +786,6 @@ packages:
   /typescript/4.4.3:
     resolution: {integrity: sha512-4xfscpisVgqqDfPaJo5vkd+Qd/ItkoagnHpufr+i2QCHBsNYp+G7UAoyFl8aPtx879u38wPV65rZ8qbGZijalA==}
     engines: {node: '>=4.2.0'}
-    hasBin: true
     dev: true
 
   /uri-js/4.4.1:
