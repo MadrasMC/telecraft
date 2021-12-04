@@ -1,4 +1,5 @@
 import { Events, Parser, Store, IO, Server, Plugin } from "@telecraft/types";
+import { Reader } from "@telecraft/types/types/Server";
 
 import { spawn } from "child_process";
 import { createInterface } from "readline";
@@ -69,8 +70,8 @@ export default ({
 	// child process should be exited by @telecraft/core instead of OS
 	const minecraft = spawn(launch, options, { cwd: config.cwd, detached: true });
 
-	type Reader = Parameters<Server["read"]>[number];
 	const readers: Reader[] = [];
+	const inputReaders: Reader[] = [];
 
 	const { stdin } = minecraft;
 	const stdout = decode(minecraft.stdout);
@@ -90,21 +91,40 @@ export default ({
 		send: (msg: string) => {
 			stdin.write(msg + EOL);
 		},
-		read: (reader: (line: string) => void) => {
+		read: reader => {
 			readers.push(reader);
+		},
+		input: reader => {
+			inputReaders.push(reader);
 		},
 	};
 
-	cliInput.on("line", server.send);
+	cliInput.on("line", async line => {
+		let cancelled = false;
+		const cancel = () => (cancelled = true);
+
+		for (const reader of inputReaders) {
+			await reader(line, cancel);
+			if (cancelled) return;
+		}
+
+		server.send(line);
+	});
 
 	// setup events
 
 	const streamParser = parser(server, events.emit);
 
-	minecraftOutput.on("line", line => {
-		streamParser(line);
+	minecraftOutput.on("line", async line => {
+		let cancelled = false;
+		const cancel = () => (cancelled = true);
 
-		readers.forEach(reader => reader(line));
+		for (const reader of readers) {
+			await reader(line, cancel);
+			if (cancelled) return;
+		}
+
+		streamParser(line);
 	});
 
 	// register plugins
