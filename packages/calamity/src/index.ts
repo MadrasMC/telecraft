@@ -2,33 +2,10 @@ import { Plugin } from "@telecraft/types";
 
 const pkg = require("../package.json") as { name: string; version: string };
 
-const rand = () => Math.floor(100 + Math.random() * 900);
-
 const sleep = (t: number) => new Promise(r => setTimeout(r, t));
-
-const primordial = "Alex"; // or "Steve"
-
-// meeting point where Primordial Alex will spawn
-// const meeting = [9046, 160, -1048].join(" ");
-const meeting = [-44, 95, 24].join(" ");
 
 // const newSpawn = [460, 136, -9608].join(" ");
 const newSpawn = [-26, 95, 37].join(" ");
-
-const members = [
-	"MKRhere",
-	"Sparkenstein",
-	"zappymussel380",
-	"icodelife",
-	"solooo7",
-	"uditkarode",
-];
-
-const shuffle = <X, Xs extends X[]>(xs: Xs): X[] =>
-	xs
-		.map(value => ({ value, sort: Math.random() }))
-		.sort((a, b) => a.sort - b.sort)
-		.map(({ value }) => value);
 
 const posParser = (data: string) =>
 	data
@@ -80,111 +57,64 @@ const calamity: Plugin<{
 
 		const calamityStore = await store<StoreUser>();
 
-		let primordialArrived = false;
+		events.on("minecraft:join", async ctx => {
+			const user: string = ctx.user;
+			const u = await calamityStore.get(user);
 
-		let primordialEffect: NodeJS.Timeout;
+			if (u) return;
 
-		server.input(async (line, cancel) => {
-			if (line.trim() === "reset") {
-				cancel();
+			let interval: NodeJS.Timeout;
 
-				primordialArrived = false;
-				server.send("weather clear");
-				if (primordialEffect) clearInterval(primordialEffect);
+			const actions = [
+				() => cue(user, "Prepare for migration.", "You have 5:00 minutes."),
+				() => sleep(30 * 1000),
+				() => cue(user, "Prepare for migration.", "You have 4:30 minutes."),
+				() => sleep(30 * 1000),
+				() => cue(user, "Prepare for migration.", "You have 4:00 minutes."),
+				() => sleep(30 * 1000),
+				() => cue(user, "Prepare for migration.", "You have 3:30 minutes."),
+				() => sleep(30 * 1000),
+				() => cue(user, "Prepare for migration.", "You have 3:00 minutes."),
+				() => sleep(30 * 1000),
+				() => cue(user, "Prepare for migration.", "You have 2:30 minutes."),
+				() => sleep(30 * 1000),
+				() => cue(user, "Prepare for migration.", "You have 2:00 minutes."),
+				() => sleep(30 * 1000),
+				() => cue(user, "Prepare for migration.", "You have 1:30 minutes."),
+				() => sleep(30 * 1000),
+				() => cue(user, "Prepare for migration.", "You have 1:00 minute."),
+				() => sleep(30 * 1000),
+				() => cue(user, "Prepare for migration.", "You have 30 seconds."),
+				() => sleep(20 * 1000),
+				() =>
+					cue(user, "You have 10 seconds.", "Logout now if you need more time"),
+				() => sleep(5 * 1000),
+				() => {
+					interval = setInterval(() => effect(user, "minecraft:portal"), 1000);
+				},
+				() => sleep(5 * 1000),
+				() => cue(user, "Welcome to mkr/craft", "season 2."),
+				() => clearInterval(interval),
+				() => server.send(["tp", user, newSpawn].join(" ")),
+				() => server.send(["spawnpoint", user, newSpawn].join(" ")),
+				() => calamityStore.set(user, { migrated: true }),
+			];
+
+			let loggedOut;
+
+			const leaveHandler = (ctx: any) => {
+				if (ctx.user === user) loggedOut = true;
+			};
+
+			events.on("minecraft:leave", leaveHandler);
+
+			for (const action of actions) {
+				if (loggedOut) return events.off("minecraft:leave", leaveHandler);
+
+				await action();
 			}
 
-			// trigger primordial
-			if (line.trim() === "1.") {
-				cancel();
-
-				// Alex has already arrived
-				if (primordialArrived) return;
-
-				// give her 5 seconds to prepare
-				cue(primordial, "Prepare to start in 5 seconds");
-				await sleep(5000);
-
-				// teleport Alex to everyone else
-				server.send(["tp", primordial, meeting].join(" "));
-
-				primordialEffect = setInterval(() => {
-					effect(primordial, "minecraft:end_rod", "0.5 1 0.5 0.05 40");
-				}, 1000);
-
-				primordialArrived = true;
-			}
-
-			// wait for Alex's dialogue to end, then trigger startcalamity manually
-			if (line.trim() === "2.") {
-				cancel();
-
-				// Alex has to have delivered her speech already
-				if (!primordialArrived) return;
-
-				// start thunderstorm
-				server.send("weather thunder 1000000");
-
-				// cue Alex to leave 13 seconds after thunderstorm starts
-				// so she can deliver her final message
-				await sleep(13000);
-				if (primordialEffect) clearInterval(primordialEffect);
-				cue(primordial, "Exit the game");
-
-				// give everyone particle effects every 1.5 + random milliseconds
-				const timers = members.map(member => ({
-					member,
-					timer: setInterval(() => {
-						setTimeout(async () => effect(member, "minecraft:portal"), rand());
-					}, 1500),
-				}));
-
-				// wait for 10 seconds for everyone to sufficiently panic
-				await sleep(10000);
-
-				// shuffle the member list and prepare final teleport
-				shuffle<typeof timers[number], typeof timers>(timers).forEach(
-					(timer, i) => {
-						// let MKRhere stay until last
-						if (timer.member === members[0]) return;
-
-						setTimeout(() => {
-							// teleport member to new spawn, exit scene
-							server.send(["tp", timer.member, newSpawn].join(" "));
-
-							// clear particle effects timer
-							clearInterval(timer.timer);
-
-							// change spawnpoint
-							server.send(["spawnpoint", timer.member, newSpawn].join(" "));
-
-							// save migrated members for later plugin
-							calamityStore.set(timer.member, { migrated: true });
-
-							// teleport each randomly selected member 2 seconds after previous
-						}, i * 2000);
-					},
-				);
-
-				setTimeout(() => {
-					const timer = timers.find(timer => timer.member === members[0])!;
-
-					// cue weather to stop
-					server.send("weather clear");
-
-					// teleport MKRhere to new spawn
-					server.send(["tp", timer.member, newSpawn].join(" "));
-					// clear particle effects timer
-					clearInterval(timer.timer);
-
-					// change spawnpoint
-					server.send(["spawnpoint", timer.member, newSpawn].join(" "));
-
-					// save migrated members for later plugin
-					calamityStore.set(timer.member, { migrated: true });
-
-					// wait for 10 seconds after everyone else has teleported
-				}, members.length * 2000 + 10000);
-			}
+			events.off("minecraft:leave", leaveHandler);
 		});
 
 		events.on("core:close", () => {
