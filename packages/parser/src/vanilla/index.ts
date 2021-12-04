@@ -103,8 +103,8 @@ const V116 = {
 	},
 };
 
-const Vanilla = {
+export const Vanilla = {
 	"1.16": ParserFactory(V116),
+	"1.17": ParserFactory(V116),
+	"1.18": ParserFactory(V116),
 };
-
-export default Vanilla;

@@ -1,4 +1,4 @@
-import Vanilla from "../vanilla";
+import { Vanilla } from "../vanilla";
 
 const P116 = Vanilla["1.16"].extend({
 	timestamp: function () {
@@ -10,8 +10,8 @@ const P116 = Vanilla["1.16"].extend({
 	// Todo(mkr): verify whether vanilla join works on PaperMC
 });
 
-const PaperMC = {
+export const PaperMC = {
 	"1.16": P116,
+	"1.17": P116,
+	"1.18": P116,
 };
-
-export default PaperMC;

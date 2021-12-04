@@ -1,2 +1,3 @@
-export { default as Vanilla } from "./vanilla";
-export { default as Paper } from "./papermc";
+export { Vanilla } from "./vanilla";
+export { PaperMC } from "./papermc";
+export { FabricMC } from "./fabricmc";
