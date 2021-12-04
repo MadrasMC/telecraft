@@ -9,9 +9,11 @@ const sleep = (t: number) => new Promise(r => setTimeout(r, t));
 const primordial = "Alex"; // or "Steve"
 
 // meeting point where Primordial Alex will spawn
+// const meeting = [9046, 160, -1048].join(" ");
 const meeting = [-44, 95, 24].join(" ");
 
-const newSpawn = [-26, 94, 37].join(" ");
+// const newSpawn = [460, 136, -9608].join(" ");
+const newSpawn = [-26, 95, 37].join(" ");
 
 const members = [
 	"MKRhere",
@@ -20,8 +22,6 @@ const members = [
 	"icodelife",
 	"solooo7",
 	"uditkarode",
-	"Sitischu",
-	"avestura",
 ];
 
 const shuffle = <X, Xs extends X[]>(xs: Xs): X[] =>
@@ -70,13 +70,31 @@ const calamity: Plugin<{
 			});
 		};
 
+		const effect = async (
+			player: string,
+			effect: string,
+			params: string = "5 5 5 0.25 2000",
+		) => {
+			server.send(["particle", effect, await getPos(player), params].join(" "));
+		};
+
 		const calamityStore = await store<StoreUser>();
 
 		let primordialArrived = false;
 
+		let primordialEffect: NodeJS.Timeout;
+
 		server.input(async (line, cancel) => {
+			if (line.trim() === "reset") {
+				cancel();
+
+				primordialArrived = false;
+				server.send("weather clear");
+				if (primordialEffect) clearInterval(primordialEffect);
+			}
+
 			// trigger primordial
-			if (line.trim() === "primordial") {
+			if (line.trim() === "1.") {
 				cancel();
 
 				// Alex has already arrived
@@ -89,11 +107,15 @@ const calamity: Plugin<{
 				// teleport Alex to everyone else
 				server.send(["tp", primordial, meeting].join(" "));
 
+				primordialEffect = setInterval(() => {
+					effect(primordial, "minecraft:end_rod", "0.5 1 0.5 0.05 40");
+				}, 1000);
+
 				primordialArrived = true;
 			}
 
 			// wait for Alex's dialogue to end, then trigger startcalamity manually
-			if (line.trim() === "startcalamity") {
+			if (line.trim() === "2.") {
 				cancel();
 
 				// Alex has to have delivered her speech already
@@ -102,24 +124,17 @@ const calamity: Plugin<{
 				// start thunderstorm
 				server.send("weather thunder 1000000");
 
-				// cue Alex to leave, the moment thunderstorm starts
-				cue(primordial, "Exit the game!");
+				// cue Alex to leave 13 seconds after thunderstorm starts
+				// so she can deliver her final message
+				await sleep(13000);
+				if (primordialEffect) clearInterval(primordialEffect);
+				cue(primordial, "Exit the game");
 
 				// give everyone particle effects every 1.5 + random milliseconds
 				const timers = members.map(member => ({
 					member,
 					timer: setInterval(() => {
-						setTimeout(
-							async () =>
-								server.send(
-									[
-										"particle minecraft:portal",
-										await getPos(member),
-										"5 5 5 0.25 2000",
-									].join(" "),
-								),
-							rand(),
-						);
+						setTimeout(async () => effect(member, "minecraft:portal"), rand());
 					}, 1500),
 				}));
 
