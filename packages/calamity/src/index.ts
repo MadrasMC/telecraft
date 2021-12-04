@@ -9,9 +9,9 @@ const sleep = (t: number) => new Promise(r => setTimeout(r, t));
 const primordial = "Alex"; // or "Steve"
 
 // meeting point where Primordial Alex will spawn
-const meeting = [0, 64, 0].join(" ");
+const meeting = [-44, 95, 24].join(" ");
 
-const newSpawn = [0, 64, 0].join(" ");
+const newSpawn = [-26, 94, 37].join(" ");
 
 const members = [
 	"MKRhere",
@@ -46,8 +46,9 @@ const calamity: Plugin<{
 		if (!config.enable) return;
 
 		const cue = (target: string, title: string, subtitle?: string) => {
-			server.send(["title", target, "title", title].join(" "));
-			if (subtitle) server.send(["title", target, "subtitle", title].join(" "));
+			server.send(["title", target, "title", `"${title}"`].join(" "));
+			if (subtitle)
+				server.send(["title", target, "subtitle", `"${subtitle}"`].join(" "));
 		};
 
 		type StoreUser = {
@@ -57,10 +58,10 @@ const calamity: Plugin<{
 		const getPos = async (player: string) => {
 			server.send(["data get entity", player, "Pos"].join(" "));
 
-			return new Promise(resolve => {
+			return new Promise<string>(resolve => {
 				function dataParser(ctx: any) {
 					if (ctx.user === player) {
-						resolve(posParser(ctx.data));
+						resolve(posParser(ctx.data).join(" "));
 						events.off("minecraft:data", dataParser);
 					}
 				}
@@ -99,7 +100,7 @@ const calamity: Plugin<{
 				if (!primordialArrived) return;
 
 				// start thunderstorm
-				server.send("weather thunder 1000000000");
+				server.send("weather thunder 1000000");
 
 				// cue Alex to leave, the moment thunderstorm starts
 				cue(primordial, "Exit the game!");
