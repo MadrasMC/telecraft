@@ -27,17 +27,17 @@
 	},
 	"homepage": "https://github.com/telecraft/cli#readme",
 	"dependencies": {
-		"@telecraft/auth": "workspace:../auth",
-		"@telecraft/core": "workspace:../core",
-		"@telecraft/discord": "workspace:../discord",
-		"@telecraft/parser": "workspace:../parser",
-		"@telecraft/store": "workspace:../store",
-		"@telecraft/telegram": "workspace:../telegram",
-		"@telecraft/youtube": "workspace:../youtube",
-		"@types/node": "^14.17.9",
+		"@telecraft/auth": "workspace:*",
+		"@telecraft/core": "workspace:*",
+		"@telecraft/discord": "workspace:*",
+		"@telecraft/parser": "workspace:*",
+		"@telecraft/store": "workspace:*",
+		"@telecraft/telegram": "workspace:*",
+		"@telecraft/youtube": "workspace:*",
+		"@types/node": "^14.17.20",
 		"tslib": "^2.3.1"
 	},
 	"devDependencies": {
-		"typescript": "^4.3.5"
+		"typescript": "^4.4.3"
 	}
 }

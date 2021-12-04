@@ -1,6 +1,6 @@
 {
 	"name": "@telecraft/store-sh",
-	"version": "1.0.0-beta.1",
+	"version": "1.0.0-beta.3",
 	"description": "shell for @telecraft/store",
 	"main": "dist",
 	"bin": {
@@ -36,15 +36,15 @@
 	},
 	"homepage": "https://github.com/telecraft/telecraft/tree/master/packages/store-sh#readme",
 	"dependencies": {
-		"@telecraft/store": "../store",
-		"@telecraft/types": "../types",
+		"@telecraft/store": "workspace:*",
+		"@telecraft/types": "workspace:*",
 		"chalk": "^4.1.2",
 		"lodash": "^4.17.21",
 		"tslib": "^2.3.1"
 	},
 	"devDependencies": {
-		"@types/lodash": "^4.14.172",
-		"@types/node": "^16.6.1",
-		"typescript": "^4.3.5"
+		"@types/lodash": "^4.14.175",
+		"@types/node": "^16.10.2",
+		"typescript": "^4.4.3"
 	}
 }

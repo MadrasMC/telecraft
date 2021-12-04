@@ -55,125 +55,125 @@ const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
 		version: pkg.version,
 		exports: discord,
 		start: async ({ events, server, console }, []) => {
-			if (opts.enable) {
-				let playersOnline = 0;
+			if (!opts.enable) return;
 
-				let channel: TextChannel;
+			client.login(opts.token);
 
-				const send = (msg: string) => channel && channel.send(msg);
+			let playersOnline = 0;
 
-				client.on("ready", async () => {
-					const chan = await client.channels.cache.get(opts.channelId);
+			let channel: TextChannel;
 
-					if (!chan || !isGuildTextChannel(chan))
-						throw createError(
-							"Fatal: Could not obtain requested channel, or it was not a text channel!",
-						);
+			const send = (msg: string) => channel && channel.send(msg);
 
-					channel = chan;
+			client.on("ready", async () => {
+				const chan = await client.channels.cache.get(opts.channelId);
 
-					console.log(`Bound to channel '${chan.name}'`);
-				});
+				if (!chan || !isGuildTextChannel(chan))
+					throw createError(
+						"Fatal: Could not obtain requested channel, or it was not a text channel!",
+					);
 
-				events.on("minecraft:started", () => {
-					client.on("message", message => {
-						const channel = message.channel;
+				channel = chan;
 
-						if (
-							// nobody online
-							playersOnline < 1 ||
-							// itsa me, bot
-							message.author.id === client.user?.id ||
-							// not the chosen one
-							channel.id !== opts.channelId
-						)
-							return;
+				console.log(`Bound to channel '${chan.name}'`);
+			});
 
-						if (isGuildTextChannel(channel)) {
-							const messageText = message.content;
+			events.on("minecraft:started", () => {
+				client.on("message", message => {
+					const channel = message.channel;
 
-							type x = keyof number;
+					if (
+						// nobody online
+						playersOnline < 1 ||
+						// itsa me, bot
+						message.author.id === client.user?.id ||
+						// not the chosen one
+						channel.id !== opts.channelId
+					)
+						return;
 
-							const x: object = { x: "" };
+					if (isGuildTextChannel(channel)) {
+						const messageText = message.content;
 
-							if (isCommand(messageText)) {
-								const cmd = parseCommand(messageText);
+						type x = keyof number;
 
-								const ctx = {
-									from: {
-										id: message.author.id,
-										source: channel.id,
-										type: "chat" as const,
-									},
-									...cmd,
-								};
+						const x: object = { x: "" };
 
-								emit(cmd.cmd, ctx);
-							} else {
-								const chatMessage = MCChat.message({
-									from: message.author.username,
-									channel: channel.id,
-									text: messageText,
-								});
+						if (isCommand(messageText)) {
+							const cmd = parseCommand(messageText);
 
-								server.send("tellraw @a " + JSON.stringify(chatMessage));
-							}
+							const ctx = {
+								from: {
+									id: message.author.id,
+									source: channel.id,
+									type: "chat" as const,
+								},
+								...cmd,
+							};
+
+							emit(cmd.cmd, ctx);
+						} else {
+							const chatMessage = MCChat.message({
+								from: message.author.username,
+								channel: channel.id,
+								text: messageText,
+							});
+
+							server.send("tellraw @a " + JSON.stringify(chatMessage));
 						}
-					});
-
-					events.on("minecraft:message", ctx => {
-						send(code(ctx.user) + " " + escapeHTML(ctx.text));
-					});
-
-					events.on("minecraft:join", ctx => {
-						send(code(ctx.user + " joined the server"));
-						playersOnline += 1;
-					});
-
-					events.on("minecraft:leave", ctx => {
-						send(code(ctx.user + " left the server"));
-						playersOnline -= 1;
-					});
-
-					events.on("minecraft:self", ctx =>
-						send(code("* " + ctx.user + " " + ctx.text)),
-					);
-
-					events.on("minecraft:say", ctx =>
-						send(code(ctx.user + " says: " + ctx.text)),
-					);
-
-					events.on("minecraft:death", ctx =>
-						send(code(ctx.user + " " + ctx.text)),
-					);
-
-					events.on("minecraft:advancement", ctx =>
-						send(
-							code(ctx.user) +
-								" has made the advancement " +
-								code("[" + ctx.advancement + "]"),
-						),
-					);
-
-					events.on("minecraft:goal", ctx =>
-						send(
-							code(ctx.user) +
-								" has reached the goal " +
-								code("[" + ctx.goal + "]"),
-						),
-					);
-
-					events.on("minecraft:challenge", ctx =>
-						send(
-							code(ctx.user) +
-								" has completed the challenge " +
-								code("[" + ctx.challenge + "]"),
-						),
-					);
+					}
 				});
 
-				client.login(opts.token);
-			}
+				events.on("minecraft:message", ctx => {
+					send(code(ctx.user) + " " + escapeHTML(ctx.text));
+				});
+
+				events.on("minecraft:join", ctx => {
+					send(code(ctx.user + " joined the server"));
+					playersOnline += 1;
+				});
+
+				events.on("minecraft:leave", ctx => {
+					send(code(ctx.user + " left the server"));
+					playersOnline -= 1;
+				});
+
+				events.on("minecraft:self", ctx =>
+					send(code("* " + ctx.user + " " + ctx.text)),
+				);
+
+				events.on("minecraft:say", ctx =>
+					send(code(ctx.user + " says: " + ctx.text)),
+				);
+
+				events.on("minecraft:death", ctx =>
+					send(code(ctx.user + " " + ctx.text)),
+				);
+
+				events.on("minecraft:advancement", ctx =>
+					send(
+						code(ctx.user) +
+							" has made the advancement " +
+							code("[" + ctx.advancement + "]"),
+					),
+				);
+
+				events.on("minecraft:goal", ctx =>
+					send(
+						code(ctx.user) +
+							" has reached the goal " +
+							code("[" + ctx.goal + "]"),
+					),
+				);
+
+				events.on("minecraft:challenge", ctx =>
+					send(
+						code(ctx.user) +
+							" has completed the challenge " +
+							code("[" + ctx.challenge + "]"),
+					),
+				);
+			});
 		},
 	};
 };
