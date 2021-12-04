@@ -58,8 +58,8 @@ importers:
       '@telecraft/types': link:../types
       '@types/node': 14.17.20
       iconv-lite: 0.6.3
-    devDependencies:
       tslib: 2.3.1
+    devDependencies:
       typescript: 4.4.3
 
   packages/discord:
@@ -773,6 +773,7 @@ packages:
 
   /tslib/2.3.1:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
+    dev: false
 
   /type-fest/1.4.0:
     resolution: {integrity: sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==}

@@ -1,6 +1,6 @@
 {
 	"name": "@telecraft/auth",
-	"version": "1.0.0-beta.2",
+	"version": "1.0.0-beta.3",
 	"description": " Telegram auth for Minecraft servers, powered by Telecraft",
 	"main": "dist",
 	"files": [
@@ -12,7 +12,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git@github.com:telecraft/plugin"
+		"url": "git@github.com:telecraft/telecraft"
 	},
 	"author": "Feathers Studio <@feathers_studio> (https://feathers.studio)",
 	"contributors": [

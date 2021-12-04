@@ -1,6 +1,6 @@
 {
 	"name": "@telecraft/core",
-	"version": "1.0.0-beta.2",
+	"version": "1.0.0-beta.3",
 	"description": "Core of the Telecraft project. Pluggable Minecraft server bridge and administration tools.",
 	"main": "dist",
 	"scripts": {
