@@ -146,6 +146,9 @@ const calamity: Plugin<{
 				setTimeout(() => {
 					const timer = timers.find(timer => timer.member === members[0])!;
 
+					// cue weather to stop
+					server.send("weather clear");
+
 					// teleport MKRhere to new spawn
 					server.send(["tp", timer.member, newSpawn].join(" "));
 					// clear particle effects timer
