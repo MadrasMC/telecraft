@@ -51,7 +51,6 @@ const calamity: Plugin<{
 		};
 
 		type StoreUser = {
-			userId?: string;
 			migrated?: boolean;
 		};
 
@@ -138,6 +137,13 @@ const calamity: Plugin<{
 
 							// clear particle effects timer
 							clearInterval(timer.timer);
+
+							// change spawnpoint
+							server.send(["spawnpoint", timer.member, newSpawn].join(" "));
+
+							// save migrated members for later plugin
+							calamityStore.set(timer.member, { migrated: true });
+
 							// teleport each randomly selected member 2 seconds after previous
 						}, i * 2000);
 					},
@@ -153,6 +159,12 @@ const calamity: Plugin<{
 					server.send(["tp", timer.member, newSpawn].join(" "));
 					// clear particle effects timer
 					clearInterval(timer.timer);
+
+					// change spawnpoint
+					server.send(["spawnpoint", timer.member, newSpawn].join(" "));
+
+					// save migrated members for later plugin
+					calamityStore.set(timer.member, { migrated: true });
 
 					// wait for 10 seconds after everyone else has teleported
 				}, members.length * 2000 + 10000);
