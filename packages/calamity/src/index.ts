@@ -2,7 +2,7 @@ import { Plugin } from "@telecraft/types";
 
 const pkg = require("../package.json") as { name: string; version: string };
 
-const sleep = (t: number) => new Promise(r => setTimeout(r, t));
+const sleep = (t: number) => new Promise<void>(r => setTimeout(r, t));
 
 // const newSpawn = [460, 136, -9608].join(" ");
 const newSpawn = [-26, 95, 37].join(" ");
@@ -63,42 +63,46 @@ const calamity: Plugin<{
 
 			if (u) return;
 
-			let interval: NodeJS.Timeout;
+			function* actions() {
+				let interval: NodeJS.Timeout;
 
-			const actions = [
-				() => cue(user, "Prepare for migration.", "You have 5:00 minutes."),
-				() => sleep(30 * 1000),
-				() => cue(user, "Prepare for migration.", "You have 4:30 minutes."),
-				() => sleep(30 * 1000),
-				() => cue(user, "Prepare for migration.", "You have 4:00 minutes."),
-				() => sleep(30 * 1000),
-				() => cue(user, "Prepare for migration.", "You have 3:30 minutes."),
-				() => sleep(30 * 1000),
-				() => cue(user, "Prepare for migration.", "You have 3:00 minutes."),
-				() => sleep(30 * 1000),
-				() => cue(user, "Prepare for migration.", "You have 2:30 minutes."),
-				() => sleep(30 * 1000),
-				() => cue(user, "Prepare for migration.", "You have 2:00 minutes."),
-				() => sleep(30 * 1000),
-				() => cue(user, "Prepare for migration.", "You have 1:30 minutes."),
-				() => sleep(30 * 1000),
-				() => cue(user, "Prepare for migration.", "You have 1:00 minute."),
-				() => sleep(30 * 1000),
-				() => cue(user, "Prepare for migration.", "You have 30 seconds."),
-				() => sleep(20 * 1000),
-				() =>
-					cue(user, "You have 10 seconds.", "Logout now if you need more time"),
-				() => sleep(5 * 1000),
-				() => {
-					interval = setInterval(() => effect(user, "minecraft:portal"), 1000);
-				},
-				() => sleep(5 * 1000),
-				() => cue(user, "Welcome to mkr/craft", "season 2."),
-				() => clearInterval(interval),
-				() => server.send(["tp", user, newSpawn].join(" ")),
-				() => server.send(["spawnpoint", user, newSpawn].join(" ")),
-				() => calamityStore.set(user, { migrated: true }),
-			];
+				yield cue(user, "Prepare for migration.", "You have 5:00 minutes.");
+				yield sleep(30 * 1000);
+				yield cue(user, "Prepare for migration.", "You have 4:30 minutes.");
+				yield sleep(30 * 1000);
+				yield cue(user, "Prepare for migration.", "You have 4:00 minutes.");
+				yield sleep(30 * 1000);
+				yield cue(user, "Prepare for migration.", "You have 3:30 minutes.");
+				yield sleep(30 * 1000);
+				yield cue(user, "Prepare for migration.", "You have 3:00 minutes.");
+				yield sleep(30 * 1000);
+				yield cue(user, "Prepare for migration.", "You have 2:30 minutes.");
+				yield sleep(30 * 1000);
+				yield cue(user, "Prepare for migration.", "You have 2:00 minutes.");
+				yield sleep(30 * 1000);
+				yield cue(user, "Prepare for migration.", "You have 1:30 minutes.");
+				yield sleep(30 * 1000);
+				yield cue(user, "Prepare for migration.", "You have 1:00 minute.");
+				yield sleep(30 * 1000);
+				yield cue(user, "Prepare for migration.", "You have 30 seconds.");
+				yield sleep(20 * 1000);
+				yield cue(
+					user,
+					"You have 10 seconds.",
+					"Logout now if you need more time",
+				);
+				yield sleep(5 * 1000);
+				yield (interval = setInterval(
+					() => effect(user, "minecraft:portal"),
+					1000,
+				));
+				yield sleep(5 * 1000);
+				yield cue(user, "Welcome to mkr/craft", "season 2.");
+				yield clearInterval(interval);
+				yield server.send(["tp", user, newSpawn].join(" "));
+				yield server.send(["spawnpoint", user, newSpawn].join(" "));
+				yield calamityStore.set(user, { migrated: true });
+			}
 
 			let loggedOut;
 
@@ -108,10 +112,10 @@ const calamity: Plugin<{
 
 			events.on("minecraft:leave", leaveHandler);
 
-			for (const action of actions) {
+			for (const action of actions()) {
 				if (loggedOut) return events.off("minecraft:leave", leaveHandler);
 
-				await action();
+				await action;
 			}
 
 			events.off("minecraft:leave", leaveHandler);
