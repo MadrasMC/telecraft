@@ -1,2 +1,5 @@
 node_modules
 test.store
+.pnpm-debug.log
+logs*.txt
+stripLogs.js

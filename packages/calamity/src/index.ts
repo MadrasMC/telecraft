@@ -4,8 +4,8 @@ const pkg = require("../package.json") as { name: string; version: string };
 
 const sleep = (t: number) => new Promise<void>(r => setTimeout(r, t));
 
-// const newSpawn = [460, 136, -9608].join(" ");
-const newSpawn = [-26, 95, 37].join(" ");
+const newSpawn = [460, 136, -9608].join(" ");
+// const newSpawn = [-26, 95, 37].join(" ");
 
 const posParser = (data: string) =>
 	data

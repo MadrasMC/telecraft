@@ -4,7 +4,7 @@ import Telegram from "@telecraft/telegram";
 import Auth from "@telecraft/auth";
 import StoreProvider from "@telecraft/store";
 
-import { telegram, launch, storePath } from "./config.example";
+import { telegram, launch, storePath } from "./config";
 
 core({
 	config: {
@@ -20,6 +20,6 @@ core({
 			chatId: telegram.chatId,
 			list: { allow: true },
 		}),
-		Auth({ enable: true, use: "@telecraft/telegram" }),
+		Auth({ enable: true, use: "@telecraft/telegram", timeout: 40 * 1000 }),
 	],
 });
