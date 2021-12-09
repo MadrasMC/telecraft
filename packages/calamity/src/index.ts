@@ -63,9 +63,9 @@ const calamity: Plugin<{
 
 			if (u) return;
 
-			function* actions() {
-				let interval: NodeJS.Timeout;
+			let interval: NodeJS.Timeout;
 
+			function* actions() {
 				yield cue(user, "Prepare for migration.", "You have 5:00 minutes.");
 				yield sleep(30 * 1000);
 				yield cue(user, "Prepare for migration.", "You have 4:30 minutes.");
@@ -113,15 +113,18 @@ const calamity: Plugin<{
 			let loggedOut;
 
 			const leaveHandler = (ctx: any) => {
-				if (ctx.user === user) loggedOut = true;
+				if (ctx.user === user) {
+					loggedOut = true;
+					clearInterval(interval);
+					events.off("minecraft:leave", leaveHandler);
+				}
 			};
 
 			events.on("minecraft:leave", leaveHandler);
 
 			for (const action of actions()) {
-				if (loggedOut) return events.off("minecraft:leave", leaveHandler);
-
 				await action;
+				if (loggedOut) return;
 			}
 
 			events.off("minecraft:leave", leaveHandler);
