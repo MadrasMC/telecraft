@@ -102,6 +102,12 @@ const calamity: Plugin<{
 				yield server.send(["tp", user, newSpawn].join(" "));
 				yield server.send(["spawnpoint", user, newSpawn].join(" "));
 				yield calamityStore.set(user, { migrated: true });
+				yield effect(user, "minecraft:end_rod", "0.5 1 0.5 0.05 40");
+				yield server.send(
+					["playsound", "ui.toast.challenge_complete", "master", user].join(
+						" ",
+					),
+				);
 			}
 
 			let loggedOut;
