@@ -315,9 +315,19 @@ const lines = msgs
 	// remove zero width spaces
 	.replace(/[\u200B-\u200D\uFEFF]/g, "")
 	.split("\n")
-	.filter(x => x.startsWith(" ") && !x.startsWith("        "))
+	.filter(
+		x =>
+			// starts with space (indented)
+			x[0] === " " &&
+			// but not 5 spaces (more than one indent)
+			!x.startsWith("     "),
+	)
 	.flatMap(x => (x.includes(" / ") ? x.split(" / ") : x))
-	.map(x => x.replace(/\[.+?\]/, "").trim());
+	.map(x => x.replace(/\[((until)|(upcoming)).+?\]/, "").trim());
+
+export function escapeRegExp(str: string) {
+	return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}
 
 export function getDeathMessages(this: { username: () => string }) {
 	const user = this.username();
@@ -325,7 +335,7 @@ export function getDeathMessages(this: { username: () => string }) {
 	return lines
 		.map(x => {
 			let i = 0;
-			return x.replace(/\<.+?\>/g, match =>
+			return escapeRegExp(x).replace(/<.+?>/g, match =>
 				// only replace the first matching <player> with user
 				i === 0 && match === "<player>" ? `(?<user>${user})` : "(.+?)",
 			);
