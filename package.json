@@ -4,8 +4,6 @@
 	"private": true,
 	"description": "Pluggable Minecraft server bridge and administration tools.",
 	"scripts": {
-		"build": "pnpm build -r",
-		"build:w": "pnpm build:w -r --parallel",
 		"dev": "node --trace-warnings packages/cli/dist"
 	},
 	"license": "MIT",

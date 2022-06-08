@@ -1,4 +1,4 @@
-import { deathCauses } from "./death";
+import { getDeathMessages } from "./death";
 import { ParserFactory } from "../util";
 
 const V116 = {
@@ -20,13 +20,6 @@ const V116 = {
 	},
 
 	/* messages */
-	deathcauses: function () {
-		/* extensible or replaceable via parser extender */
-		return deathCauses;
-	},
-	death: function () {
-		return `(?<user>${this.username()}) (?<text>${this.deathcauses()})$`;
-	},
 	op: function () {
 		return `(Made (?<user>${this.username()}) a server operator)|(Nothing changed. The player already is an operator)`;
 	},
@@ -101,10 +94,16 @@ const V116 = {
 	started: function () {
 		return 'Done \\((?<ms>\\d+(\\.\\d+)?)s\\)! For help, type "help"';
 	},
+	// moved down so the all the other parsers can be tried first before the expensive death parser
+	death: function () {
+		/* extend or replace via parser extender */
+		return getDeathMessages.call(this);
+	},
 };
 
 export const Vanilla = {
 	"1.16": ParserFactory(V116),
 	"1.17": ParserFactory(V116),
 	"1.18": ParserFactory(V116),
+	"1.19": ParserFactory(V116),
 };

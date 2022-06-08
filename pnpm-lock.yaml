@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 importers:
 
@@ -41,7 +41,6 @@ importers:
 
   packages/cli:
     specifiers:
-      '@mkrcraft/calamity': workspace:*
       '@telecraft/auth': workspace:*
       '@telecraft/core': workspace:*
       '@telecraft/discord': workspace:*
@@ -53,7 +52,6 @@ importers:
       tslib: ^2.3.1
       typescript: ^4.4.3
     dependencies:
-      '@mkrcraft/calamity': link:../calamity
       '@telecraft/auth': link:../auth
       '@telecraft/core': link:../core
       '@telecraft/discord': link:../discord
@@ -509,7 +507,7 @@ packages:
     dev: false
 
   /iconv/2.2.3:
-    resolution: {integrity: sha1-4ITWDut9c9p/CpwJbkyKvgkL+u0=}
+    resolution: {integrity: sha512-evIiYeKdt5nEGYKNkQcGPQy781sYgbBKi3gEkt1s4CwteCdOHSjGGRyyp6lP8inYFZwvzG3lgjXEvGUC8nqQ5A==}
     engines: {node: '>=0.8.0'}
     requiresBuild: true
     dependencies:
@@ -668,7 +666,7 @@ packages:
     dev: false
 
   /node-icu-charset-detector/0.2.0:
-    resolution: {integrity: sha1-wjINo3Tdy2cfxUy0oOBB4Vb/1jk=}
+    resolution: {integrity: sha512-DYOFJ3NfKdxEi9hPbmoCss6WydGhJsxpSleUlZfAWEbZt3AU7JuxailgA9tnqQdsHiujfUY9VtDfWD9m0+ThtQ==}
     engines: {node: '>=0.6'}
     requiresBuild: true
     dependencies:
