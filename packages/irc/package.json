@@ -1,6 +1,6 @@
 {
 	"name": "@telecraft/irc",
-	"version": "1.0.0-beta.3",
+	"version": "1.0.0-beta.4",
 	"description": "IRC chat synchronisation for Minecraft servers, powered by Telecraft.",
 	"main": "dist",
 	"files": [
