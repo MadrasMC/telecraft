@@ -325,20 +325,31 @@ const lines = msgs
 	.flatMap(x => (x.includes(" / ") ? x.split(" / ") : x))
 	.map(x => x.replace(/\[((until)|(upcoming)).+?\]/, "").trim());
 
-export function escapeRegExp(str: string) {
+function escapeRegExp(str: string) {
 	return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
 
 export function getDeathMessages(this: { username: () => string }) {
 	const user = this.username();
 
-	return lines
-		.map(x => {
-			let i = 0;
-			return escapeRegExp(x).replace(/<.+?>/g, match =>
+	const replacer = (x: string) => {
+		let i = 0;
+		return (
+			"(" +
+			escapeRegExp(x).replace(/<.+?>/g, match =>
 				// only replace the first matching <player> with user
-				i === 0 && match === "<player>" ? `(?<user>${user})` : "(.+?)",
-			);
-		})
-		.join("|");
+				i === 0 && match === "<player>" ? "" : "(.+?)",
+			) +
+			")"
+		);
+	};
+
+	const hasPlayer = lines
+		.filter(line => line.startsWith("<player>"))
+		.map(replacer);
+	const others = lines
+		.filter(line => !line.startsWith("<player>"))
+		.map(replacer);
+
+	return `((?<user>${user})(${hasPlayer.join("|")}))|${others.join("|")}`;
 }
