@@ -182,9 +182,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				send(code(players.remove(ctx.user) + " left the server")),
 			);
 
-			events.on("minecraft:death", ctx =>
-				send(code(ctx.user + " " + ctx.text)),
-			);
+			events.on("minecraft:death", ctx => send(code(ctx.text)));
 
 			events.on("minecraft:advancement", ctx =>
 				send(
@@ -270,27 +268,25 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				const thisType = handledTypes.find(type => msg && type in msg);
 				if (thisType === "text") return msg && deunionise(msg)?.text;
 				if (thisType)
-					return captionMedia(
-						thisType.split("_").join(" ").toUpperCase(),
-						msg,
-					);
+					return captionMedia(thisType.split("_").join(" ").toUpperCase(), msg);
 			};
 
 			const handler: Middleware<Context> = (ctx, next) => {
 				const isLinkedGroup = String(ctx.message?.chat.id) === opts.chatId;
 				const isBotPM = ctx.message?.chat.type === "private";
 				const messageText = getCaptioned(ctx.message) || "";
-				const isMessageCommand = typeof messageText == "string" && isCommand(messageText);
+				const isMessageCommand =
+					typeof messageText == "string" && isCommand(messageText);
 
-				if(isMessageCommand) {
+				if (isMessageCommand) {
 					// commands can be from either PM or linked group
-					if(!(isLinkedGroup || isBotPM)) return next();
+					if (!(isLinkedGroup || isBotPM)) return next();
 				} else {
-					 // regular texts must be from linked group
-					if(!isLinkedGroup || isBotPM) return next();
+					// regular texts must be from linked group
+					if (!isLinkedGroup || isBotPM) return next();
 					// if it's indeed from the linked group but
 					// no players are online, don't relay
-					else if(players.list.length < 1) return next();
+					else if (players.list.length < 1) return next();
 				}
 
 				const reply = ctx.message && deunionise(ctx.message)?.reply_to_message;
