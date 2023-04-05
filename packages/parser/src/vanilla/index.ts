@@ -89,7 +89,7 @@ const V116 = {
 		return "\\* (?<user>" + this.username() + ") " + this.text();
 	},
 	message: function () {
-		return "<(?<user>" + this.username() + ")> " + this.text();
+		return "(?:\[Not Secure\] )?<(?<user>" + this.username() + ")> " + this.text();
 	},
 	started: function () {
 		return 'Done \\((?<ms>\\d+(\\.\\d+)?)s\\)! For help, type "help"';
