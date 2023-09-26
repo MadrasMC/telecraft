@@ -1,5 +1,5 @@
 /**
- * Copied from https://minecraft.fandom.com/wiki/Death_messages
+ * Copied from https://minecraft.wiki/w/Death_messages
  */
 const msgs = `
 Arrows
