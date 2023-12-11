@@ -1,6 +1,6 @@
-import { Events } from "./Events.d.ts";
-import { Store } from "./Store.d.ts";
-import { Server } from "./Server.d.ts";
+import { Events } from "./Events.ts";
+import { Store } from "./Store.ts";
+import { Server } from "./Server.ts";
 
 export type Plugin<
 	Opts = never,

@@ -3,12 +3,17 @@
 import { start } from "node:repl";
 import { inspect } from "node:util";
 import { EOL } from "node:os";
+import process from "node:process";
 
-import Store from "../../store/src/index.ts";
-import type { Store as TelecraftStore } from "../../types/index.d.ts";
+import Store from "../store/index.ts";
+import type { Store as TelecraftStore } from "../types/index.ts";
 
-import { red, green, blue } from "npm:chalk";
-import { isMatch } from "npm:lodash";
+import chalk from "npm:chalk";
+// @deno-types="npm:@types/lodash"
+import _ from "npm:lodash";
+
+const { red, green, blue } = chalk;
+const { isMatch } = _;
 
 import { commands } from "./commands.ts";
 

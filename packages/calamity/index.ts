@@ -1,4 +1,4 @@
-import { Plugin } from "../../types/index.d.ts";
+import { Plugin } from "../types/index.ts";
 
 const pkg = {
 	name: "calamity",
@@ -66,7 +66,7 @@ const calamity: Plugin<{
 
 			if (u) return;
 
-			let interval: NodeJS.Timeout;
+			let interval: number;
 
 			function* actions() {
 				yield cue(user, "Prepare for migration.", "You have 5:00 minutes.");

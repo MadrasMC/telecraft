@@ -1,4 +1,4 @@
-import { Store } from "../../types/types/Store.d.ts";
+import { Store } from "../types/types/Store.ts";
 
 import fs from "node:fs";
 import path from "node:path";

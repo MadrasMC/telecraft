@@ -1,4 +1,4 @@
-import { Plugin } from "../../types/index.d.ts";
+import { Plugin } from "../types/index.ts";
 import axios from "npm:axios";
 
 import { MCChat, MsgContext } from "./utils.ts";

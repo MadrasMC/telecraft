@@ -1,4 +1,4 @@
-import { Plugin, Messenger } from "../../types/index.d.ts";
+import { Plugin, Messenger } from "../types/index.ts";
 
 import { EventEmitter } from "node:events";
 

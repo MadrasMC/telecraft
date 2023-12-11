@@ -1,8 +1,8 @@
-import core from "../../core/src/index.ts";
-import { Vanilla } from "../../parser/src/vanilla/index.ts";
-import Telegram from "../../telegram/src/index.ts";
-import Auth from "../../auth/src/index.ts";
-import StoreProvider from "../../store/src/index.ts";
+import core from "../core/index.ts";
+import { Vanilla } from "../parser/vanilla/index.ts";
+import Telegram from "../telegram/index.ts";
+import Auth from "../auth/index.ts";
+import StoreProvider from "../store/index.ts";
 
 import { telegram, launch, storePath } from "./config.example.ts";
 

@@ -1,5 +1,5 @@
-import { Server } from "./Server.d.ts";
-import { Events } from "./Events.d.ts";
+import { Server } from "./Server.ts";
+import { Events } from "./Events.ts";
 
 export type Parser = (
 	server: Server,

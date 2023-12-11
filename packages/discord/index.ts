@@ -1,5 +1,5 @@
-import { Plugin, Messenger } from "../../types/index.d.ts";
-import { CtxBase } from "../../types/types/Messenger.d.ts";
+import { Plugin, Messenger } from "../types/index.ts";
+import { CtxBase } from "../types/types/Messenger.ts";
 
 import DiscordJS, { Channel, ChannelType, TextChannel } from "npm:discord.js";
 import { EventEmitter } from "node:events";

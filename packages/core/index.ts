@@ -1,12 +1,5 @@
-import {
-	Events,
-	Parser,
-	Store,
-	IO,
-	Server,
-	Plugin,
-} from "../../types/index.d.ts";
-import { Reader } from "../../types/types/Server.d.ts";
+import { Events, Parser, Store, IO, Server, Plugin } from "../types/index.ts";
+import { Reader } from "../types/types/Server.ts";
 
 import process from "node:process";
 import { spawn } from "node:child_process";

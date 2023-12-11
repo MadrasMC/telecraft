@@ -1,4 +1,4 @@
-import { Parser } from "../../types/index.d.ts";
+import { Parser } from "../types/index.ts";
 
 export type ParseGroup = { [k: string]: () => string };
 

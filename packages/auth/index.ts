@@ -1,5 +1,5 @@
-import { Plugin, Messenger } from "../../../packages/types/index.d.ts";
-import { CtxBase } from "../../../packages/types/types/Messenger.d.ts";
+import { Plugin, Messenger } from "../types/index.ts";
+import { CtxBase } from "../types/types/Messenger.ts";
 import NodeJS from "npm:@types/node";
 
 import { parse } from "npm:nbt-ts";
