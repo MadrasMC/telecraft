@@ -1,5 +1,5 @@
-import { getDeathMessages } from "./death";
-import { ParserFactory } from "../util";
+import { getDeathMessages } from "./death.ts";
+import { ParserFactory } from "../util.ts";
 
 const V116 = {
 	/* base */
@@ -89,7 +89,9 @@ const V116 = {
 		return "\\* (?<user>" + this.username() + ") " + this.text();
 	},
 	message: function () {
-		return "(?:\[Not Secure\] )?<(?<user>" + this.username() + ")> " + this.text();
+		return (
+			"(?:[Not Secure] )?<(?<user>" + this.username() + ")> " + this.text()
+		);
 	},
 	started: function () {
 		return 'Done \\((?<ms>\\d+(\\.\\d+)?)s\\)! For help, type "help"';

@@ -1,14 +1,12 @@
-import { Events } from "./Events";
-import { Store } from "./Store";
-import { Server } from "./Server";
+import { Events } from "./Events.d.ts";
+import { Store } from "./Store.d.ts";
+import { Server } from "./Server.d.ts";
 
 export type Plugin<
 	Opts = never,
 	Deps extends any[] | [] = [],
-	Exports = any
-> = (
-	opts: Opts,
-) => {
+	Exports = any,
+> = (opts: Opts) => {
 	name: string;
 	version: string;
 	dependencies?: string[];

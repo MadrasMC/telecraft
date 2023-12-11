@@ -1,9 +1,13 @@
-import { Plugin, Messenger } from "@telecraft/types";
-import { CtxBase } from "@telecraft/types/types/Messenger";
+import { Plugin, Messenger } from "../../../packages/types/index.d.ts";
+import { CtxBase } from "../../../packages/types/types/Messenger.d.ts";
+import NodeJS from "npm:@types/node";
 
-import { parse } from "nbt-ts";
+import { parse } from "npm:nbt-ts";
 
-const pkg = require("../package.json") as { name: string; version: string };
+const pkg = {
+	name: "auth",
+	version: "1.0.0-beta.5",
+} as const;
 
 const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
@@ -12,7 +16,7 @@ const createError = (...str: string[]) =>
 const rand = () => String(Math.floor(1000 + Math.random() * 9000));
 
 const gameModes = ["survival", "creative", "adventure", "spectator"] as const;
-type gameModes = typeof gameModes[number];
+type gameModes = (typeof gameModes)[number];
 
 type Pos = [number, number, number];
 

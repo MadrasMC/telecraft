@@ -1,11 +1,11 @@
-import { Plugin, Messenger } from "@telecraft/types";
+import { Plugin, Messenger } from "../../types/index.d.ts";
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 
 // Telegraf
-import { Telegraf, Middleware, Context } from "telegraf";
-import { MessageSubType } from "telegraf/typings/telegram-types";
-import { Message } from "telegraf/typings/core/types/typegram";
+import { Telegraf, Middleware, Context } from "npm:telegraf";
+import type { Convenience } from "npm:telegraf/types";
+import { Message } from "npm:telegraf/types";
 // --
 
 import {
@@ -16,9 +16,12 @@ import {
 	deunionise,
 	isCommand,
 	parseCommand,
-} from "./utils";
+} from "./utils.ts";
 
-const pkg = require("../package.json") as { name: string; version: string };
+const pkg = {
+	name: "telegram",
+	version: "1.0.0-beta.5",
+} as const;
 
 const tgOpts = { parse_mode: "HTML" } as const;
 
@@ -244,7 +247,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 					  )
 					: getTelegramName(ctx.message);
 
-			const handledTypes: MessageSubType[] = [
+			const handledTypes: Convenience.MessageSubType[] = [
 				"voice",
 				"video_note",
 				"video",

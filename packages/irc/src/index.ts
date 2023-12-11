@@ -1,10 +1,13 @@
-import { Plugin, Messenger } from "@telecraft/types";
-import { CtxBase } from "@telecraft/types/types/Messenger";
-import { EventEmitter } from "events";
-import { MCChat, escapeHTML, code, isCommand, parseCommand } from "./utils";
-import irc from "irc";
+import { Plugin, Messenger } from "../../types/index.d.ts";
+import { CtxBase } from "../../types/types/Messenger.d.ts";
+import { EventEmitter } from "node:events";
+import { MCChat, escapeHTML, code, isCommand, parseCommand } from "./utils.ts";
+import irc from "npm:irc";
 
-const pkg = require("../package.json") as { name: string; version: string };
+const pkg = {
+	name: "irc",
+	version: "1.0.0-beta.5",
+} as const;
 
 const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));

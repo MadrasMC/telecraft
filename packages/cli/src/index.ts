@@ -1,10 +1,10 @@
-import core from "@telecraft/core";
-import { Vanilla } from "@telecraft/parser";
-import Telegram from "@telecraft/telegram";
-import Auth from "@telecraft/auth";
-import StoreProvider from "@telecraft/store";
+import core from "../../core/src/index.ts";
+import { Vanilla } from "../../parser/src/vanilla/index.ts";
+import Telegram from "../../telegram/src/index.ts";
+import Auth from "../../auth/src/index.ts";
+import StoreProvider from "../../store/src/index.ts";
 
-import { telegram, launch, storePath } from "./config";
+import { telegram, launch, storePath } from "./config.example.ts";
 
 core({
 	config: {

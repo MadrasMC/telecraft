@@ -1,17 +1,25 @@
-import { Store } from "@telecraft/types";
+import { Store } from "../../types/types/Store.d.ts";
 
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
+import { Buffer } from "node:buffer";
 
-import levelup from "levelup";
-import leveldown from "leveldown";
-import { iterator } from "p-event";
+// @deno-types="npm:@types/levelup"
+import levelup from "npm:levelup";
+
+// @deno-types="npm:@types/leveldown"
+import { default as leveldown } from "npm:leveldown";
+
+import { pEventIterator as iterator } from "npm:p-event";
 
 const nativeConsole = console;
 
 type Opts = { debug?: boolean; console?: Console };
 
-const pkg = require("../package.json") as { version: string };
+const pkg = {
+	name: "store",
+	version: "1.0.0-beta.5",
+} as const;
 
 const StoreProvider = (
 	location: string,
@@ -28,7 +36,7 @@ const StoreProvider = (
 			const targetPath = path.resolve(location, name);
 
 			await fs.promises.mkdir(targetPath, { recursive: true });
-			const store = levelup(leveldown(targetPath));
+			const store = levelup(leveldown.default(targetPath));
 
 			return {
 				get: key =>
@@ -60,6 +68,7 @@ const StoreProvider = (
 							const value = data.value ? JSON.parse(String(data.value)) : null;
 							if (query(value)) {
 								resolve([key, value]);
+								resolved = true; // ←
 							}
 						};
 

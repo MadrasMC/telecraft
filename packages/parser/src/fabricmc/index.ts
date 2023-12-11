@@ -1,4 +1,4 @@
-import { Vanilla } from "../vanilla";
+import { Vanilla } from "../vanilla/index.ts";
 
 const F116 = Vanilla["1.16"].extend({});
 

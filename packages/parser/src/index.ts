@@ -1,3 +1,3 @@
-export { Vanilla } from "./vanilla";
-export { PaperMC } from "./papermc";
-export { FabricMC } from "./fabricmc";
+export { Vanilla } from "./vanilla/index.ts";
+export { PaperMC } from "./papermc/index.ts";
+export { FabricMC } from "./fabricmc/index.ts";

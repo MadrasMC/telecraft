@@ -1,10 +1,13 @@
-import { Plugin } from "@telecraft/types";
-import axios from "axios";
+import { Plugin } from "../../types/index.d.ts";
+import axios from "npm:axios";
 
-import { MCChat, MsgContext } from "./utils";
-import { LiveChatMessage } from "./types";
+import { MCChat, MsgContext } from "./utils.ts";
+import { LiveChatMessage } from "./types.ts";
 
-const pkg = require("../package.json") as { name: string; version: string };
+const pkg = {
+	name: "youtube",
+	version: "1.0.0-beta.5",
+} as const;
 
 const sleep = (t: number) => new Promise(r => setTimeout(r, t));
 

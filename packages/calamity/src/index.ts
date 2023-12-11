@@ -1,6 +1,9 @@
-import { Plugin } from "@telecraft/types";
+import { Plugin } from "../../types/index.d.ts";
 
-const pkg = require("../package.json") as { name: string; version: string };
+const pkg = {
+	name: "calamity",
+	version: "1.0.0-beta.1",
+} as const;
 
 const sleep = (t: number) => new Promise<void>(r => setTimeout(r, t));
 

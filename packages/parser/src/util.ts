@@ -1,4 +1,4 @@
-import { Parser } from "@telecraft/types";
+import { Parser } from "../../types/index.d.ts";
 
 export type ParseGroup = { [k: string]: () => string };
 

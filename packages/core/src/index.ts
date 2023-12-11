@@ -1,16 +1,28 @@
-import { Events, Parser, Store, IO, Server, Plugin } from "@telecraft/types";
-import { Reader } from "@telecraft/types/types/Server";
+import {
+	Events,
+	Parser,
+	Store,
+	IO,
+	Server,
+	Plugin,
+} from "../../types/index.d.ts";
+import { Reader } from "../../types/types/Server.d.ts";
 
-import { spawn } from "child_process";
-import { createInterface } from "readline";
-import { platform, EOL } from "os";
-import { PassThrough, Writable } from "stream";
+import process from "node:process";
+import { spawn } from "node:child_process";
+import { createInterface } from "node:readline";
+import { platform, EOL } from "node:os";
+import { PassThrough, Writable } from "node:stream";
 
-import { decodeStream } from "iconv-lite";
+import iconv from "npm:iconv-lite";
 
-import Event from "./util/Event";
+import Event from "./util/Event.ts";
+import { Console } from "node:console";
 
-const pkg = require("../package.json") as { name: string; version: string };
+const pkg = {
+	name: "core",
+	version: "1.0.0-beta.5",
+} as const;
 
 type Config = {
 	launch: string;
@@ -29,9 +41,7 @@ const rl = (stream: NodeJS.ReadableStream) =>
 	createInterface({ input: stream });
 
 const decode = (x: NodeJS.ReadableStream) =>
-	platform() === "win32" ? x.pipe(decodeStream("win1252")) : x;
-
-const { Console } = console;
+	platform() === "win32" ? x.pipe(iconv.decodeStream("win1252")) : x;
 
 const getConsole = (
 	io: { stdout: Writable; stderr: Writable },

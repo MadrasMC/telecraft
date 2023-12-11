@@ -1,4 +1,7 @@
-import { Server } from "./Server";
-import { Events } from "./Events";
+import { Server } from "./Server.d.ts";
+import { Events } from "./Events.d.ts";
 
-export type Parser = (server: Server, emit: Events["emit"]) => (line: string) => void;
+export type Parser = (
+	server: Server,
+	emit: Events["emit"],
+) => (line: string) => void;

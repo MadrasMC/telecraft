@@ -1,23 +1,20 @@
-import { Plugin, Messenger } from "@telecraft/types";
-import { CtxBase } from "@telecraft/types/types/Messenger";
+import { Plugin, Messenger } from "../../types/index.d.ts";
+import { CtxBase } from "../../types/types/Messenger.d.ts";
 
-import DiscordJS, {
-	Intents,
-	TextBasedChannels,
-	Channel,
-	TextChannel,
-} from "discord.js";
-import { EventEmitter } from "events";
-import { MCChat, escapeHTML, code, isCommand, parseCommand } from "./utils";
+import DiscordJS, { Channel, ChannelType, TextChannel } from "npm:discord.js";
+import { EventEmitter } from "node:events";
+import { MCChat, escapeHTML, code, isCommand, parseCommand } from "./utils.ts";
 
-const pkg = require("../package.json") as { name: string; version: string };
+const pkg = {
+	name: "discord",
+	version: "1.0.0-beta.5",
+} as const;
 
 const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
 
-const isGuildTextChannel = (
-	channel: TextBasedChannels | Channel,
-): channel is TextChannel => channel.type === "GUILD_TEXT";
+const isGuildTextChannel = (channel: Channel): channel is TextChannel =>
+	channel.type === ChannelType.GuildText;
 
 type Opts = {
 	enable: boolean;
@@ -29,7 +26,7 @@ type DiscordMessenger = Messenger<string, CtxBase, "chat">;
 
 const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
 	const client = new DiscordJS.Client({
-		intents: [Intents.FLAGS.GUILD_MESSAGES],
+		intents: "GuildMessages",
 	});
 	const ev = new EventEmitter();
 
@@ -40,8 +37,8 @@ const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
 
 	const discord: DiscordMessenger["exports"] = {
 		async send(type: "chat", channelId: string, msg) {
-			const channel = await client.channels.cache.get(channelId);
-			if (!channel || !channel.isText()) return;
+			const channel = client.channels.cache.get(channelId);
+			if (!channel || !channel.isTextBased()) return;
 			channel.send(msg);
 		},
 		on,

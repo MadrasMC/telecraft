@@ -1,16 +1,16 @@
 #!/bin/env node
 
-import { start } from "repl";
-import { inspect } from "util";
-import { EOL } from "os";
+import { start } from "node:repl";
+import { inspect } from "node:util";
+import { EOL } from "node:os";
 
-import Store from "@telecraft/store";
-import type { Store as TelecraftStore } from "@telecraft/types";
+import Store from "../../store/src/index.ts";
+import type { Store as TelecraftStore } from "../../types/index.d.ts";
 
-import { red, green, blue } from "chalk";
-import { isMatch } from "lodash";
+import { red, green, blue } from "npm:chalk";
+import { isMatch } from "npm:lodash";
 
-import { commands } from "./commands";
+import { commands } from "./commands.ts";
 
 const getCmd = (
 	cmdx: string,
