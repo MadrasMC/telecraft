@@ -12,7 +12,7 @@ import StoreProvider from "../store/index.ts";
 import { parse } from "./config.ts";
 import { Plugin } from "../types/index.ts";
 
-const args = mri(Deno.args);
+const args = mri(Deno.args, { alias: { config: "c" } });
 const configPath = args.config ?? "./telecraft.json";
 const config = parse(configPath, JSON.parse(Deno.readTextFileSync(configPath)));
 
