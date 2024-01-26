@@ -14,7 +14,7 @@ const sleep = (t: number) => new Promise(r => setTimeout(r, t));
 const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
 
-const YoutubeLive: Plugin<{
+const YouTubeLive: Plugin<{
 	enable: boolean;
 	videoId: string;
 	apiKey: string;
@@ -126,4 +126,4 @@ const YoutubeLive: Plugin<{
 	};
 };
 
-export default YoutubeLive;
+export default YouTubeLive;

@@ -1,0 +1,9 @@
+{
+	"launch": "/usr/bin/env java -Xmx3096M -Xms1024M -jar server.jar nogui",
+	"cwd": "/path/to/server",
+	"store": "/path/to/server/.telecraft/store",
+	"telegram": {
+		"token": "",
+		"chatId": ""
+	}
+}
