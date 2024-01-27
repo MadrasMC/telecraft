@@ -94,7 +94,7 @@ const isPropArrayOrUndef = <
 export function parse(configPath: string, config: unknown): Config {
 	class ConfigError extends Error {
 		constructor(message: string) {
-			super(`Config found at ${configPath}:` + message);
+			super(`Config found at ${configPath}: ` + message);
 			this.name = "AssertionError";
 		}
 	}

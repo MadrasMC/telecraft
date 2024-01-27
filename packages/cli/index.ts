@@ -8,7 +8,7 @@ import Discord from "../discord/index.ts";
 import IRC from "../irc/index.ts";
 import YouTubeLive from "../youtube/index.ts";
 import Auth from "../auth/index.ts";
-import StoreProvider from "../store/index.ts";
+import StoreProvider from "../kvstore/index.ts";
 import { parse } from "./config.ts";
 import { Plugin } from "../types/index.ts";
 
