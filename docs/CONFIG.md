@@ -3,31 +3,31 @@
 telecraft is configured using a JSON file. By default, it will look for a file named `telecraft.json` in the current working directory. You can specify a different config file using the `--config | -c` option.
 
 - [Config](#config)
-  - [`launch`](#launch-i-stylecolor--888stringi)
-  - [`cwd`](#cwd-i-stylecolor--888stringi)
-  - [`parser`](#parser-i-stylecolor--888stringi)
-  - [`version`](#version-i-stylecolor--888stringi)
-  - [`store`](#store-i-stylecolor--888stringi)
-  - [`plugins`](#plugins-i-stylecolor--888plugini)
+  - [launch](#launch-string)
+  - [cwd](#cwd-string)
+  - [parser](#parser-string)
+  - [version](#version-string)
+  - [store](#store-string)
+  - [plugins](#plugins-plugin)
 - [Plugins](#plugins)
-  - [`telegram`](#telegram)
-  - [`discord`](#discord)
-  - [`youtube`](#youtube)
-  - [`irc`](#irc)
-  - [`auth`](#auth)
+  - [telegram](#telegram)
+  - [discord](#discord)
+  - [youtube](#youtube)
+  - [irc](#irc)
+  - [auth](#auth)
 - [Third-party Plugins](#third-party-plugins)
 
 ## Config Options
 
-### `launch` <i style="color: #888">(string)</i>
+### `launch` _(string)_
 
 The command to launch the game server. It can be a path to an executable, or a command with arguments. If you need to use shell features like pipes, you can use `sh -c` to run a shell command.
 
-### `cwd` <i style="color: #888">(string)</i>
+### `cwd` _(string)_
 
 (_string_) The working directory to launch the game server in. The `launch` command will be run in this directory.
 
-### `parser` <i style="color: #888">(string)</i>
+### `parser` _(string)_
 
 The parser to use for the game server's stdout. This is used to parse chat messages and other events.
 
@@ -38,7 +38,7 @@ Supported values:
 - `fabricmc` - FabricMC server
 - `vintage-story` - Vintage Story server
 
-### `version` <i style="color: #888">(string)</i>
+### `version` _(string)_
 
 The Minecraft version of the server. This is used to parse chat messages and other events.
 
@@ -49,11 +49,11 @@ Supported values:
 
 > Note: Old parser versions will likely just work for newer game versions, but they may miss things like new death messages. It's only rarely that functionality will be broken. For example, since 1.19, Minecraft will add `[Not Secure]` before messages in offline mode (messages are not signed by Mojang server). Typically using the latest available parser version is recommended, regardless of your game version. Do raise an issue if something broke in a new version.
 
-### `store` <i style="color: #888">(string)</i>
+### `store` _(string)_
 
 The store path to use for persistent data. This is primarily passed to plugins to store data to file. It's a Deno.Kv store, based on SQLite.
 
-### `plugins` <i style="color: #888">(Plugin[])</i>
+### `plugins` _(Plugin[])_
 
 An array of plugins to load. Builtin plugins can be specified by name, and third-party plugins can be specified by URL.
 
@@ -106,10 +106,10 @@ interface Telegram {
 }
 ```
 
-- `token` <i style="color: #888">(string)</i> - The Telegram bot token. You can get this from [@BotFather](https://t.me/BotFather).
-- `chatId` <i style="color: #888">(number)</i> - The Telegram chat ID to bridge with. You can get this using [@get_id_bot](https://t.me/get_id_bot).
-- `allowList` <i style="color: #888">(boolean, optional)</i> - Whether to allow only users in the Telegram chat to do `/list` to list currently logged in players.
-- `startTimeout` <i style="color: #888">(number, optional)</i> - The timeout in milliseconds to wait for the Minecraft server to start before crashing. Defaults to 15 seconds.
+- `token` _(string)_ - The Telegram bot token. You can get this from [@BotFather](https://t.me/BotFather).
+- `chatId` _(number)_ - The Telegram chat ID to bridge with. You can get this using [@get_id_bot](https://t.me/get_id_bot).
+- `allowList` _(boolean, optional)_ - Whether to allow only users in the Telegram chat to do `/list` to list currently logged in players.
+- `startTimeout` _(number, optional)_ - The timeout in milliseconds to wait for the Minecraft server to start before crashing. Defaults to 15 seconds.
 
 ### `discord`
 
@@ -125,8 +125,8 @@ interface Discord {
 }
 ```
 
-- `token` <i style="color: #888">(string)</i> - The Discord bot token. You can get this from the [Discord Developer Portal](https://discord.com/developers/applications).
-- `channelId` <i style="color: #888">(string)</i> - The Discord channel ID to bridge with. You can get this by enabling developer mode in Discord settings, then right-clicking on a channel and clicking "Copy ID".
+- `token` _(string)_ - The Discord bot token. You can get this from the [Discord Developer Portal](https://discord.com/developers/applications).
+- `channelId` _(string)_ - The Discord channel ID to bridge with. You can get this by enabling developer mode in Discord settings, then right-clicking on a channel and clicking "Copy ID".
 
 ### `youtube`
 
@@ -144,10 +144,10 @@ interface YouTubeLive {
 }
 ```
 
-- `videoId` <i style="color: #888">(string)</i> - The YouTube video ID to bridge with. You can get this from the URL of the video.
-- `apiKey` <i style="color: #888">(string)</i> - The YouTube API key. You can get this from the [Google Developer Console](https://console.developers.google.com/).
-- `fetchInterval` <i style="color: #888">(number, optional)</i> - The interval in milliseconds to fetch new messages from YouTube. Defaults to 2 seconds.
-- `maxResults` <i style="color: #888">(number, optional)</i> - The maximum number of messages to fetch from YouTube at a time. Defaults to 100.
+- `videoId` _(string)_ - The YouTube video ID to bridge with. You can get this from the URL of the video.
+- `apiKey` _(string)_ - The YouTube API key. You can get this from the [Google Developer Console](https://console.developers.google.com/).
+- `fetchInterval` _(number, optional)_ - The interval in milliseconds to fetch new messages from YouTube. Defaults to 2 seconds.
+- `maxResults` _(number, optional)_ - The maximum number of messages to fetch from YouTube at a time. Defaults to 100.
 
 ### `irc`
 
@@ -164,9 +164,9 @@ interface IRC {
 }
 ```
 
-- `server` <i style="color: #888">(string)</i> - The IRC server to connect to.
-- `nick` <i style="color: #888">(string)</i> - The IRC nickname to use.
-- `channel` <i style="color: #888">(string)</i> - The IRC channel to bridge with.
+- `server` _(string)_ - The IRC server to connect to.
+- `nick` _(string)_ - The IRC nickname to use.
+- `channel` _(string)_ - The IRC channel to bridge with.
 
 ### `auth`
 
@@ -188,11 +188,11 @@ export interface Auth {
 }
 ```
 
-- `messenger` <i style="color: #888">(string)</i> - The messenger plugin to use for authentication. This must be one of the following:
+- `messenger` _(string)_ - The messenger plugin to use for authentication. This must be one of the following:
   - `telegram`
   - `discord`
   - `irc`
-- `timeout` <i style="color: #888">(number, optional)</i> - The timeout in milliseconds to wait for the player to authenticate before kicking them. Defaults to 20 seconds.
+- `timeout` _(number, optional)_ - The timeout in milliseconds to wait for the player to authenticate before kicking them. Defaults to 20 seconds.
 
 ## Third-party Plugins
 
