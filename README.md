@@ -32,6 +32,8 @@ Then run Telecraft:
 telecraft
 ```
 
+### Plugins
+
 By itself this does almost nothing other than run the server. All functionality is in the plugins. You can add a plugins array to your config. The following enables bi-directional bridge with a Telegram chat:
 
 ```json
@@ -41,6 +43,23 @@ By itself this does almost nothing other than run the server. All functionality 
 		"token": "1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
 		"chatId": -1001234567890,
 		"allowList": true
+	}
+]
+```
+
+##### TODO: documentation for all builtin plugins
+
+### Third-party plugins
+
+Telecraft supports third-party plugins. These are Deno modules that export a function implementing the [`Plugin`](./packages/types/types/Plugin.ts) type. You can use third-party plugins via URL by simply adding them to your config:
+
+```json
+"plugins": [
+	{
+		"url": "https://example.com/x/my-telecraft-plugin@version/index.ts",
+		"config": {
+			// ...
+		}
 	}
 ]
 ```
