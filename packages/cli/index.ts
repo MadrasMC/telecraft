@@ -17,9 +17,9 @@ const configPath = args.config ?? "./telecraft.json";
 const config = parse(configPath, JSON.parse(Deno.readTextFileSync(configPath)));
 
 const parsers = {
-	"vanilla": Vanilla,
-	"paper": PaperMC,
-	"fabric": FabricMC,
+	"minecraft": Vanilla,
+	"papermc": PaperMC,
+	"fabricmc": FabricMC,
 	"vintage-story": Vanilla,
 };
 
@@ -64,7 +64,7 @@ const plugins: ReturnType<Plugin<any, any>>[] = await Promise.all(
 );
 
 core({
-	config: { launch: config.launch, cwd: config.cwd },
+	config: { launch: config.launch, workdir: config.workdir },
 	parser: version,
 	store: StoreProvider(config.store ?? "./telecraft.db"),
 	plugins,

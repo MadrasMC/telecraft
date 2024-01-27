@@ -19,7 +19,7 @@ const pkg = {
 
 type Config = {
 	launch: string;
-	cwd?: string;
+	workdir?: string;
 };
 
 type Ctx = {
@@ -71,7 +71,10 @@ export default ({
 
 	// detached so that Minecraft gets to terminate gracefully on SIGINT
 	// child process should be exited by @telecraft/core instead of OS
-	const minecraft = spawn(launch, options, { cwd: config.cwd, detached: true });
+	const minecraft = spawn(launch, options, {
+		cwd: config.workdir,
+		detached: true,
+	});
 
 	const readers: Reader[] = [];
 	const inputReaders: Reader[] = [];

@@ -4,7 +4,7 @@ telecraft is configured using a JSON file. By default, it will look for a file n
 
 - [Config](#config)
   - [launch](#launch-string)
-  - [cwd](#cwd-string)
+  - [workdir](#workdir-string)
   - [parser](#parser-string)
   - [version](#version-string)
   - [store](#store-string)
@@ -23,7 +23,7 @@ telecraft is configured using a JSON file. By default, it will look for a file n
 
 The command to launch the game server. It can be a path to an executable, or a command with arguments. If you need to use shell features like pipes, you can use `sh -c` to run a shell command.
 
-### `cwd` _(string)_
+### `workdir` _(string)_
 
 (_string_) The working directory to launch the game server in. The `launch` command will be run in this directory.
 

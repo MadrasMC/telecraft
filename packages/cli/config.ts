@@ -40,7 +40,7 @@ export interface Auth {
 
 export interface Config {
 	launch: string;
-	cwd?: string;
+	workdir?: string;
 	parser: string;
 	version?: string;
 	store?: string;
@@ -112,8 +112,8 @@ export function parse(configPath: string, config: unknown): Config {
 
 	if (!isPropString(config, "launch"))
 		throw new ConfigError("Config.launch must be a string");
-	if (!isPropStringOrUndef(config, "cwd"))
-		throw new ConfigError("Config.cwd must be a string");
+	if (!isPropStringOrUndef(config, "workdir"))
+		throw new ConfigError("Config.workdir must be a string");
 	if (!isPropString(config, "parser"))
 		throw new ConfigError("Config.parser must be a string");
 	if (!isPropStringOrUndef(config, "version"))
