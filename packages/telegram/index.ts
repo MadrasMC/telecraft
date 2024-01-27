@@ -34,7 +34,7 @@ type Opts = {
 	/** Telegram Bot Token */
 	token: string;
 	/** Telegram Chat ID */
-	chatId: string;
+	chatId: string | number;
 	/** /list Options */
 	list?: {
 		/** Allow the use of /list */

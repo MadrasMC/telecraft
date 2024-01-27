@@ -6,7 +6,7 @@ export interface Plugin {
 export interface Telegram {
 	name: "telegram";
 	token: string;
-	chatId: string;
+	chatId: number | string;
 	allowList?: boolean;
 	startTimeout?: number;
 }
@@ -54,6 +54,15 @@ const isPropString = <O extends Record<string, unknown>, P extends string>(
 	obj: O,
 	prop: P,
 ): obj is O & Record<P, string> => typeof obj[prop] === "string";
+
+const isPropStringOrNumber = <
+	O extends Record<string, unknown>,
+	P extends string,
+>(
+	obj: O,
+	prop: P,
+): obj is O & Record<P, string | number> =>
+	typeof obj[prop] === "string" || typeof obj[prop] === "number";
 
 const isPropStringOrUndef = <
 	O extends Record<string, unknown>,
@@ -128,9 +137,9 @@ export function parse(configPath: string, config: unknown): Config {
 							"Config.plugins[telegram].token must be a string",
 						);
 
-					if (!isPropString(plugin, "chatId"))
+					if (!isPropStringOrNumber(plugin, "chatId"))
 						throw new ConfigError(
-							"Config.plugins[telegram].chatId must be a string",
+							"Config.plugins[telegram].chatId must be a string or number",
 						);
 
 					if (!isPropBooleanOrUndef(plugin, "allowList"))
