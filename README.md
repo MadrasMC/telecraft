@@ -12,29 +12,33 @@ Having child process permission already means telecraft can do everything. telec
 
 `--unstable` is required for Deno.Kv store.
 
+##### TODO: publish builds via CI
+
 ## Usage
 
 Create a config file with at least the following options:
 
 ```json
 {
-	"launch": "/usr/bin/env java -Xmx3096M -Xms1024M -jar /path/to/server.jar nogui",
+	"launch": "/usr/bin/env java -Xmx4096M -Xms1024M -jar /path/to/server.jar nogui",
 	"parser": "vanilla",
 	"version": "1.19"
 }
 ```
 
-Save it as `telecraft.json`. This will launch a vanilla Minecraft server with 3GB of RAM allocated as Minecraft 1.19.
-
-Then run Telecraft:
+Save it as `telecraft.json` and run:
 
 ```sh
 telecraft
 ```
 
+This will launch a vanilla Minecraft server with 4GB of RAM allocated, parsing its stdout as Minecraft 1.19.
+
+##### TODO: document core config options
+
 ### Plugins
 
-By itself this does almost nothing other than run the server. All functionality is in the plugins. You can add a plugins array to your config. The following enables bi-directional bridge with a Telegram chat:
+By itself the above steps do almost nothing other than run the game server. All functionality is in the plugins. You can add a plugins array to your config. The following enables bi-directional bridge with a Telegram chat:
 
 ```json
 "plugins": [
