@@ -326,7 +326,7 @@ const auth: Plugin<
 			if (cacheUser.hasTimedOut) return;
 			cacheUser.hasSentAuth = true;
 
-			await clearLock(mcName, record.messengerId, { success: true });
+			await clearLock(mcName, record?.messengerId, { success: true });
 
 			return messenger.send(
 				ctx.from.type,

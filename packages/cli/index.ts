@@ -40,13 +40,7 @@ const plugins: ReturnType<Plugin<any, any>>[] = await Promise.all(
 	(config.plugins ?? []).map(async c => {
 		// internal plugin
 		if ("name" in c) {
-			if (c.name === "telegram")
-				return Telegram({
-					enable: true,
-					chatId: c.chatId,
-					token: c.token,
-					list: { allow: c.allowList, timeout: c.startTimeout },
-				});
+			if (c.name === "telegram") return Telegram({ enable: true, ...c });
 			if (c.name === "discord") return Discord({ enable: true, ...c });
 			if (c.name === "irc") return IRC({ enable: true, ...c });
 			if (c.name === "youtube") return YouTubeLive({ enable: true, ...c });

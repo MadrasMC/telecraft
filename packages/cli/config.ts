@@ -7,8 +7,6 @@ export interface Telegram {
 	name: "telegram";
 	token: string;
 	chatId: number | string;
-	allowList?: boolean;
-	startTimeout?: number;
 }
 
 export interface Discord {

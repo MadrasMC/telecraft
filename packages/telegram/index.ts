@@ -3,9 +3,9 @@ import { Plugin, Messenger } from "../types/index.ts";
 import { EventEmitter } from "node:events";
 
 // Telegraf
-import { Telegraf, Middleware, Context } from "npm:telegraf";
-import type { Convenience } from "npm:telegraf/types";
-import { Message } from "npm:telegraf/types";
+import { Telegraf, Context } from "npm:telegraf";
+import { message } from "npm:telegraf/filters";
+import type { Convenience, Update, Message } from "npm:telegraf/types";
 // --
 
 import {
@@ -35,13 +35,6 @@ type Opts = {
 	token: string;
 	/** Telegram Chat ID */
 	chatId: string | number;
-	/** /list Options */
-	list?: {
-		/** Allow the use of /list */
-		allow?: boolean;
-		/** Time to wait for list, in milliseconds */
-		timeout?: number;
-	};
 	/** Telegraf Options */
 	// Todo(mkr): Telegraf.Options after 4.0.1
 	telegraf?: any;
@@ -83,87 +76,63 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 
 			bot.command("chatid", ctx => ctx.reply(ctx.chat?.id?.toString()!));
 
-			const players = {
-				init: false,
-				max: 0,
-				list: [] as string[],
-				add<T extends string>(player: T): T {
-					this.list = this.list.filter(x => x !== player).concat([player]);
-					return player;
-				},
-				remove<T extends string>(player: T): T {
-					this.list = this.list.filter(x => x !== player);
-					return player;
-				},
-			};
+			let mode: "minecraft" | "vintagestory" | undefined = undefined;
 
-			if (opts.list?.allow) {
-				new Promise<[string, string, string[]]>((resolve, reject) => {
-					const rejection = setTimeout(
-						() => reject(new Error("/list took too long!")),
-						opts.list?.timeout || 15 * 1000,
-					);
+			let wasAnnoyed = false;
 
-					const cleanup = () => {
-						clearTimeout(rejection);
-					};
+			bot.command("list", ctx => {
+				if (!mode && !wasAnnoyed) {
+					wasAnnoyed = true;
+					return ctx.reply("Server is starting.");
+				}
+				if (mode === "minecraft") return server.send("/list");
+				else if (mode === "vintagestory") return server.send("/list c");
+				throw new Error("Unknown server mode: " + mode);
+			});
 
-					events.once("core:close", cleanup);
+			bot.command("time", ctx => {
+				if (!mode && !wasAnnoyed) {
+					wasAnnoyed = true;
+					return ctx.reply("Server is starting.");
+				}
+				if (mode === "minecraft") return server.send("/time query daytime");
+				else if (mode === "vintagestory") return server.send("/time");
+				throw new Error("Unknown server mode: " + mode);
+			});
 
-					return events.once("minecraft:playercount", count => {
-						clearTimeout(rejection);
-						events.off("core:close", cleanup);
-						resolve([
-							count.current,
-							count.max,
-							(count.players || "")
-								.split(/\s*,\s*/)
-								.filter((l: string) => l.length > 0),
-						]);
-					});
-				})
-					.then(([, max, ps]) => {
-						players.init = true;
-						players.max = parseInt(max);
-						players.list = ps;
+			events.on("vs:started", ctx => {
+				mode = "vintagestory";
+			});
 
-						// Poll for list every 5 seconds to tolerate unexpectedly missed login/logout
-						const interval = setInterval(
-							() => server.send("list"),
-							5 * 60 * 1000,
-						);
+			events.on("vs:join", ctx => {
+				send(code(ctx.player + " joined the server"));
+			});
 
-						events.on("core:close", () => clearInterval(interval));
+			events.on("vs:leave", ctx => send(code(ctx.player + " left the server")));
 
-						events.on("minecraft:playercount", count => {
-							players.max = parseInt(count.max);
-							players.list = (count.players || "")
-								.split(/\s*,\s*/)
-								.filter((l: string) => l.length > 0);
-						});
-					})
-					.catch(e => {
-						if (e === "CANCEL") return;
-						throw new Error(e);
-					});
-
-				server.send("list");
-
-				bot.command("list", ctx =>
-					players.init
-						? ctx.reply(
-								[
-									`Players online (`,
-									`${code(players.list.length)}/${code(players.max)})`,
-									players.list.length
-										? `:\n${code(players.list.join("\n"))}`
-										: "",
-								].join(""),
-								tgOpts,
-						  )
-						: ctx.reply("Player list not initialised."),
+			events.on("vs:message", ctx => {
+				send(
+					code(ctx.player) +
+						" " +
+						escapeHTML(ctx.text.replace(/<strong>.+<\/strong> /, "")),
 				);
-			}
+			});
+
+			events.on("vs:time", ctx => {
+				send("World time is " + ctx.worldtime);
+			});
+
+			events.on("vs:list", (ctx: { players: string[] }) => {
+				send(
+					`Players online (<code>${ctx.players.length}</code>):\n${ctx.players
+						.map(x => "<code>" + x + "</code>")
+						.join("\n")}`,
+				);
+			});
+
+			events.on("minecraft:started", ctx => {
+				mode = "minecraft";
+			});
 
 			events.on("minecraft:message", ctx => {
 				send(code(ctx.user) + " " + escapeHTML(ctx.text));
@@ -178,12 +147,20 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 			);
 
 			events.on("minecraft:join", ctx => {
-				send(code(players.add(ctx.user) + " joined the server"));
+				send(code(ctx.user + " joined the server"));
 			});
 
 			events.on("minecraft:leave", ctx =>
-				send(code(players.remove(ctx.user) + " left the server")),
+				send(code(ctx.user + " left the server")),
 			);
+
+			events.on("minecraft:list", (ctx: { players: string[] }) => {
+				send(
+					`Players online (<code>${ctx.players.length}</code>):\n${ctx.players
+						.map(x => "<code>" + x + "</code>")
+						.join("\n")}`,
+				);
+			});
 
 			events.on("minecraft:death", ctx => send(code(ctx.text)));
 
@@ -240,7 +217,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 			const isSelf = (ctx?: { from?: { id: number } }) =>
 				String(ctx?.from?.id) === botID;
 
-			const getSender = (ctx: Context) =>
+			const getSender = (ctx: Context<Update.MessageUpdate>) =>
 				isSelf(ctx)
 					? extractMinecraftUsername(
 							ctx.message && "text" in ctx.message ? ctx.message.text : "",
@@ -267,6 +244,9 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				"poll",
 			];
 
+			const msgType = (msg: Message | undefined) =>
+				msg && handledTypes.find(type => type in msg);
+
 			const getCaptioned = (msg: Message | undefined) => {
 				const thisType = handledTypes.find(type => msg && type in msg);
 				if (thisType === "text") return msg && deunionise(msg)?.text;
@@ -274,9 +254,23 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 					return captionMedia(thisType.split("_").join(" ").toUpperCase(), msg);
 			};
 
-			const handler: Middleware<Context> = (ctx, next) => {
+			const vsmessage = (ctx: Context<Update.MessageUpdate>) => {
+				const thisType = msgType(ctx.message);
+				const text = "text" in ctx.message ? ctx.message.text : `[${thisType}]`;
+				const from = ctx.from.username ?? getTelegramName(ctx.message);
+				return server.send(`/announce TG:${from}: ${text}`);
+			};
+
+			const handler = (
+				ctx: Context<Update.MessageUpdate>,
+				next: () => Promise<void>,
+			) => {
 				const isLinkedGroup = String(ctx.message?.chat.id) === opts.chatId;
 				const isBotPM = ctx.message?.chat.type === "private";
+
+				if (!mode) return next();
+				if (mode === "vintagestory") return vsmessage(ctx);
+
 				const messageText = getCaptioned(ctx.message) || "";
 				const isMessageCommand =
 					typeof messageText == "string" && isCommand(messageText);
@@ -289,7 +283,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 					if (!isLinkedGroup || isBotPM) return next();
 					// if it's indeed from the linked group but
 					// no players are online, don't relay
-					else if (players.list.length < 1) return next();
+					// else if (players.list.length < 1) return next();
 				}
 
 				const reply = ctx.message && deunionise(ctx.message)?.reply_to_message;
@@ -341,11 +335,14 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				} else {
 					const chatMessage = MCChat.message(emitCtx);
 
-					server.send("tellraw @a " + JSON.stringify(chatMessage));
+					return server.send("tellraw @a " + JSON.stringify(chatMessage));
 				}
 			};
 
-			bot.on(handledTypes, handler);
+			bot.on(
+				handledTypes.map(type => message(type)),
+				handler,
+			);
 
 			events.once("core:close", () => {
 				console.log("Stopping bot...");

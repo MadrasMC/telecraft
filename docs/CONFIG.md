@@ -109,7 +109,6 @@ interface Telegram {
 - `token` _(string)_ - The Telegram bot token. You can get this from [@BotFather](https://t.me/BotFather).
 - `chatId` _(number)_ - The Telegram chat ID to bridge with. You can get this using [@get_id_bot](https://t.me/get_id_bot).
 - `allowList` _(boolean, optional)_ - Whether to allow only users in the Telegram chat to do `/list` to list currently logged in players.
-- `startTimeout` _(number, optional)_ - The timeout in milliseconds to wait for the Minecraft server to start before crashing. Defaults to 15 seconds.
 
 ### `discord`
 
