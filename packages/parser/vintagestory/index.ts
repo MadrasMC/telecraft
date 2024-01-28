@@ -50,7 +50,7 @@ const parts = sequenceOf([
 			.map(([, , , , port]) => ({ event: "vs:started" as const, port: Number(port) })),
 
 		// 27.1.2024 15:42:15 [Server Chat] Priya13: <strong>Priya13:</strong> hiiii
-		sequenceOf([SERVER_CHAT, space, player, colon, space, sequenceOf([char("<"), player, colon, char(">")]), space, rest])
+		sequenceOf([SERVER_CHAT, space, player, colon, space, sequenceOf([str("<strong>"), player, colon, str("</strong>")]), space, rest])
 			// MESSAGE event
 			.map(([, , player, , , , , text]) => ({ event: "vs:message" as const, player, text })),
 
