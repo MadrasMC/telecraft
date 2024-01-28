@@ -39,6 +39,52 @@ type Opts = {
 
 type messenger = Messenger<string | number>;
 
+type Month =
+	| "January"
+	| "February"
+	| "March"
+	| "April"
+	| "May"
+	| "June"
+	| "July"
+	| "August"
+	| "September"
+	| "October"
+	| "November"
+	| "December";
+
+const seasonMap = {
+	January: "winter",
+	February: "winter",
+	March: "spring",
+	April: "spring",
+	May: "spring",
+	June: "summer",
+	July: "summer",
+	August: "summer",
+	September: "autumn",
+	October: "autumn",
+	November: "autumn",
+	December: "winter",
+} as const;
+
+const seasonEmoji = {
+	winter: "❄️",
+	spring: "🌸",
+	summer: "☀️",
+	autumn: "🍂",
+};
+
+const timeToEmoji = (hours: number) => {
+	if (hours < 5) return "🌌";
+	if (hours < 10) return "🌄";
+	if (hours < 14) return "🌅";
+	if (hours < 17) return "🏙";
+	if (hours < 20) return "🌇";
+	if (hours > 23) return "🌌";
+	else return "🌃";
+};
+
 const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 	if (!opts.token) throw createError("'token' was not provided");
 
@@ -108,16 +154,30 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 			events.on("vs:leave", ctx => send(code(ctx.player + " left the server")));
 
 			events.on("vs:message", ctx => {
-				send(
-					code(ctx.player) +
-						" " +
-						escapeHTML(ctx.text.replace(/<strong>.+<\/strong> /, "")),
-				);
+				send(code(ctx.player) + " " + escapeHTML(ctx.text));
 			});
 
-			events.on("vs:time", ctx => {
-				send("World time is " + ctx.worldtime);
-			});
+			events.on(
+				"vs:time",
+				(ctx: {
+					worldtime: {
+						date: number;
+						month: Month;
+						year: number;
+						hours: number;
+						minutes: number;
+					};
+				}) => {
+					const { date, month, year, hours, minutes } = ctx.worldtime;
+					const time = `${hours}:${minutes} on ${month} ${date} of year ${year}`;
+					const timeEmoji = timeToEmoji(hours);
+					const season = seasonMap[month];
+					const seasonMoji = seasonEmoji[season];
+					return send(
+						`${timeEmoji} ${time}.\n${seasonMoji} It's ${season} in the north.`,
+					);
+				},
+			);
 
 			events.on("vs:list", (ctx: { players: string[] }) => {
 				send(
