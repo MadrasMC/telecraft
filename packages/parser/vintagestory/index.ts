@@ -165,27 +165,17 @@ const parts = sequenceOf([
 	]),
 ]).map(([timestamp, , event]) => ({ ...timestamp, ...event }));
 
-const stream = Deno.openSync("./test.log", {
-	create: true,
-	write: true,
-	truncate: true,
-});
-const log = (line: string) =>
-	stream.writeSync(new TextEncoder().encode(line + "\n"));
-// const log = console.log;
-
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 // Get 4 random numbers
 const rand = () => String(Math.floor(1000 + Math.random() * 9000));
 
 const V119: Parser = (server, emit) => {
 	let buf = "";
-	let timer: number | undefined = undefined;
+	// let timer: number | undefined = undefined;
 	let waiting = "";
 
 	const parse = (line: string) => {
 		buf = "";
-		log("> " + line);
 		const result = parts.run(line);
 		if (!result.isError)
 			return emit("vs:" + result.result.event, result.result);

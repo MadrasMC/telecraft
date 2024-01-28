@@ -68,7 +68,7 @@ export default ({
 
 	// detached so that Minecraft gets to terminate gracefully on SIGINT
 	// child process should be exited by @telecraft/core instead of OS
-	const minecraft = spawn(launch, options, {
+	const game = spawn(launch, options, {
 		cwd: config.workdir,
 		detached: true,
 	});
@@ -76,9 +76,9 @@ export default ({
 	const readers: Reader[] = [];
 	const inputReaders: Reader[] = [];
 
-	const { stdin } = minecraft;
-	const stdout = decode(minecraft.stdout);
-	const stderr = decode(minecraft.stderr);
+	const { stdin } = game;
+	const stdout = decode(game.stdout);
+	const stderr = decode(game.stderr);
 
 	stdout.pipe(io.stdout);
 	stderr.pipe(io.stderr);
@@ -171,9 +171,9 @@ export default ({
 		);
 		io.stdin.pause();
 		cliInput.close();
-		if (!minecraft.killed) {
+		if (!game.killed) {
 			console.log("Stopping server.");
-			server.send("stop");
+			server.send("/stop");
 			alreadyExiting = true;
 		}
 		events.emit("core:close", {});
@@ -188,7 +188,7 @@ export default ({
 		cleanup();
 	});
 
-	minecraft.once("exit", () => {
+	game.once("exit", () => {
 		console.log("Game server exited.");
 		if (alreadyExiting) console.log("Core is already exiting.");
 		else cleanup();
