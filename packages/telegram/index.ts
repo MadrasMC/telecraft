@@ -17,11 +17,8 @@ import {
 	isCommand,
 	parseCommand,
 } from "./utils.ts";
-
-const pkg = {
-	name: "telegram",
-	version: "1.0.0-beta.5",
-} as const;
+import { version } from "../version.ts";
+const pkg = { name: "telegram", version } as const;
 
 const tgOpts = { parse_mode: "HTML" } as const;
 

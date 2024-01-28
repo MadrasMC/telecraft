@@ -11,15 +11,12 @@ import levelup from "npm:levelup";
 import { default as leveldown } from "npm:leveldown";
 
 import { pEventIterator as iterator } from "npm:p-event";
+import { version } from "../version.ts";
+const pkg = { name: "store", version } as const;
 
 const nativeConsole = console;
 
 type Opts = { debug?: boolean; console?: Console };
-
-const pkg = {
-	name: "store",
-	version: "1.0.0-beta.5",
-} as const;
 
 const StoreProvider = (
 	location: string,

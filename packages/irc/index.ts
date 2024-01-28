@@ -4,11 +4,8 @@ import { EventEmitter } from "node:events";
 import { MCChat, escapeHTML, code, isCommand, parseCommand } from "./utils.ts";
 // @deno-types="npm:@types/irc"
 import irc from "npm:irc";
-
-const pkg = {
-	name: "irc",
-	version: "1.0.0-beta.5",
-} as const;
+import { version } from "../version.ts";
+const pkg = { name: "irc", version } as const;
 
 const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));

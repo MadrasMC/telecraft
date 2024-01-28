@@ -11,11 +11,8 @@ import iconv from "npm:iconv-lite";
 
 import Event from "./util/Event.ts";
 import { Console } from "node:console";
-
-const pkg = {
-	name: "core",
-	version: "1.0.0-beta.5",
-} as const;
+import { version } from "../version.ts";
+const pkg = { name: "core", version } as const;
 
 type Config = {
 	launch: string;

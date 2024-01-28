@@ -1,9 +1,7 @@
 import { Plugin } from "../types/index.ts";
+import { version } from "../version.ts";
 
-const pkg = {
-	name: "calamity",
-	version: "1.0.0-beta.1",
-} as const;
+const pkg = { name: "calamity", version } as const;
 
 const sleep = (t: number) => new Promise<void>(r => setTimeout(r, t));
 

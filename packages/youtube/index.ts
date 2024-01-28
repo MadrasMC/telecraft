@@ -3,11 +3,8 @@ import axios from "npm:axios";
 
 import { MCChat, MsgContext } from "./utils.ts";
 import { LiveChatMessage } from "./types.ts";
-
-const pkg = {
-	name: "youtube",
-	version: "1.0.0-beta.5",
-} as const;
+import { version } from "../version.ts";
+const pkg = { name: "youtube", version } as const;
 
 const sleep = (t: number) => new Promise(r => setTimeout(r, t));
 

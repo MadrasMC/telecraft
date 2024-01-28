@@ -1,13 +1,11 @@
 import { Plugin, Messenger } from "../types/index.ts";
+import { version } from "../version.ts";
 import { CtxBase } from "../types/types/Messenger.ts";
 import NodeJS from "npm:@types/node";
 
 import { parse } from "npm:nbt-ts";
 
-const pkg = {
-	name: "auth",
-	version: "1.0.0-beta.5",
-} as const;
+const pkg = { name: "auth", version } as const;
 
 const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));

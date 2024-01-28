@@ -4,11 +4,8 @@ import { CtxBase } from "../types/types/Messenger.ts";
 import DiscordJS, { Channel, ChannelType, TextChannel } from "npm:discord.js";
 import { EventEmitter } from "node:events";
 import { MCChat, escapeHTML, code, isCommand, parseCommand } from "./utils.ts";
-
-const pkg = {
-	name: "discord",
-	version: "1.0.0-beta.5",
-} as const;
+import { version } from "../version.ts";
+const pkg = { name: "discord", version } as const;
 
 const createError = (...str: string[]) =>
 	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
