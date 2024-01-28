@@ -55,9 +55,9 @@ const parts = sequenceOf([
 			.map(([, , player, , , , , text]) => ({ event: "vs:message" as const, player, text })),
 
 		// 28.1.2024 15:30:20 [Server Notification] Server time: 1. May, Year 0, 08:00
-		sequenceOf([SERVER_NOTIFICATION, space, str("Server time:"), space, worldtime, char("\n"), str("\n"), str("Game Speed:"), space, rest, endOfInput])
+		sequenceOf([SERVER_NOTIFICATION, space, str("Server time:"), space, worldtime, str("\nGame Speed:"), space, rest, endOfInput])
 			// TIME event
-			.map(([, , , , worldtime, , , , , gamespeed]) => ({ event: "vs:time" as const, worldtime, gamespeed })),
+			.map(([, , , , worldtime, , , , gamespeed]) => ({ event: "vs:time" as const, worldtime, gamespeed })),
 
 		// 28.1.2024 15:31:36 [Server Notification] List of online Players
 		// [1] Priya13 [::1]:41206
