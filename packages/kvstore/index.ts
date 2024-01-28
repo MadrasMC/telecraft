@@ -1,7 +1,6 @@
 import { JSONable, Store } from "../types/types/Store.ts";
 
 import fs from "node:fs";
-import path from "node:path";
 
 const nativeConsole = console;
 
@@ -16,8 +15,6 @@ const StoreProvider = (
 	location: string,
 	{ debug = false, console = nativeConsole }: Opts = {},
 ) => {
-	fs.accessSync(location, fs.constants.R_OK | fs.constants.W_OK);
-
 	return ((namespace: string) => {
 		return async <V extends JSONable>() => {
 			const store = await Deno.openKv(location);
