@@ -5,12 +5,12 @@ Pluggable Minecraft and Vintage Story server bridge and administration tools.
 ## Building
 
 ```sh
-deno compile -A --unstable --output telecraft packages/cli/index.ts
+deno compile -A --unstable-kv --output telecraft packages/cli/index.ts
 ```
 
 Having child process permission already means telecraft can do everything. This is a required permission because telecraft will spawn your game server. Additionally, telecraft may need to open various files (config, database, network). `-A` grants all permissions, for simplicity.
 
-`--unstable` is required for Deno.Kv store.
+`--unstable-kv` is required for Deno.Kv store.
 
 ##### TODO: publish builds via CI
 
