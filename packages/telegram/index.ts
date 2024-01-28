@@ -315,7 +315,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				const thisType = msgType(ctx.message);
 				const text = "text" in ctx.message ? ctx.message.text : `[${thisType}]`;
 				const from = ctx.from.username ?? getTelegramName(ctx.message);
-				return server.send(`/announce TG:${from}: ${text}`);
+				return server.send(`/announce TG:${from}: ${escapeHTML(text)}`);
 			};
 
 			const handler = (
