@@ -12,8 +12,6 @@ Having child process permission already means telecraft can do everything. This 
 
 `--unstable-kv` is required for Deno.Kv store.
 
-##### TODO: publish builds via CI
-
 ## Usage
 
 > _[(Skip to config options)](docs/CONFIG.md)_
