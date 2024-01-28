@@ -174,7 +174,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 					const season = seasonMap[month];
 					const seasonMoji = seasonEmoji[season];
 					return send(
-						`${timeEmoji} ${time}.\n${seasonMoji} It's ${season} in the north.`,
+						`${timeEmoji} ${time}.\n${seasonMoji} It's ${season} in the North.`,
 					);
 				},
 			);
