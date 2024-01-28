@@ -27,7 +27,7 @@ export const ParserFactory = <P extends ParseGroup>(
 		boundParseGroup[bit] = (line: string) => regexp.exec(line);
 	}
 
-	const Parser: Parser = (server, emit) => line => {
+	const Parser: Parser = (server, emit) => async line => {
 		for (const type in boundParseGroup) {
 			const result = boundParseGroup[type](line);
 			if (result) emit("minecraft:" + type, result.groups);

@@ -4,4 +4,4 @@ import { Events } from "./Events.ts";
 export type Parser = (
 	server: Server,
 	emit: Events["emit"],
-) => (line: string) => void;
+) => (line: string) => Promise<void>;

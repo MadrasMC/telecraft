@@ -86,7 +86,7 @@ export default ({
 	stdout.pipe(io.stdout);
 	stderr.pipe(io.stderr);
 
-	const minecraftOutput = rl(stdout);
+	const gameOutput = rl(stdout);
 	const cliInput = rl(io.stdin);
 
 	// Create plugin dependencies
@@ -121,7 +121,7 @@ export default ({
 
 	const streamParser = parser(server, events.emit);
 
-	minecraftOutput.on("line", async line => {
+	gameOutput.on("line", async line => {
 		let cancelled = false;
 		const cancel = () => (cancelled = true);
 
@@ -130,7 +130,7 @@ export default ({
 			if (cancelled) return;
 		}
 
-		streamParser(line);
+		await streamParser(line);
 	});
 
 	// register plugins
@@ -192,7 +192,7 @@ export default ({
 	});
 
 	minecraft.once("exit", () => {
-		console.log("Minecraft server exited.");
+		console.log("Game server exited.");
 		if (alreadyExiting) console.log("Core is already exiting.");
 		else cleanup();
 	});

@@ -2,7 +2,7 @@ import mri from "npm:mri";
 
 import core from "../core/index.ts";
 
-import { Vanilla, PaperMC, FabricMC } from "../parser/index.ts";
+import { Vanilla, PaperMC, FabricMC, VintageStory } from "../parser/index.ts";
 import Telegram from "../telegram/index.ts";
 import Discord from "../discord/index.ts";
 import IRC from "../irc/index.ts";
@@ -17,10 +17,10 @@ const configPath = args.config ?? "./telecraft.json";
 const config = parse(configPath, JSON.parse(Deno.readTextFileSync(configPath)));
 
 const parsers = {
-	"minecraft": Vanilla,
-	"papermc": PaperMC,
-	"fabricmc": FabricMC,
-	"vintage-story": Vanilla,
+	minecraft: Vanilla,
+	papermc: PaperMC,
+	fabricmc: FabricMC,
+	vintagestory: VintageStory,
 };
 
 if (!(config.parser in parsers))
