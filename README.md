@@ -1,48 +1,52 @@
-# Telecraft
+# telecraft
 
-Pluggable Minecraft server bridge and administration tools.
+Pluggable Minecraft and Vintage Story server bridge and administration tools.
 
-## Introduction
+## Building
 
-`// Todo(mkr): Documentation`
-
-## How to use this monorepo
-
-If you're here to read about a specific package, find it in `packages/`.
-
-If you're trying to get involved with or tinker with the Telecraft project, read on.
-
-Get [`pnpm`](https://pnpm.js.org/en/installation). `pnpm` is a fast, disk efficient package manager; usually a drop-in replacement to npm, but this repository is a monorepo. It manages multiple packages simultaneously by taking advantage of pnpm's workspace support.
-
-Quick setup:
-
-```bash
-# Get pnpm
-npm i -g pnpm
-
-# install node modules for all packages
-pnpm install -r
-
-# run typescript build on all packages, so they're ready to go
-pnpm build
-
-# if you're actively developing, you'll want to run build in watch mode
-pnpm build:w
-
-# run cli package during development (alias to `node packages/cli/dist`)
-pnpm dev
+```sh
+deno compile -A --unstable --output telecraft packages/cli/index.ts
 ```
 
-Now you're ready to go tinker with the packages and TypeScript will automatically build as you edit files! Packages within the monorepo are automatically linked by the `workspace:` protocol. Before publishing, pnpm will automatically convert them to the correct versions of those packages.
+Having child process permission already means telecraft can do everything. This is a required permission because telecraft will spawn your game server. Additionally, telecraft may need to open various files (config, database, network). `-A` grants all permissions, for simplicity.
 
-To update node modules used in all packages across the entire workspace, use `pnpm recursive install typescript@latest` from the root.
+`--unstable` is required for Deno.Kv store.
 
-### Do NOT:
+##### TODO: publish builds via CI
 
-- Use npm, yarn, or another package manager in the root repo or any of the packages
-- Install package specific modules from the root with or without recursive. `cd` into the package and install them.
-- Publish the root repo. It's a container and not meant to be published.
+## Usage
 
-### Do:
+> _[(Skip to config options)](docs/CONFIG.md)_
 
-- Use `pnpm install @telecraft/parser@workspace:../parser` to add one package from this repo as a dependency to another
+Create a config file with at least the following options:
+
+```json
+{
+	"launch": "/usr/bin/env java -Xmx4096M -Xms1024M -jar /path/to/server.jar nogui",
+	"parser": "vanilla",
+	"version": "1.19"
+}
+```
+
+Save it as `telecraft.json` and run:
+
+```sh
+telecraft
+```
+
+This will launch a vanilla Minecraft server with 4GB of RAM allocated, parsing its stdout as Minecraft 1.19.
+
+By itself the above steps do almost nothing other than run the game server. All functionality is in the plugins. You can add a plugins array to your config. The following enables bi-directional bridge with a Telegram chat:
+
+```json
+"plugins": [
+	{
+		"name": "telegram",
+		"token": "1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+		"chatId": -1001234567890,
+		"allowList": true
+	}
+]
+```
+
+Now that you know how to run telecraft, you can read the [config options](docs/CONFIG.md) to learn more about what you can do with it.
