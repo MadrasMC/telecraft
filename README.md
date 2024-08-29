@@ -2,7 +2,13 @@
 
 Pluggable Minecraft and Vintage Story server bridge and administration tools.
 
-## Building
+## Getting started
+
+Acquire a prebuilt binary from the [releases page](https://github.com/MadrasMC/telecraft/releases) and place it in your PATH as `telecraft`.
+
+## Building from source (optional)
+
+If you want to build telecraft from source, you will need to have [Deno](https://deno.land) installed. You can then clone the repository and run the following command:
 
 ```sh
 deno compile -A --unstable-kv --output telecraft packages/cli/index.ts
