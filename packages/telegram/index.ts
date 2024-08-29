@@ -418,6 +418,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 			};
 
 			bot.on(
+				// @ts-expect-error - types are missing?
 				handledTypes.map(type => message(type)),
 				handler,
 			);
