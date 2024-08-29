@@ -117,9 +117,11 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 
 			const send = (msg: string) => telegram.send("chat", opts.chatId, msg);
 
-			bot.command("chatid", ctx => ctx.reply(ctx.chat?.id?.toString()!));
+			bot.command("chatid", ctx => ctx.reply(ctx.chat.id.toString()));
 
 			let mode: "minecraft" | "vintagestory" | undefined = undefined;
+
+			const online = new Set<string>();
 
 			let wasAnnoyed = false;
 
@@ -128,9 +130,14 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 					wasAnnoyed = true;
 					return ctx.reply("Server is starting.");
 				}
-				if (mode === "minecraft") return server.send("/list");
-				else if (mode === "vintagestory") return server.send("/list c");
-				throw new Error("Unknown server mode: " + mode);
+
+				const players = Array.from(online);
+
+				send(
+					`Players online (<code>${players.length}</code>):\n${players
+						.map(x => "<code>" + x + "</code>")
+						.join("\n")}`,
+				);
 			});
 
 			bot.command("time", ctx => {
@@ -148,10 +155,14 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 			});
 
 			events.on("vs:join", ctx => {
+				online.add(ctx.player);
 				send(code(ctx.player + " joined the server"));
 			});
 
-			events.on("vs:leave", ctx => send(code(ctx.player + " left the server")));
+			events.on("vs:leave", ctx => {
+				online.delete(ctx.player);
+				send(code(ctx.player + " left the server"));
+			});
 
 			events.on("vs:message", ctx => {
 				send(code(ctx.player) + " " + escapeHTML(ctx.text));
@@ -204,12 +215,14 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 			);
 
 			events.on("minecraft:join", ctx => {
+				online.add(ctx.user);
 				send(code(ctx.user + " joined the server"));
 			});
 
-			events.on("minecraft:leave", ctx =>
-				send(code(ctx.user + " left the server")),
-			);
+			events.on("minecraft:leave", ctx => {
+				online.delete(ctx.user);
+				send(code(ctx.user + " left the server"));
+			});
 
 			events.on("minecraft:list", (ctx: { players: string[] }) => {
 				send(
@@ -313,7 +326,14 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 
 			const vsmessage = (ctx: Context<Update.MessageUpdate>) => {
 				const thisType = msgType(ctx.message);
-				const text = "text" in ctx.message ? ctx.message.text : `[${thisType}]`;
+
+				const text =
+					"text" in ctx.message
+						? ctx.message.text
+						: [`[${thisType}]`, "caption" in ctx.message && ctx.message.caption]
+								.filter(Boolean)
+								.join(" ");
+
 				const from = ctx.from.username ?? getTelegramName(ctx.message);
 				return server.send(`/announce TG:${from}: ${escapeHTML(text)}`);
 			};
@@ -322,10 +342,11 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				ctx: Context<Update.MessageUpdate>,
 				next: () => Promise<void>,
 			) => {
-				const isLinkedGroup = String(ctx.message?.chat.id) === opts.chatId;
-				const isBotPM = ctx.message?.chat.type === "private";
+				const isLinkedGroup = String(ctx.chat.id) === opts.chatId;
+				const isBotPM = ctx.chat.type === "private";
 
 				if (!mode) return next();
+				if (online.size < 1) return next();
 				if (mode === "vintagestory") return vsmessage(ctx);
 
 				const messageText = getCaptioned(ctx.message) || "";
