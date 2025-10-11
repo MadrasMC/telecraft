@@ -115,7 +115,8 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 		start: ({ events, server, console }) => {
 			if (!opts?.enable) return;
 
-			const send = (msg: string) => telegram.send("chat", opts.chatId, msg);
+			const send = (msg: string) =>
+				telegram.send("chat", opts.chatId, msg).catch(console.error);
 
 			bot.command("chatid", ctx => ctx.reply(ctx.chat.id.toString()));
 
@@ -200,6 +201,14 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 
 			events.on("minecraft:message", ctx => {
 				send(code(ctx.user) + " " + escapeHTML(ctx.text));
+			});
+
+			events.on("minecraft:daytime", (ctx: { daytime: string }) => {
+				const ratio = parseInt(ctx.daytime) / 24000;
+				const hours = Math.floor(ratio * 24);
+				const minutes = Math.floor((ratio * 24 - hours) * 60);
+				const time = `${hours}:${minutes}`;
+				send(`It's ${code(time)} in the world.`);
 			});
 
 			events.on("minecraft:self", ctx =>
