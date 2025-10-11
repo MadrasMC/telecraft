@@ -4,7 +4,7 @@ Pluggable Minecraft and Vintage Story server bridge and administration tools.
 
 ## Getting started
 
-Acquire a prebuilt binary from the [releases page](https://github.com/MadrasMC/telecraft/releases) and place it in your PATH as `telecraft`.
+Acquire a prebuilt binary from the [releases page](https://github.com/MadrasMC/telecraft/releases/latest) and place it in your PATH as `telecraft`.
 
 ## Building from source (optional)
 

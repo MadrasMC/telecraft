@@ -1,4 +1,4 @@
-import { Store } from "../types/types/Store.ts";
+import type { CreateStore, Store, JSONable } from "../types/types/Store.ts";
 
 import fs from "node:fs";
 import path from "node:path";
@@ -28,8 +28,8 @@ const StoreProvider = (
 
 	fs.accessSync(location, fs.constants.R_OK | fs.constants.W_OK);
 
-	return (name: string): Store => {
-		return async () => {
+	return (name: string): CreateStore => {
+		return async <V extends JSONable>(): Promise<Store<V>> => {
 			const targetPath = path.resolve(location, name);
 
 			await fs.promises.mkdir(targetPath, { recursive: true });
@@ -77,7 +77,7 @@ const StoreProvider = (
 					});
 				},
 				list: () => {
-					return iterator(
+					return iterator<Record<string, [string, V][]>, "data">(
 						store.createReadStream({
 							keys: true,
 							values: true,
@@ -89,7 +89,6 @@ const StoreProvider = (
 					);
 				},
 				remove: key => store.del(key),
-				clear: () => store.clear(),
 				close: () => store.close(),
 			};
 		};

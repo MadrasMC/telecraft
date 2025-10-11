@@ -1,5 +1,5 @@
 import { Events } from "./Events.ts";
-import { Store } from "./Store.ts";
+import { CreateStore } from "./Store.ts";
 import { Server } from "./Server.ts";
 
 export type Plugin<
@@ -14,7 +14,7 @@ export type Plugin<
 	start: (
 		props: {
 			events: Events;
-			store: Store;
+			store: CreateStore;
 			server: Server;
 			console: Console;
 		},

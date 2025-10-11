@@ -23,7 +23,7 @@ const YouTubeLive: Plugin<{
 		version: pkg.version,
 		dependencies: [],
 		exports: null,
-		start: async ({ events, server, console }, []) => {
+		start: async ({ events, server, console }) => {
 			try {
 				if (opts.enable) {
 					/* fetch live chat ID from video ID */
@@ -91,7 +91,7 @@ const YouTubeLive: Plugin<{
 										}
 									}
 								} catch (e) {
-									console.log("Failed to get a message");
+									console.log("Failed to get a message", e);
 								}
 							}
 						}

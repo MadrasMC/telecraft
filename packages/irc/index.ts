@@ -47,7 +47,7 @@ const IRC: Plugin<Opts, [], IRCMessenger["exports"]> = opts => {
 		name: pkg.name,
 		version: pkg.version,
 		exports: ircMessenger,
-		start: async ({ events, server, console }, []) => {
+		start: async ({ events, server, console }) => {
 			if (!opts.enable) return;
 
 			let playersOnline = 0;

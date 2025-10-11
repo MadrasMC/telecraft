@@ -1,4 +1,4 @@
-import { JSONable, Store } from "../types/types/Store.ts";
+import { JSONable, CreateStore } from "../types/types/Store.ts";
 import { version } from "../version.ts";
 const pkg = { name: "store", version } as const;
 
@@ -14,7 +14,7 @@ const StoreProvider = (
 		return async <V extends JSONable>() => {
 			const store = await Deno.openKv(location);
 
-			const ret: Awaited<ReturnType<Store>> = {
+			const ret: Awaited<ReturnType<CreateStore>> = {
 				async get(key) {
 					return store.get([namespace, key]).catch(e => {
 						if (debug) {
@@ -50,7 +50,7 @@ const StoreProvider = (
 
 			return ret;
 		};
-	}) as (name: string) => Store;
+	}) as (name: string) => CreateStore;
 };
 
 export default StoreProvider;

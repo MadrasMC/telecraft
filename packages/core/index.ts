@@ -1,4 +1,11 @@
-import { Events, Parser, Store, IO, Server, Plugin } from "../types/index.ts";
+import {
+	Events,
+	Parser,
+	CreateStore,
+	IO,
+	Server,
+	Plugin,
+} from "../types/index.ts";
 import { Reader } from "../types/types/Server.ts";
 
 import process from "node:process";
@@ -22,7 +29,7 @@ type Config = {
 type Ctx = {
 	config: Config;
 	parser: Parser;
-	store: (name: string) => Store;
+	store: (name: string) => CreateStore;
 	io?: IO;
 	plugins: ReturnType<Plugin<any, any, any>>[];
 };

@@ -11,7 +11,7 @@ const newSpawn = [460, 136, -9608].join(" ");
 const posParser = (data: string) =>
 	data
 		.trim()
-		.replace(/[\[\]d]/g, "")
+		.replace(/[[\]d]/g, "")
 		.split(", ")
 		.map(x => parseFloat(x.trim()));
 
