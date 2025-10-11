@@ -208,7 +208,8 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				const hours = Math.floor(ratio * 24);
 				const minutes = Math.floor((ratio * 24 - hours) * 60);
 				const time = `${hours}:${minutes}`;
-				send(`It's ${code(time)} in the world.`);
+				const emoji = timeToEmoji(hours);
+				send(`It's ${emoji} ${code(time)} in the world.`);
 			});
 
 			events.on("minecraft:self", ctx =>
