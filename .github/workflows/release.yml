@@ -13,9 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
-          deno-version: "~1.44"
+          deno-version: "~2.5"
       - name: Build for Linux x86_64
         run: deno compile --target x86_64-unknown-linux-gnu -A --unstable-kv --output telecraft-linux-x86_64 packages/cli/index.ts
       - name: Build for Linux aarch64
