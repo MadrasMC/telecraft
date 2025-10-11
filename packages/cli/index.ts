@@ -29,7 +29,7 @@ if (!(config.parser in parsers))
 const parser = parsers[config.parser as keyof typeof parsers];
 const version = config.version
 	? parser[config.version as keyof typeof parser]
-	: [...Object.values(parser)].at(-1);
+	: Object.values(parser).at(-1);
 
 if (config.version && !version)
 	throw new Error(`Unknown version: ${config.version}`);
@@ -45,11 +45,7 @@ const plugins: ReturnType<Plugin<any, any>>[] = await Promise.all(
 			if (c.name === "irc") return IRC({ enable: true, ...c });
 			if (c.name === "youtube") return YouTubeLive({ enable: true, ...c });
 			if (c.name === "auth")
-				return Auth({
-					enable: true,
-					use: `@telecraft/${c.messenger}`,
-					timeout: c.timeout,
-				});
+				return Auth({ enable: true, use: c.messenger, timeout: c.timeout });
 		}
 
 		// dynamically loaded external plugin

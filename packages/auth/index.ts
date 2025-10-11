@@ -30,7 +30,7 @@ type AuthCache = {
 const auth: Plugin<
 	{
 		enable: boolean;
-		use: "@telecraft/telegram" | "@telecraft/discord" | "@telecraft/irc";
+		use: "telegram" | "discord" | "irc";
 		timeout?: number;
 	},
 	[Messenger["exports"]]
@@ -121,7 +121,7 @@ const auth: Plugin<
 			const mode = opts?.gameMode || authCache.get(user)?.gameMode;
 			const op = opts?.op || authCache.get(user)?.op;
 
-			cacheUser?.lockRef && clearInterval(cacheUser.lockRef);
+			if (cacheUser?.lockRef) clearInterval(cacheUser.lockRef);
 
 			if (success) {
 				authCache.delete(user);
@@ -221,7 +221,7 @@ const auth: Plugin<
 				op: storeUser?.op || cacheUser.op,
 			});
 
-			cacheUser.lockRef && clearInterval(cacheUser.lockRef);
+			if (cacheUser.lockRef) clearInterval(cacheUser.lockRef);
 
 			authCache.delete(ctx.user);
 		});

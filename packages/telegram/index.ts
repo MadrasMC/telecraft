@@ -37,8 +37,6 @@ type Opts = {
 	telegraf?: any;
 };
 
-type messenger = Messenger<string | number>;
-
 type Month =
 	| "January"
 	| "February"
@@ -85,6 +83,8 @@ const timeToEmoji = (hours: number) => {
 	else return "🌃";
 };
 
+type messenger = Messenger<string | number>;
+
 const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 	if (!opts.token) throw createError("'token' was not provided");
 
@@ -98,7 +98,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 	const once = ev.off.bind(ev);
 	const emit: messenger["emit"] = ev.emit.bind(ev);
 
-	const telegram = {
+	const telegram: messenger["exports"] = {
 		async send(type: "private" | "chat", user: string | number, msg: string) {
 			await bot.telegram.sendMessage(user, msg, tgOpts);
 		},
@@ -112,7 +112,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 		name: pkg.name,
 		version: pkg.version,
 		exports: telegram,
-		start: ({ events, store, server, console }) => {
+		start: ({ events, server, console }) => {
 			if (!opts?.enable) return;
 
 			const send = (msg: string) => telegram.send("chat", opts.chatId, msg);
@@ -150,9 +150,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				throw new Error("Unknown server mode: " + mode);
 			});
 
-			events.on("vs:started", ctx => {
-				mode = "vintagestory";
-			});
+			events.on("vs:started", () => (mode = "vintagestory"));
 
 			events.on("vs:join", ctx => {
 				online.add(ctx.player);
@@ -198,9 +196,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				);
 			});
 
-			events.on("minecraft:started", ctx => {
-				mode = "minecraft";
-			});
+			events.on("minecraft:started", () => (mode = "minecraft"));
 
 			events.on("minecraft:message", ctx => {
 				send(code(ctx.user) + " " + escapeHTML(ctx.text));
@@ -375,9 +371,9 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 					: {
 							from: {
 								name: getSender(ctx),
-								username: ctx.from?.username!,
-								id: ctx.from?.id!,
-								source: ctx.chat?.id!,
+								username: ctx.from.username,
+								id: ctx.from.id,
+								source: ctx.chat.id,
 								type: isBotPM ? ("private" as const) : ("chat" as const),
 							},
 							source: "self" as const,
