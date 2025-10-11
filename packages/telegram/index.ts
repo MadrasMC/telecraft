@@ -207,7 +207,9 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				const ratio = parseInt(ctx.daytime) / 24000;
 				const hours = Math.floor(ratio * 24);
 				const minutes = Math.floor((ratio * 24 - hours) * 60);
-				const time = `${hours}:${minutes}`;
+				const time = [hours, minutes]
+					.map(x => x.toString().padStart(2, "0"))
+					.join(":");
 				const emoji = timeToEmoji(hours);
 				send(`It's ${emoji} ${code(time)} in the world.`);
 			});
