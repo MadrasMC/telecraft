@@ -1,5 +1,4 @@
 import { Plugin, Messenger } from "../types/index.ts";
-import { CtxBase } from "../types/types/Messenger.ts";
 
 import DiscordJS, { Channel, ChannelType, TextChannel } from "npm:discord.js";
 import { EventEmitter } from "node:events";
@@ -19,9 +18,9 @@ type Opts = {
 	channelId: string;
 };
 
-type DiscordMessenger = Messenger<string, CtxBase, "chat">;
+type messenger = Messenger<string | number>;
 
-const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
+const Discord: Plugin<Opts, [], messenger["exports"]> = opts => {
 	const client = new DiscordJS.Client({
 		intents: "GuildMessages",
 	});
@@ -30,12 +29,16 @@ const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
 	const on = ev.on.bind(ev);
 	const off = ev.off.bind(ev);
 	const once = ev.off.bind(ev);
-	const emit: DiscordMessenger["emit"] = ev.emit.bind(ev);
+	const emit: messenger["emit"] = ev.emit.bind(ev);
 
-	const discord: DiscordMessenger["exports"] = {
-		async send(type: "chat", channelId: string, msg) {
+	const discord: messenger["exports"] = {
+		async send(type, channelId, msg) {
+			if (type === "private")
+				throw new Error("Cannot send private messages to Discord yet.");
+			if (typeof channelId !== "string")
+				throw new Error("Discord channel ID cannot be number.");
 			const channel = client.channels.cache.get(channelId);
-			if (!channel || !channel.isTextBased()) return;
+			if (!channel?.isSendable()) return;
 			channel.send(msg);
 		},
 		on,
@@ -48,7 +51,7 @@ const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
 		name: pkg.name,
 		version: pkg.version,
 		exports: discord,
-		start: async ({ events, server, console }, []) => {
+		start: async ({ events, server, console }) => {
 			if (!opts.enable) return;
 
 			client.login(opts.token);
@@ -88,10 +91,6 @@ const Discord: Plugin<Opts, [], DiscordMessenger["exports"]> = opts => {
 
 					if (isGuildTextChannel(channel)) {
 						const messageText = message.content;
-
-						type x = keyof number;
-
-						const x: object = { x: "" };
 
 						if (isCommand(messageText)) {
 							const cmd = parseCommand(messageText);
