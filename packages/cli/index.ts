@@ -5,7 +5,7 @@ import core from "../core/index.ts";
 import { Vanilla, PaperMC, FabricMC, VintageStory } from "../parser/index.ts";
 import Telegram from "../telegram/index.ts";
 import Discord from "../discord/index.ts";
-import IRC from "../irc/index.ts";
+// import IRC from "../irc/index.ts";
 import YouTubeLive from "../youtube/index.ts";
 import Auth from "../auth/index.ts";
 import StoreProvider from "../kvstore/index.ts";
@@ -39,7 +39,8 @@ const plugins: ReturnType<Plugin<any, any>>[] = await Promise.all(
 		if ("name" in c) {
 			if (c.name === "telegram") return Telegram({ enable: true, ...c });
 			if (c.name === "discord") return Discord({ enable: true, ...c });
-			if (c.name === "irc") return IRC({ enable: true, ...c });
+			// if (c.name === "irc") return IRC({ enable: true, ...c });
+			if (c.name === "irc") throw new Error("IRC plugin is temporarily out of maintenance");
 			if (c.name === "youtube") return YouTubeLive({ enable: true, ...c });
 			if (c.name === "auth") return Auth({ enable: true, use: c.messenger, timeout: c.timeout });
 		}
