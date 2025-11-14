@@ -1,3 +1,5 @@
+import { Database } from "bun:sqlite";
+
 import type { JSONable, CreateStore } from "../types/types/Store.ts";
 import { version } from "../version.ts";
 const pkg = { name: "store", version } as const;
@@ -9,36 +11,64 @@ type Opts = { debug?: boolean; console?: Console };
 const StoreProvider = (location: string, { debug = false, console = nativeConsole }: Opts = {}) => {
 	return ((namespace: string) => {
 		return async <V extends JSONable>() => {
-			const store = await Deno.openKv(location);
+			const db = new Database(location);
+
+			db.prepare(
+				`
+				CREATE TABLE IF NOT EXISTS kv (
+					key TEXT NOT NULL PRIMARY KEY,
+					value TEXT NOT NULL
+				) WITHOUT ROWID;
+				`,
+			).run();
+
+			const prepared = {
+				all: db.query(`SELECT key, value FROM kv WHERE key LIKE $prefix || '%'`),
+				get: db.query(`SELECT value FROM kv WHERE key = $key`),
+				set: db.query(`INSERT OR REPLACE INTO kv (key, value) VALUES ($key, $value)`),
+				del: db.query(`DELETE FROM kv WHERE key = $key`),
+			};
 
 			const ret: Awaited<ReturnType<CreateStore>> = {
-				async get(key) {
-					return store.get([namespace, key]).catch((e: unknown) => {
-						if (debug) {
-							console.error(`[@telecraft/store@${pkg.version}] Error while fetching ${key} from store ${namespace}`);
-							console.error(e);
-						}
+				async get(keypart) {
+					const key = [namespace, keypart].join(":");
+					try {
+						const result = prepared.get.get({ key }) as { value: string } | null;
+						if (!result) return null;
+						return JSON.parse(result.value) as V;
+					} catch (e) {
+						console.error(`[@telecraft/store@${pkg.version}] Error while fetching key ${key}`);
+						console.error(e);
 						return null;
-					});
+					}
 				},
-				async set(key, value) {
-					return store.set([namespace, key], value).then(() => value);
+				async set(keypart, value) {
+					const key = [namespace, keypart].join(":");
+					prepared.set.run({ key, value: JSON.stringify(value) });
+					if (debug) console.debug(`[@telecraft/store@${pkg.version}] Set key ${key}`);
+					return value;
+				},
+				async *list() {
+					for (const row of prepared.all.iterate({ prefix: namespace + ":" })) {
+						const { key, value } = row as { key: string; value: string };
+						const keypart = (key as string).slice(namespace.length + 1);
+						yield [keypart, JSON.parse(value as string) as V] as [string, V];
+					}
 				},
 				async find(query) {
-					for await (const item of store.list({ prefix: [namespace] }))
-						if (query(item.value as V)) return [item.key[0] as string, item.value as V];
+					for await (const [keypart, value] of ret.list()) {
+						if (query(value, keypart)) return [keypart, value];
+					}
 
 					return null;
 				},
-				async *list() {
-					for await (const item of store.list({ prefix: [namespace] }))
-						yield [item.key[0] as string, item.value as V] as const;
-				},
-				async remove(key) {
-					return store.delete([namespace, key]);
+				async remove(keypart) {
+					const key = [namespace, keypart].join(":");
+					prepared.del.run({ key });
+					if (debug) console.debug(`[@telecraft/store@${pkg.version}] Removed key ${key}`);
 				},
 				async close() {
-					return store.close();
+					db.close();
 				},
 			};
 

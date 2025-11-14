@@ -3,8 +3,8 @@ export type JSONable = string | number | boolean | any[] | object | null;
 export type Store<V extends JSONable> = {
 	get: (key: string) => Promise<V | null>;
 	set: <Value extends V>(key: string, value: Value) => Promise<Value>;
-	find: (query: (value: V) => boolean) => Promise<[string, V] | null>;
 	list: () => AsyncIterableIterator<[string, V]>;
+	find: (query: (value: V, key: string) => boolean) => Promise<[string, V] | null>;
 	remove: (key: string) => Promise<void>;
 	close: () => Promise<void>;
 };
