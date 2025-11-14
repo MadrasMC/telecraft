@@ -1,8 +1,8 @@
-import { Plugin } from "../types/index.ts";
-import axios from "npm:axios";
+import type { Plugin } from "../types/index.ts";
+import axios from "axios";
 
-import { MCChat, MsgContext } from "./utils.ts";
-import { LiveChatMessage } from "./types.ts";
+import { MCChat, type MsgContext } from "./utils.ts";
+import type { LiveChatMessage } from "./types.ts";
 import { version } from "../version.ts";
 const pkg = { name: "youtube", version } as const;
 

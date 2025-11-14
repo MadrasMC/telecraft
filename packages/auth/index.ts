@@ -1,28 +1,28 @@
-import { Plugin, Messenger } from "../types/index.ts";
+import type { Plugin, Messenger } from "../types/index.ts";
 import { version } from "../version.ts";
-import { CtxBase } from "../types/types/Messenger.ts";
-import NodeJS from "npm:@types/node";
+import type { CtxBase } from "../types/types/Messenger.ts";
 
-import { parse } from "npm:nbt-ts";
+import { parse } from "nbt-ts";
 
 const pkg = { name: "auth", version } as const;
 
-const createError = (...str: string[]) =>
-	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
+const createError = (...str: string[]) => new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
 
 // Get 4 random numbers
 const rand = () => String(Math.floor(1000 + Math.random() * 9000));
 
-const gameModes = ["survival", "creative", "adventure", "spectator"] as const;
-type gameModes = (typeof gameModes)[number];
+const GameModes = ["survival", "creative", "adventure", "spectator"] as const;
+type GameModes = (typeof GameModes)[number];
 
 type Pos = [number, number, number];
 
+type Timeout = ReturnType<typeof setTimeout>;
+
 type AuthCache = {
 	[player: string]: {
-		lockRef: NodeJS.Timeout;
+		lockRef: Timeout;
 		code?: string;
-		gameMode: gameModes;
+		gameMode: GameModes;
 		op?: boolean;
 	};
 };
@@ -60,19 +60,16 @@ const auth: Plugin<
 		const authCache = new Map<
 			string,
 			{
-				lockRef?: NodeJS.Timeout;
+				lockRef?: Timeout;
 				code?: string;
-				gameMode?: gameModes;
+				gameMode?: GameModes;
 				op?: boolean;
 				hasTimedOut?: boolean;
 				hasSentAuth?: boolean;
 			}
 		>();
 
-		const setAuthCache = (
-			player: string,
-			details: Partial<AuthCache[string]>,
-		) => {
+		const setAuthCache = (player: string, details: Partial<AuthCache[string]>) => {
 			authCache.set(player, { ...authCache.get(player), ...details });
 		};
 
@@ -108,12 +105,7 @@ const auth: Plugin<
 		const clearLock = async (
 			user: string,
 			messengerId: Messenger["identifier"],
-			{
-				success,
-				reason,
-			}:
-				| { success: true; reason?: never }
-				| { success: false; reason?: string },
+			{ success, reason }: { success: true; reason?: never } | { success: false; reason?: string },
 		) => {
 			const opts = await authStore.get(user);
 			const cacheUser = authCache.get(user);
@@ -141,12 +133,7 @@ const auth: Plugin<
 			}
 		};
 
-		const tpLoop = (
-			player: string,
-			dimension: string,
-			pos: Pos,
-			gameMode: gameModes,
-		) => {
+		const tpLoop = (player: string, dimension: string, pos: Pos, gameMode: GameModes) => {
 			const to = pos.join(" ");
 			const command = `execute in ${dimension} run tp ${player} ${to}`;
 			const lockRef = setInterval(() => server.send(command), 400);
@@ -160,10 +147,8 @@ const auth: Plugin<
 
 			server.send(`data get entity ${player}`);
 
-			events.once(
-				"minecraft:deop",
-				(ctx: { user?: string; op?: string; notop?: string }) =>
-					setAuthCache(player, { op: Boolean(ctx.op) }),
+			events.once("minecraft:deop", (ctx: { user?: string; op?: string; notop?: string }) =>
+				setAuthCache(player, { op: Boolean(ctx.op) }),
 			);
 
 			const lockUser = (ctx: any) => {
@@ -175,7 +160,11 @@ const auth: Plugin<
 
 				lock(player, storeUser);
 
-				const playerGameType: gameModes = gameModes[data.playerGameType.value];
+				const playerGameType: GameModes | undefined = GameModes[data.playerGameType.value];
+				if (!playerGameType) {
+					throw createError(`Unknown game mode for player ${player}: ${data.playerGameType.value}`);
+				}
+
 				const pos: Pos = data.Pos as Pos;
 				const dimension: string = data.Dimension;
 
@@ -185,11 +174,7 @@ const auth: Plugin<
 					const cmd = messenger.cmdPrefix + "auth";
 
 					server.send(`tellraw ${player} "Send ${cmd} to the bridge bot."`);
-					messenger.send(
-						"private",
-						storeUser.messengerId,
-						`Send ${cmd} to authenticate yourself.`,
-					);
+					messenger.send("private", storeUser.messengerId, `Send ${cmd} to authenticate yourself.`);
 				} else {
 					const cmd = messenger.cmdPrefix + "link";
 
@@ -230,25 +215,15 @@ const auth: Plugin<
 			const fromId = ctx.from.id;
 			const sourceId = ctx.from.source;
 
-			if (ctx.from.type !== "private")
-				return messenger.send(
-					"chat",
-					sourceId,
-					"Send link command in private.",
-				);
+			if (ctx.from.type !== "private") return messenger.send("chat", sourceId, "Send link command in private.");
 
-			if (![...authCache.entries()].length)
-				return messenger.send("chat", fromId, "Login to the server first.");
+			if (![...authCache.entries()].length) return messenger.send("chat", fromId, "Login to the server first.");
 
-			if (!ctx.value)
-				return messenger.send(ctx.from.type, fromId, "No code provided.");
+			if (!ctx.value) return messenger.send(ctx.from.type, fromId, "No code provided.");
 
-			const match = [...authCache.keys()].find(
-				player => authCache.get(player)!.code === ctx.value,
-			);
+			const match = [...authCache.keys()].find(player => authCache.get(player)!.code === ctx.value);
 
-			if (!match)
-				return messenger.send(ctx.from.type, fromId, "Incorrect code.");
+			if (!match) return messenger.send(ctx.from.type, fromId, "Incorrect code.");
 
 			// cannot be undefined since it's literally matched from authCache above
 			const cacheUser = authCache.get(match)!;
@@ -267,16 +242,9 @@ const auth: Plugin<
 			const sourceId = ctx.from.source;
 			const username = ctx.from.name;
 
-			const existingUser = await authStore.find(
-				record => record?.messengerId == fromId,
-			);
+			const existingUser = await authStore.find(record => record?.messengerId == fromId);
 
-			if (!existingUser)
-				return messenger.send(
-					ctx.from.type,
-					sourceId,
-					"You can't unlink if you never linked.",
-				);
+			if (!existingUser) return messenger.send(ctx.from.type, sourceId, "You can't unlink if you never linked.");
 
 			await authStore.remove(existingUser[0]);
 
@@ -288,37 +256,22 @@ const auth: Plugin<
 			*/
 			server.send(`kick ${existingUser[0]}`);
 
-			return messenger.send(
-				ctx.from.type,
-				sourceId,
-				`Successfully unlinked ${username} from \`${existingUser[0]}\``,
-			);
+			return messenger.send(ctx.from.type, sourceId, `Successfully unlinked ${username} from \`${existingUser[0]}\``);
 		});
 
 		messenger.on("auth", async (ctx: CtxBase) => {
 			const fromId = ctx.from.id;
 			const sourceId = ctx.from.source;
-			const result = await authStore.find(
-				record => record?.messengerId === fromId,
-			);
+			const result = await authStore.find(record => record?.messengerId === fromId);
 
 			const [mcName, record] = result || [];
 
 			if (!mcName || !record?.messengerId)
-				return messenger.send(
-					ctx.from.type,
-					sourceId,
-					"You must link first before using auth.",
-				);
+				return messenger.send(ctx.from.type, sourceId, "You must link first before using auth.");
 
 			const cacheUser = authCache.get(mcName);
 
-			if (!cacheUser)
-				return messenger.send(
-					ctx.from.type,
-					sourceId,
-					"Login to the server first.",
-				);
+			if (!cacheUser) return messenger.send(ctx.from.type, sourceId, "Login to the server first.");
 
 			// auth has timed out; user will be kicked shortly
 			if (cacheUser.hasTimedOut) return;
@@ -326,11 +279,7 @@ const auth: Plugin<
 
 			await clearLock(mcName, record?.messengerId, { success: true });
 
-			return messenger.send(
-				ctx.from.type,
-				sourceId,
-				"You have successfully authenticated yourself.",
-			);
+			return messenger.send(ctx.from.type, sourceId, "You have successfully authenticated yourself.");
 		});
 
 		events.on("core:close", () => {

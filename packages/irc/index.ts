@@ -1,9 +1,8 @@
-import { Plugin, Messenger } from "../types/index.ts";
-import { CtxBase } from "../types/types/Messenger.ts";
+import type { Plugin, Messenger } from "../types/index.ts";
+import type { CtxBase } from "../types/types/Messenger.ts";
 import { EventEmitter } from "node:events";
 import { MCChat, escapeHTML, code, isCommand, parseCommand } from "./utils.ts";
-// @deno-types="npm:@types/irc"
-import irc from "npm:irc";
+import irc from "irc";
 import { version } from "../version.ts";
 const pkg = { name: "irc", version } as const;
 

@@ -1,4 +1,4 @@
-import { ChatComponent } from "../types/types/Minecraft.ts";
+import type { ChatComponent } from "../types/types/Minecraft.ts";
 
 export type { ChatComponent };
 

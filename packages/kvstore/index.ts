@@ -1,4 +1,4 @@
-import { JSONable, CreateStore } from "../types/types/Store.ts";
+import type { JSONable, CreateStore } from "../types/types/Store.ts";
 import { version } from "../version.ts";
 const pkg = { name: "store", version } as const;
 
@@ -6,21 +6,16 @@ const nativeConsole = console;
 
 type Opts = { debug?: boolean; console?: Console };
 
-const StoreProvider = (
-	location: string,
-	{ debug = false, console = nativeConsole }: Opts = {},
-) => {
+const StoreProvider = (location: string, { debug = false, console = nativeConsole }: Opts = {}) => {
 	return ((namespace: string) => {
 		return async <V extends JSONable>() => {
 			const store = await Deno.openKv(location);
 
 			const ret: Awaited<ReturnType<CreateStore>> = {
 				async get(key) {
-					return store.get([namespace, key]).catch(e => {
+					return store.get([namespace, key]).catch((e: unknown) => {
 						if (debug) {
-							console.error(
-								`[@telecraft/store@${pkg.version}] Error while fetching ${key} from store ${namespace}`,
-							);
+							console.error(`[@telecraft/store@${pkg.version}] Error while fetching ${key} from store ${namespace}`);
 							console.error(e);
 						}
 						return null;
@@ -31,8 +26,7 @@ const StoreProvider = (
 				},
 				async find(query) {
 					for await (const item of store.list({ prefix: [namespace] }))
-						if (query(item.value as V))
-							return [item.key[0] as string, item.value as V];
+						if (query(item.value as V)) return [item.key[0] as string, item.value as V];
 
 					return null;
 				},

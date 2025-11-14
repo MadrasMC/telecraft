@@ -1,6 +1,6 @@
-import { Plugin, Messenger } from "../types/index.ts";
+import type { Plugin, Messenger } from "../types/index.ts";
 
-import DiscordJS, { Channel, ChannelType, TextChannel } from "npm:discord.js";
+import { type Channel, Client, ChannelType, TextChannel } from "discord.js";
 import { EventEmitter } from "node:events";
 import { MCChat, escapeHTML, code, isCommand, parseCommand } from "./utils.ts";
 import { version } from "../version.ts";
@@ -21,9 +21,7 @@ type Opts = {
 type messenger = Messenger<string | number>;
 
 const Discord: Plugin<Opts, [], messenger["exports"]> = opts => {
-	const client = new DiscordJS.Client({
-		intents: "GuildMessages",
-	});
+	const client = new Client({ intents: "GuildMessages" });
 	const ev = new EventEmitter();
 
 	const on = ev.on.bind(ev);

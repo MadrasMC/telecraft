@@ -4,13 +4,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { Buffer } from "node:buffer";
 
-// @deno-types="npm:@types/levelup"
-import levelup from "npm:levelup";
+import levelup from "levelup";
+import { default as leveldown } from "leveldown";
+import { pEventIterator as iterator } from "p-event";
 
-// @deno-types="npm:@types/leveldown"
-import { default as leveldown } from "npm:leveldown";
-
-import { pEventIterator as iterator } from "npm:p-event";
 import { version } from "../version.ts";
 const pkg = { name: "store", version } as const;
 
@@ -33,7 +30,7 @@ const StoreProvider = (
 			const targetPath = path.resolve(location, name);
 
 			await fs.promises.mkdir(targetPath, { recursive: true });
-			const store = levelup(leveldown.default(targetPath));
+			const store = levelup(leveldown(targetPath));
 
 			return {
 				get: key =>

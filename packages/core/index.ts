@@ -1,12 +1,5 @@
-import {
-	Events,
-	Parser,
-	CreateStore,
-	IO,
-	Server,
-	Plugin,
-} from "../types/index.ts";
-import { Reader } from "../types/types/Server.ts";
+import type { Events, Parser, CreateStore, IO, Server, Plugin } from "../types/index.ts";
+import type { Reader } from "../types/types/Server.ts";
 
 import process from "node:process";
 import { spawn } from "node:child_process";
@@ -14,7 +7,7 @@ import { createInterface } from "node:readline";
 import { platform, EOL } from "node:os";
 import { PassThrough, Writable } from "node:stream";
 
-import iconv from "npm:iconv-lite";
+import iconv from "iconv-lite";
 
 import Event from "./util/Event.ts";
 import { Console } from "node:console";
@@ -34,16 +27,11 @@ type Ctx = {
 	plugins: ReturnType<Plugin<any, any, any>>[];
 };
 
-const rl = (stream: NodeJS.ReadableStream) =>
-	createInterface({ input: stream });
+const rl = (stream: NodeJS.ReadableStream) => createInterface({ input: stream });
 
-const decode = (x: NodeJS.ReadableStream) =>
-	platform() === "win32" ? x.pipe(iconv.decodeStream("win1252")) : x;
+const decode = (x: NodeJS.ReadableStream) => (platform() === "win32" ? x.pipe(iconv.decodeStream("win1252")) : x);
 
-const getConsole = (
-	io: { stdout: Writable; stderr: Writable },
-	mapper: (line: string) => string,
-) => {
+const getConsole = (io: { stdout: Writable; stderr: Writable }, mapper: (line: string) => string) => {
 	const stdout = new PassThrough();
 	rl(stdout).on("line", line => io.stdout.write(mapper(line) + EOL));
 
@@ -54,22 +42,19 @@ const getConsole = (
 };
 
 const getEvents = (events: Events, prefix: string): Events => {
-	const emit = (event: string, ...args: any[]) =>
-		events.emit([prefix, event].join(":"), ...args);
+	const emit = (event: string, ...args: any[]) => events.emit([prefix, event].join(":"), ...args);
 
 	return { ...events, emit };
 };
 
-export default ({
-	config,
-	parser,
-	store: StoreProvider,
-	plugins = [],
-	io = process,
-}: Ctx) => {
+const corePrefix = "[" + pkg.name + "@" + pkg.version + "]";
+
+export default ({ config, parser, store: StoreProvider, plugins = [], io = process }: Ctx) => {
 	const [launch, ...options] = config.launch.split(" ");
 
-	const corePrefix = "[" + pkg.name + "@" + pkg.version + "]";
+	if (!launch) {
+		throw new Error(`${corePrefix} Invalid launch command provided in config`);
+	}
 
 	const console = getConsole(io, line => [corePrefix, line].join(" "));
 
@@ -141,9 +126,7 @@ export default ({
 
 	plugins.forEach((plugin, idx) => {
 		if (!plugin.name || !plugin.version || !plugin.start) {
-			throw new Error(
-				`${corePrefix} plugins[${idx}] does not return name, version, or start`,
-			);
+			throw new Error(`${corePrefix} plugins[${idx}] does not return name, version, or start`);
 		}
 
 		const prefix = "[" + plugin.name + "@" + plugin.version + "]";
@@ -156,9 +139,7 @@ export default ({
 				console: getConsole(io, line => [prefix, line].join(" ")),
 			},
 			// @ts-ignore
-			plugins
-				.filter(p => plugin.dependencies?.includes(p.name))
-				.map(p => p.exports) || [],
+			plugins.filter(p => plugin.dependencies?.includes(p.name)).map(p => p.exports) || [],
 		);
 	});
 
@@ -173,9 +154,7 @@ export default ({
 
 	const cleanup = () => {
 		console.log("We're exiting, cleaning up before we go...");
-		console.log(
-			"Ctrl+C now will dangerously close, potentially losing or corrupting data!",
-		);
+		console.log("Ctrl+C now will dangerously close, potentially losing or corrupting data!");
 		io.stdin.pause();
 		cliInput.close();
 		if (!game.killed) {

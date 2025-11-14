@@ -1,4 +1,4 @@
-import { Plugin } from "../types/index.ts";
+import type { Plugin } from "../types/index.ts";
 import { version } from "../version.ts";
 
 const pkg = { name: "calamity", version } as const;
@@ -25,8 +25,7 @@ const calamity: Plugin<{
 
 		const cue = (target: string, title: string, subtitle?: string) => {
 			server.send(["title", target, "title", `"${title}"`].join(" "));
-			if (subtitle)
-				server.send(["title", target, "subtitle", `"${subtitle}"`].join(" "));
+			if (subtitle) server.send(["title", target, "subtitle", `"${subtitle}"`].join(" "));
 		};
 
 		type StoreUser = {
@@ -48,11 +47,7 @@ const calamity: Plugin<{
 			});
 		};
 
-		const effect = async (
-			player: string,
-			effect: string,
-			params: string = "5 5 5 0.25 2000",
-		) => {
+		const effect = async (player: string, effect: string, params: string = "5 5 5 0.25 2000") => {
 			server.send(["particle", effect, await getPos(player), params].join(" "));
 		};
 
@@ -64,7 +59,7 @@ const calamity: Plugin<{
 
 			if (u) return;
 
-			let interval: number;
+			let interval: ReturnType<typeof setInterval>;
 
 			function* actions() {
 				yield cue(user, "Prepare for migration.", "You have 5:00 minutes.");
@@ -87,16 +82,9 @@ const calamity: Plugin<{
 				yield sleep(30 * 1000);
 				yield cue(user, "Prepare for migration.", "You have 30 seconds.");
 				yield sleep(20 * 1000);
-				yield cue(
-					user,
-					"You have 10 seconds.",
-					"Logout now if you need more time",
-				);
+				yield cue(user, "You have 10 seconds.", "Logout now if you need more time");
 				yield sleep(5 * 1000);
-				yield (interval = setInterval(
-					() => effect(user, "minecraft:portal"),
-					1000,
-				));
+				yield (interval = setInterval(() => effect(user, "minecraft:portal"), 1000));
 				yield sleep(5 * 1000);
 				yield cue(user, "Welcome to mkr/craft", "season 2.");
 				yield clearInterval(interval);
@@ -104,11 +92,7 @@ const calamity: Plugin<{
 				yield server.send(["spawnpoint", user, newSpawn].join(" "));
 				yield calamityStore.set(user, { migrated: true });
 				yield effect(user, "minecraft:end_rod", "0.5 1 0.5 0.05 40");
-				yield server.send(
-					["playsound", "ui.toast.challenge_complete", "master", user].join(
-						" ",
-					),
-				);
+				yield server.send(["playsound", "ui.toast.challenge_complete", "master", user].join(" "));
 			}
 
 			let loggedOut;

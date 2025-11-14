@@ -1,6 +1,6 @@
-import { Parser } from "../../types/index.ts";
+import type { Parser } from "../../types/index.ts";
 
-import { char, letters, digits, str, sequenceOf, choice, many1, between, everyCharUntil, endOfInput, anyCharExcept, startOfInput, Parser as P, many } from "npm:arcsecond";
+import { char, letters, digits, str, sequenceOf, choice, many1, between, everyCharUntil, endOfInput, anyCharExcept, startOfInput, Parser as P, many } from "arcsecond";
 
 type Month = "January" | "February" | "March" | "April" | "May" | "June" | "July" | "August" | "September" | "October" | "November" | "December";
 

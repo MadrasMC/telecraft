@@ -1,21 +1,21 @@
-import { Plugin, Messenger } from "../types/index.ts";
+import type { Plugin, Messenger } from "../types/index.ts";
 
 import { EventEmitter } from "node:events";
 
 // Telegraf
-import { Telegraf, Context } from "npm:telegraf";
-import { message } from "npm:telegraf/filters";
-import type { Convenience, Update, Message } from "npm:telegraf/types";
+import { Telegraf, Context } from "telegraf";
+import { message } from "telegraf/filters";
+import type { Convenience, Update, Message } from "telegraf/types";
 // --
 
 import {
 	code,
 	MCChat,
-	ChatComponent,
 	escapeHTML,
 	deunionise,
 	isCommand,
 	parseCommand,
+	type ChatComponent,
 } from "./utils.ts";
 import { version } from "../version.ts";
 const pkg = { name: "telegram", version } as const;
@@ -77,7 +77,7 @@ const timeToEmoji = (hours: number) => {
 	if (hours < 5) return "🌌";
 	if (hours < 10) return "🌄";
 	if (hours < 14) return "🌅";
-	if (hours < 17) return "🏙";
+	if (hours < 17) return "🏙"; // TODO: revise
 	if (hours < 20) return "🌇";
 	if (hours > 23) return "🌌";
 	else return "🌃";
