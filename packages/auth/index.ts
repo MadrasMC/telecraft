@@ -135,25 +135,24 @@ const auth: Plugin<
 				server.send(`kick ${user} ${reason}`);
 
 				// messengerId can be null if unlinked user
-				if (messengerId && reason)
-					messenger.send("private", messengerId, reason);
+				if (messengerId && reason) {
+					await messenger.send("private", messengerId, reason);
+				}
 			}
 		};
 
-		const tpLock = (
+		const tpLoop = (
 			player: string,
 			dimension: string,
 			pos: Pos,
 			gameMode: gameModes,
-		) =>
-			setAuthCache(player, {
-				lockRef: setInterval(() => {
-					server.send(
-						`execute in ${dimension} run tp ${player} ${pos.join(" ")}`,
-					);
-				}, 400),
-				gameMode,
-			});
+		) => {
+			const to = pos.join(" ");
+			const command = `execute in ${dimension} run tp ${player} ${to}`;
+			const lockRef = setInterval(() => server.send(command), 400);
+
+			setAuthCache(player, { lockRef, gameMode });
+		};
 
 		events.on("minecraft:join", async (ctx: { user: string }) => {
 			const player = ctx.user;
@@ -170,8 +169,9 @@ const auth: Plugin<
 			const lockUser = (ctx: any) => {
 				const data = parse(ctx.data) as any;
 
-				if (ctx.user != player) return;
-				else events.off("minecraft:data", lockUser);
+				if (ctx.user === player) {
+					events.off("minecraft:data", lockUser);
+				} else return;
 
 				lock(player, storeUser);
 
@@ -179,7 +179,7 @@ const auth: Plugin<
 				const pos: Pos = data.Pos as Pos;
 				const dimension: string = data.Dimension;
 
-				tpLock(player, dimension, pos, playerGameType);
+				tpLoop(player, dimension, pos, playerGameType);
 
 				if (storeUser?.messengerId) {
 					const cmd = messenger.cmdPrefix + "auth";
