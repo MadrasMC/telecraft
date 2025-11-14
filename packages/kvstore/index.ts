@@ -23,17 +23,17 @@ const StoreProvider = (location: string, { debug = false, console = nativeConsol
 			).run();
 
 			const prepared = {
-				all: db.query(`SELECT key, value FROM kv WHERE key LIKE $prefix || '%'`),
-				get: db.query(`SELECT value FROM kv WHERE key = $key`),
-				set: db.query(`INSERT OR REPLACE INTO kv (key, value) VALUES ($key, $value)`),
-				del: db.query(`DELETE FROM kv WHERE key = $key`),
+				all: db.query(`SELECT key, value FROM kv WHERE key LIKE ? || '%'`),
+				get: db.query(`SELECT value FROM kv WHERE key = ?`),
+				set: db.query(`INSERT OR REPLACE INTO kv (key, value) VALUES (?, ?)`),
+				del: db.query(`DELETE FROM kv WHERE key = ?`),
 			};
 
 			const ret: Awaited<ReturnType<CreateStore>> = {
 				async get(keypart) {
 					const key = [namespace, keypart].join(":");
 					try {
-						const result = prepared.get.get({ key }) as { value: string } | null;
+						const result = prepared.get.get(key) as { value: string } | null;
 						if (!result) return null;
 						return JSON.parse(result.value) as V;
 					} catch (e) {
@@ -44,12 +44,13 @@ const StoreProvider = (location: string, { debug = false, console = nativeConsol
 				},
 				async set(keypart, value) {
 					const key = [namespace, keypart].join(":");
-					prepared.set.run({ key, value: JSON.stringify(value) });
+					if (debug) console.log("Writing", { key, value });
+					prepared.set.run(key, JSON.stringify(value));
 					if (debug) console.debug(`[@telecraft/store@${pkg.version}] Set key ${key}`);
 					return value;
 				},
 				async *list() {
-					for (const row of prepared.all.iterate({ prefix: namespace + ":" })) {
+					for (const row of prepared.all.iterate(namespace + ":")) {
 						const { key, value } = row as { key: string; value: string };
 						const keypart = (key as string).slice(namespace.length + 1);
 						yield [keypart, JSON.parse(value as string) as V] as [string, V];
@@ -64,7 +65,7 @@ const StoreProvider = (location: string, { debug = false, console = nativeConsol
 				},
 				async remove(keypart) {
 					const key = [namespace, keypart].join(":");
-					prepared.del.run({ key });
+					prepared.del.run(key);
 					if (debug) console.debug(`[@telecraft/store@${pkg.version}] Removed key ${key}`);
 				},
 				async close() {
