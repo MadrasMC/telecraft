@@ -16,6 +16,8 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      - name: Install Dependencies
+        run: bun ci
       - name: Build for Linux x86_64
         run: bun build --target bun-linux-x64 --compile packages/cli/index.ts --outfile telecraft-linux-x86_64
       - name: Build for Linux aarch64
