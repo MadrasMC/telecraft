@@ -13,17 +13,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Deno
-        uses: denoland/setup-deno@v2
+        uses: oven-sh/setup-bun@v2
         with:
-          deno-version: "~2.5"
+          bun-version: latest
       - name: Build for Linux x86_64
-        run: deno compile --target x86_64-unknown-linux-gnu -A --unstable-kv --output telecraft-linux-x86_64 packages/cli/index.ts
+        run: bun build --target bun-linux-x64 --compile packages/cli/index.ts --outfile telecraft-linux-x86_64
       - name: Build for Linux aarch64
-        run: deno compile --target aarch64-unknown-linux-gnu -A --unstable-kv --output telecraft-linux-aarch64 packages/cli/index.ts
+        run: bun build --target bun-linux-arm64 --compile packages/cli/index.ts --outfile telecraft-linux-aarch64
       - name: Build for Windows x86_64
-        run: deno compile --target x86_64-pc-windows-msvc -A --unstable-kv --output telecraft-win-x86_64.exe packages/cli/index.ts
+        run: bun build --target bun-windows-x64 --compile packages/cli/index.ts --outfile telecraft-windows-x86_64.exe
       - name: Build for MacOS aarch64
-        run: deno compile --target aarch64-apple-darwin -A --unstable-kv --output telecraft-macos-aarch64 packages/cli/index.ts
+        run: bun build --target bun-darwin-arm64 --compile packages/cli/index.ts --outfile telecraft-macos-aarch64
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
