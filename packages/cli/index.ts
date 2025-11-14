@@ -1,3 +1,6 @@
+// fixes Bun standalone executable Error#message being non-writable
+Object.defineProperty(Error.prototype, "message", { writable: true, configurable: true });
+
 import mri from "mri";
 
 import core from "../core/index.ts";
@@ -11,6 +14,9 @@ import Auth from "../auth/index.ts";
 import StoreProvider from "../kvstore/index.ts";
 import { parse } from "./config.ts";
 import type { Plugin } from "../types/index.ts";
+import { version } from "../version.ts";
+
+console.log(`Telecraft v${version}`);
 
 const args = mri(process.argv.slice(2), { alias: { config: "c" } });
 const configPath = args.config ?? "./telecraft.json";
@@ -27,11 +33,11 @@ const parsers = {
 if (!(config.parser in parsers)) throw new Error(`Unknown parser: ${config.parser}`);
 
 const parser = parsers[config.parser as keyof typeof parsers];
-const version = config.version ? parser[config.version as keyof typeof parser] : Object.values(parser).at(-1);
+const parserVersioned = config.version ? parser[config.version as keyof typeof parser] : Object.values(parser).at(-1);
 
-if (config.version && !version) throw new Error(`Unknown version: ${config.version}`);
+if (config.version && !parserVersioned) throw new Error(`Unknown version: ${config.version}`);
 
-if (!version) throw new Error("Could not find a parser version");
+if (!parserVersioned) throw new Error("Could not find a parser version");
 
 const plugins: ReturnType<Plugin<any, any>>[] = await Promise.all(
 	(config.plugins ?? []).map(async c => {
@@ -52,7 +58,7 @@ const plugins: ReturnType<Plugin<any, any>>[] = await Promise.all(
 
 core({
 	config: { launch: config.launch, workdir: config.workdir },
-	parser: version,
+	parser: parserVersioned,
 	store: StoreProvider(config.store ?? "./telecraft.db"),
 	plugins,
 });
