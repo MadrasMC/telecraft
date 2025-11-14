@@ -50,9 +50,9 @@ const StoreProvider = (location: string, { debug = false, console = nativeConsol
 					return value;
 				},
 				async *list() {
-					for (const row of prepared.all.iterate(namespace + ":")) {
+					for (const row of prepared.all.all(namespace + ":")) {
 						const { key, value } = row as { key: string; value: string };
-						const keypart = (key as string).slice(namespace.length + 1);
+						const keypart = key.slice(namespace.length + 1);
 						yield [keypart, JSON.parse(value as string) as V] as [string, V];
 					}
 				},

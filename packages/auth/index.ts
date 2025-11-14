@@ -262,12 +262,13 @@ const auth: Plugin<
 		messenger.on("auth", async (ctx: CtxBase) => {
 			const fromId = ctx.from.id;
 			const sourceId = ctx.from.source;
-			const result = await authStore.find(record => record?.messengerId === fromId);
+			const result = await authStore.find(record => record.messengerId === fromId);
 
 			const [mcName, record] = result || [];
 
-			if (!mcName || !record?.messengerId)
+			if (!mcName || !record?.messengerId) {
 				return messenger.send(ctx.from.type, sourceId, "You must link first before using auth.");
+			}
 
 			const cacheUser = authCache.get(mcName);
 
