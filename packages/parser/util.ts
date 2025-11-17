@@ -13,19 +13,18 @@ export type MappedId<T> = {} & { [P in keyof T]: T[P] };
 
 export const ParserFactory = <P extends ParseGroup>(parseGroup: P): ExtendableParser<P> => {
 	const boundParseGroup = {} as {
-		[k in keyof P]: (line: string) => RegExpExecArray | null;
+		[k in keyof P]: RegExp;
 	};
 
 	for (const bit in parseGroup) {
 		// Todo(mkr): find cleaner way to do this
 		if (["timestamp", "loglevel", "prefix"].includes(bit)) continue;
-		const regexp = new RegExp(parseGroup.prefix!() + parseGroup[bit]!());
-		boundParseGroup[bit] = (line: string) => regexp.exec(line);
+		boundParseGroup[bit] = new RegExp(parseGroup.prefix!() + parseGroup[bit]!());
 	}
 
 	const Parser: Parser = (server, emit) => async line => {
 		for (const type in boundParseGroup) {
-			const result = boundParseGroup[type](line);
+			const result = line.match(boundParseGroup[type]);
 			if (result) emit("minecraft:" + type, result.groups);
 		}
 	};
