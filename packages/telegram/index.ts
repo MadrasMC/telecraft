@@ -8,22 +8,13 @@ import { message } from "telegraf/filters";
 import type { Convenience, Update, Message } from "telegraf/types";
 // --
 
-import {
-	code,
-	MCChat,
-	escapeHTML,
-	deunionise,
-	isCommand,
-	parseCommand,
-	type ChatComponent,
-} from "./utils.ts";
+import { code, MCChat, escapeHTML, deunionise, isCommand, parseCommand, type ChatComponent } from "./utils.ts";
 import { version } from "../version.ts";
 const pkg = { name: "telegram", version } as const;
 
 const tgOpts = { parse_mode: "HTML" } as const;
 
-const createError = (...str: string[]) =>
-	new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
+const createError = (...str: string[]) => new Error(`[${pkg.name}@${pkg.version}] ` + str.join(" "));
 
 type Opts = {
 	/** Enable the plugin */
@@ -99,8 +90,8 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 	const emit: messenger["emit"] = ev.emit.bind(ev);
 
 	const telegram: messenger["exports"] = {
-		async send(type: "private" | "chat", user: string | number, msg: string) {
-			await bot.telegram.sendMessage(user, msg, tgOpts);
+		async send(type: "private" | "chat", chat: string | number, msg: string) {
+			await bot.telegram.sendMessage(chat, msg, tgOpts);
 		},
 		on,
 		once,
@@ -115,8 +106,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 		start: ({ events, server, console }) => {
 			if (!opts?.enable) return;
 
-			const send = (msg: string) =>
-				telegram.send("chat", opts.chatId, msg).catch(console.error);
+			const send = (msg: string) => telegram.send("chat", opts.chatId, msg).catch(console.error);
 
 			bot.command("chatid", ctx => ctx.reply(ctx.chat.id.toString()));
 
@@ -135,9 +125,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				const players = Array.from(online);
 
 				send(
-					`Players online (<code>${players.length}</code>):\n${players
-						.map(x => "<code>" + x + "</code>")
-						.join("\n")}`,
+					`Players online (<code>${players.length}</code>):\n${players.map(x => "<code>" + x + "</code>").join("\n")}`,
 				);
 			});
 
@@ -183,9 +171,7 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 					const timeEmoji = timeToEmoji(hours);
 					const season = seasonMap[month];
 					const seasonMoji = seasonEmoji[season];
-					return send(
-						`${timeEmoji} ${time}.\n${seasonMoji} It's ${season} in the North.`,
-					);
+					return send(`${timeEmoji} ${time}.\n${seasonMoji} It's ${season} in the North.`);
 				},
 			);
 
@@ -207,20 +193,14 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				const ratio = parseInt(ctx.daytime) / 24000;
 				const hours = Math.floor(ratio * 24);
 				const minutes = Math.floor((ratio * 24 - hours) * 60);
-				const time = [hours, minutes]
-					.map(x => x.toString().padStart(2, "0"))
-					.join(":");
+				const time = [hours, minutes].map(x => x.toString().padStart(2, "0")).join(":");
 				const emoji = timeToEmoji(hours);
 				send(`It's ${emoji} ${code(time)} in the world.`);
 			});
 
-			events.on("minecraft:self", ctx =>
-				send(code("* " + ctx.user + " " + ctx.text)),
-			);
+			events.on("minecraft:self", ctx => send(code("* " + ctx.user + " " + ctx.text)));
 
-			events.on("minecraft:say", ctx =>
-				send(code(ctx.user + " says: " + ctx.text)),
-			);
+			events.on("minecraft:say", ctx => send(code(ctx.user + " says: " + ctx.text)));
 
 			events.on("minecraft:join", ctx => {
 				online.add(ctx.user);
@@ -243,63 +223,39 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 			events.on("minecraft:death", ctx => send(code(ctx.text)));
 
 			events.on("minecraft:advancement", ctx =>
-				send(
-					code(ctx.user) +
-						" has made the advancement " +
-						code("[" + ctx.advancement + "]"),
-				),
+				send(code(ctx.user) + " has made the advancement " + code("[" + ctx.advancement + "]")),
 			);
 
-			events.on("minecraft:goal", ctx =>
-				send(
-					code(ctx.user) +
-						" has reached the goal " +
-						code("[" + ctx.goal + "]"),
-				),
-			);
+			events.on("minecraft:goal", ctx => send(code(ctx.user) + " has reached the goal " + code("[" + ctx.goal + "]")));
 
 			events.on("minecraft:challenge", ctx =>
-				send(
-					code(ctx.user) +
-						" has completed the challenge " +
-						code("[" + ctx.challenge + "]"),
-				),
+				send(code(ctx.user) + " has completed the challenge " + code("[" + ctx.challenge + "]")),
 			);
 
-			const captionMedia = (
-				name: string,
-				msg: Message | undefined,
-			): ChatComponent[] => {
+			const captionMedia = (name: string, msg: Message | undefined): ChatComponent[] => {
 				const coloured: ChatComponent[] = [
 					{ text: "[", color: "white" },
 					{ text: name, color: "gray" },
 					{ text: "]", color: "white" },
 				];
 
-				return msg && "caption" in msg
-					? coloured.concat(MCChat.text(msg?.caption || ""))
-					: coloured;
+				return msg && "caption" in msg ? coloured.concat(MCChat.text(msg?.caption || "")) : coloured;
 			};
 
-			const extractMinecraftUsername = (text: string = "") =>
-				text.split(" ").slice(0, 1).join(" ");
+			const extractMinecraftUsername = (text: string = "") => text.split(" ").slice(0, 1).join(" ");
 
-			const removeMinecraftUsername = (text: string = "") =>
-				text.split(" ").slice(1).join(" ");
+			const removeMinecraftUsername = (text: string = "") => text.split(" ").slice(1).join(" ");
 
 			const getTelegramName = (msg?: Message) => {
 				const from = msg?.from;
 				return [from?.first_name, from?.last_name].filter(Boolean).join(" ");
 			};
 
-			const isSelf = (ctx?: { from?: { id: number } }) =>
-				String(ctx?.from?.id) === botID;
+			const isSelf = (ctx?: { from?: { id: number } }) => String(ctx?.from?.id) === botID;
 
 			const getSender = (ctx: Context<Update.MessageUpdate>) =>
 				isSelf(ctx)
-					? extractMinecraftUsername(
-							ctx.message && "text" in ctx.message ? ctx.message.text : "",
-					  )
+					? extractMinecraftUsername(ctx.message && "text" in ctx.message ? ctx.message.text : "")
 					: getTelegramName(ctx.message);
 
 			const handledTypes: Convenience.MessageSubType[] = [
@@ -322,14 +278,12 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				"poll",
 			];
 
-			const msgType = (msg: Message | undefined) =>
-				msg && handledTypes.find(type => type in msg);
+			const msgType = (msg: Message | undefined) => msg && handledTypes.find(type => type in msg);
 
 			const getCaptioned = (msg: Message | undefined) => {
 				const thisType = handledTypes.find(type => msg && type in msg);
 				if (thisType === "text") return msg && deunionise(msg)?.text;
-				if (thisType)
-					return captionMedia(thisType.split("_").join(" ").toUpperCase(), msg);
+				if (thisType) return captionMedia(thisType.split("_").join(" ").toUpperCase(), msg);
 			};
 
 			const vsmessage = (ctx: Context<Update.MessageUpdate>) => {
@@ -338,28 +292,21 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 				const text =
 					"text" in ctx.message
 						? ctx.message.text
-						: [`[${thisType}]`, "caption" in ctx.message && ctx.message.caption]
-								.filter(Boolean)
-								.join(" ");
+						: [`[${thisType}]`, "caption" in ctx.message && ctx.message.caption].filter(Boolean).join(" ");
 
 				const from = ctx.from.username ?? getTelegramName(ctx.message);
 				return server.send(`/announce TG:${from}: ${escapeHTML(text)}`);
 			};
 
-			const handler = (
-				ctx: Context<Update.MessageUpdate>,
-				next: () => Promise<void>,
-			) => {
-				const isLinkedGroup = String(ctx.chat.id) === opts.chatId;
+			const handler = (ctx: Context<Update.MessageUpdate>, next: () => Promise<void>) => {
+				const isLinkedGroup = ctx.chat.id === opts.chatId;
 				const isBotPM = ctx.chat.type === "private";
 
 				if (!mode) return next();
 				if (online.size < 1) return next();
-				if (mode === "vintagestory") return vsmessage(ctx);
 
 				const messageText = getCaptioned(ctx.message) || "";
-				const isMessageCommand =
-					typeof messageText == "string" && isCommand(messageText);
+				const isMessageCommand = typeof messageText == "string" && isCommand(messageText);
 
 				if (isMessageCommand) {
 					// commands can be from either PM or linked group
@@ -371,6 +318,8 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 					// no players are online, don't relay
 					// else if (players.list.length < 1) return next();
 				}
+
+				if (mode === "vintagestory") return vsmessage(ctx);
 
 				const reply = ctx.message && deunionise(ctx.message)?.reply_to_message;
 				const self = isSelf(ctx);
@@ -398,24 +347,14 @@ const Telegram: Plugin<Opts, [], messenger["exports"]> = opts => {
 								? extractMinecraftUsername("text" in reply ? reply.text : "")
 								: getTelegramName(reply),
 						text:
-							(isSelf(reply)
-								? removeMinecraftUsername("text" in reply ? reply.text : "")
-								: getCaptioned(reply)) || "",
+							(isSelf(reply) ? removeMinecraftUsername("text" in reply ? reply.text : "") : getCaptioned(reply)) || "",
 						source: isSelf(reply) ? ("minecraft" as const) : ("self" as const),
 					},
 				};
 
-				const emitCtx = Object.assign(
-					{ text: messageText },
-					fromDetails,
-					replyDetails,
-				);
+				const emitCtx = Object.assign({ text: messageText }, fromDetails, replyDetails);
 
-				if (
-					emitCtx.source === "self" &&
-					typeof emitCtx.text === "string" &&
-					isCommand(emitCtx.text)
-				) {
+				if (emitCtx.source === "self" && typeof emitCtx.text === "string" && isCommand(emitCtx.text)) {
 					const cmd = parseCommand(emitCtx.text);
 					emit(cmd.cmd, Object.assign(emitCtx, cmd));
 				} else {
