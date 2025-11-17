@@ -58,12 +58,7 @@ export default ({ config, parser, store: StoreProvider, plugins = [], io = proce
 
 	const console = getConsole(io, line => [corePrefix, line].join(" "));
 
-	// detached so that Minecraft gets to terminate gracefully on SIGINT
-	// child process should be exited by @telecraft/core instead of OS
-	const game = spawn(launch, options, {
-		cwd: config.workdir,
-		detached: true,
-	});
+	const game = spawn(launch, options, { cwd: config.workdir });
 
 	const readers: Reader[] = [];
 	const inputReaders: Reader[] = [];
