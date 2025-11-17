@@ -64,7 +64,8 @@ const V116 = {
 		return "\\* (?<user>" + this.username() + ") " + this.text();
 	},
 	message: function () {
-		return "(?:[Not Secure] )?<(?<user>" + this.username() + ")> " + this.text();
+		// [Not Secure] <MKRhere> Test message
+		return "(?:\\[Not Secure] )?<(?<user>" + this.username() + ")> " + this.text();
 	},
 	started: function () {
 		return 'Done \\((?<ms>\\d+(\\.\\d+)?)s\\)! For help, type "help"';
